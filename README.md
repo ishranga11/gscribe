@@ -22,37 +22,3 @@ Apache header:
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-This application provides an audio interface for conducting tests.
-
-
-This sample [Dropwizard](http://dropwizard.io/) application runs on Google Cloud Platform's
-[App Engine Flexible Environment](https://cloud.google.com/appengine/docs/flexible/).
-
-## Basic Instructions
-
-```
-gcloud config set project <project id>
-mvn gcloud:deploy
-```
-
-If all succeeds, you should be able to browse to http://&lt;project-id&gt;.appspot.com/ and receive
-a lovely greeting.
-
-## Running Locally
-
-Import the project into IntelliJ, and build the fat jar:
-
-```
-mvn package
-```
-
-Start the server:
-
-```
-java -jar target/helloworldservice-1.0-SNAPSHOT.jar server helloworld.yaml
-```
-
-Server will be up and running at http://localhost:8080/.
-
-You can directly run com.hypnoticocelot.appengine.helloworldservice.HelloWorldApplication from IntelliJ ```server helloworld.yaml``` as the program arguments in the configuration.
