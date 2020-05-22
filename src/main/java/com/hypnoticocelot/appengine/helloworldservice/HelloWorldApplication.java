@@ -16,6 +16,7 @@ package com.hypnoticocelot.appengine.helloworldservice;
 
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.hypnoticocelot.appengine.helloworldservice.resources.HomeResource;
+import com.hypnoticocelot.appengine.helloworldservice.resources.Login;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.setup.Bootstrap;
@@ -39,6 +40,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 
   public void run(HelloWorldConfiguration configuration, Environment environment) throws Exception {
     environment.jersey().register(new HomeResource());
+    environment.jersey().register(new Login());
     environment.servlets()
         .addServlet("healthcheck", new HealthCheckServlet(environment.healthChecks()))
         .addMapping("/_ah/health");
