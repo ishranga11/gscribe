@@ -1,0 +1,12 @@
+server:
+  requestLog:
+    appenders: []
+  applicationConnectors:
+  - type: http
+    port: 8080
+  adminConnectors: []
+
+logging:
+  level: info
+  appenders:
+  - type: console
