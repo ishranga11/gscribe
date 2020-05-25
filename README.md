@@ -26,7 +26,7 @@ Apache header:
 This application provides an audio interface for conducting tests.
 
 
-This sample [Dropwizard](http://dropwizard.io/) application runs on Google Cloud Platform's
+This [Dropwizard](http://dropwizard.io/) application runs on Google Cloud Platform's
 [App Engine Flexible Environment](https://cloud.google.com/appengine/docs/flexible/).
 
 ## Basic Instructions
