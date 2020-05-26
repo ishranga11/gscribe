@@ -50,9 +50,7 @@ mvn package
 Start the server:
 
 ```
-java -jar target/helloworldservice-1.0-SNAPSHOT.jar server helloworld.yaml
+java -jar target/GScribe-1.0-SNAPSHOT.jar server gscribe.yaml
 ```
 
 Server will be up and running at http://localhost:8080/.
-
-You can directly run com.hypnoticocelot.appengine.helloworldservice.HelloWorldApplication from IntelliJ ```server helloworld.yaml``` as the program arguments in the configuration.
