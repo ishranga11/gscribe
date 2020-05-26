@@ -50,7 +50,7 @@ mvn package
 Start the server:
 
 ```
-java -jar target/GScribe-1.0-SNAPSHOT.jar server gscribe.yaml
+java -jar target/gscribe-1.0-SNAPSHOT.jar server gscribe.yaml
 ```
 
 Server will be up and running at http://localhost:8080/.
