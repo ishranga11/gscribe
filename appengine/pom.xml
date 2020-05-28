@@ -43,10 +43,9 @@
             <version>v2-rev65-1.17.0-rc</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-assets</artifactId>
+            <version>0.7.1</version>
         </dependency>
     </dependencies>
 

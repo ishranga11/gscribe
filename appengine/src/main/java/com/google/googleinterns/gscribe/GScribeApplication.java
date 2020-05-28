@@ -17,6 +17,7 @@ package com.google.googleinterns.gscribe;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.google.googleinterns.gscribe.resources.HomeResource;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -35,10 +36,12 @@ public class GScribeApplication extends Application<GScribeConfiguration> {
   @Override
   public void initialize(Bootstrap<GScribeConfiguration> bootstrap) {
     bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
+    bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.html" ));
   }
 
   public void run(GScribeConfiguration configuration, Environment environment) throws Exception {
     environment.jersey().register(new HomeResource());
+    environment.jersey().setUrlPattern("/api/*");
     environment.servlets()
         .addServlet("healthcheck", new HealthCheckServlet(environment.healthChecks()))
         .addMapping("/_ah/health");
