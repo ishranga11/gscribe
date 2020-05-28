@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-
-@Path("/")
-public class HomeResource {
-
-  @GET
-  public String get() {
-    return "Hello, World!";
-  }
+.card{
+    margin: 10px 0;
+}
+.color-pink{
+    color: #EC407A;
 }
