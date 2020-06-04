@@ -23,6 +23,7 @@ import javax.ws.rs.Path;
 public class HomeResource {
 
   @GET
+  // Template Hello World gate for API calls
   public String get() {
     return "Hello, World!";
   }
