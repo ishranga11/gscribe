@@ -23,12 +23,22 @@ import javax.ws.rs.Path;
 public class TokenResource {
 
     @POST
+     /*
+    Input - accessCode, IDToken
+    Function - get ( accessToken, refreshToken, userID ) from accessCode
+    Output - return Status if accessToken and refreshToken was received
+     */
     public String saveToken(String accessCode) {
         return "Done";
     }
 
     @POST
     @Path("/present")
+     /*
+    Input - IDToken
+    Function - get userID from IDToken and check if accessToken, refreshToken for user are present in database
+    Output - return if accessToken and refreshToken present in database for user
+     */
     public String tokenPresentForUser(String IDToken) {
         return "Needed";
     }

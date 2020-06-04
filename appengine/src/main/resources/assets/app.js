@@ -114,21 +114,19 @@ function submitSheet() {
 }
 
 function setForLogin() {
-    document.getElementById('notLoginCard').style.display = 'none';
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('loginCard').style.display = 'block';
-    document.getElementById('logout').style.display = 'block';
-    document.getElementById('submitFormCard').style.display = 'block';
+    [...document.getElementsByClassName('logged-in-element')].forEach(element => {
+        element.style.display = 'block'
+    });
+    [...document.getElementsByClassName('logged-out-element')].forEach(element => {
+        element.style.display = 'none'
+    });
     let profile = googleUser.getBasicProfile();
-    document.getElementById('loginCard').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
+    document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
 }
 
 function setForLogout() {
-    document.getElementById('notLoginCard').style.display = 'block';
-    document.getElementById('login').style.display = 'block';
-    document.getElementById('loginCard').style.display = 'none';
-    document.getElementById('logout').style.display = 'none';
-    document.getElementById('submitFormCard').style.display = 'none';
+    [...document.getElementsByClassName('logged-in-element')].forEach(element => element.style.display = 'none');
+    [...document.getElementsByClassName('logged-out-element')].forEach(element => element.style.display = 'block');
 }
 
 function login() {

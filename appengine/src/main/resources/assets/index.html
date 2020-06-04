@@ -30,10 +30,14 @@
     <div id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <button class="btn btn-dark navbar-btn pull-right" id="login" onclick="login()"> Login</button>
+                <button class="btn btn-dark navbar-btn pull-right logged-out-element" id="login" onclick="login()">
+                    Login
+                </button>
             </li>
             <li class="nav-item">
-                <button class="btn btn-dark navbar-btn pull-right" id="logout" onclick="logout()"> Logout</button>
+                <button class="btn btn-dark navbar-btn pull-right logged-in-element" id="logout" onclick="logout()">
+                    Logout
+                </button>
             </li>
         </ul>
     </div>
@@ -44,15 +48,15 @@
         <div class="card-header">
             Welcome to Gscribe!
         </div>
-        <div class="card-body" id="notLoginCard">
+        <div class="card-body logged-out-element">
             <h5 class="card-title">Sign-in</h5>
             <p class="card-text">You are not logged in, so you will be redirected to google sign-in.</p>
         </div>
-        <div class="card-body" id="loginCard">
+        <div class="card-body logged-in-element">
             <h5 class="card-title" id="loginCardTitle"></h5>
         </div>
     </div>
-    <div class="card mx-auto" id="submitFormCard">
+    <div class="card mx-auto logged-in-element" id="submitFormCard">
         <div class="card-header">
             Submit a paper!
         </div>
