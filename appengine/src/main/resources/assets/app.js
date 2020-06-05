@@ -114,12 +114,8 @@ function submitSheet() {
 }
 
 function setForLogin() {
-    [...document.getElementsByClassName('logged-in-element')].forEach(element => {
-        element.style.display = 'block'
-    });
-    [...document.getElementsByClassName('logged-out-element')].forEach(element => {
-        element.style.display = 'none'
-    });
+    [...document.getElementsByClassName('logged-in-element')].forEach(element => element.style.display = 'block');
+    [...document.getElementsByClassName('logged-out-element')].forEach(element => element.style.display = 'none');
     let profile = googleUser.getBasicProfile();
     document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
 }
