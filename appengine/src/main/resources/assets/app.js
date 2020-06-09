@@ -24,7 +24,7 @@ function init() {
             'cookiepolicy': 'single_host_origin',
             'scope': 'profile'
         });
-        setForLogout();
+        $('.logged-in-element').hide();
         auth2.isSignedIn.listen(signinChanged);
         auth2.currentUser.listen(userChanged);
     });
@@ -32,7 +32,6 @@ function init() {
 
 var signinChanged = function (val) {
     if (val === true) setForLogin();
-    else setForLogout();
 };
 
 var userChanged = function (user) {
@@ -114,15 +113,10 @@ function submitSheet() {
 }
 
 function setForLogin() {
-    [...document.getElementsByClassName('logged-in-element')].forEach(element => element.style.display = 'block');
-    [...document.getElementsByClassName('logged-out-element')].forEach(element => element.style.display = 'none');
+    $('.logged-in-element').show();
+    $('.logged-out-element').hide();
     let profile = googleUser.getBasicProfile();
     document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
-}
-
-function setForLogout() {
-    [...document.getElementsByClassName('logged-in-element')].forEach(element => element.style.display = 'none');
-    [...document.getElementsByClassName('logged-out-element')].forEach(element => element.style.display = 'block');
 }
 
 function login() {
