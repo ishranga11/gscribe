@@ -47,7 +47,7 @@ public class GScribeApplication extends Application<GScribeConfiguration> {
 
     public void run(GScribeConfiguration configuration, Environment environment) {
         Injector injector = Guice.createInjector(new ConfigModule(com.google.googleinterns.gscribe.Environment.LOCAL),
-                new DBConnectorModule(), new DaoModule(), new implBindingModule(), new ServicesModule());
+                new DBConnectorModule(), new DaoModule(), new Implbindingmodule(), new ServicesModule());
         environment.jersey().register(injector.getInstance(AuthenticationResource.class));
         environment.jersey().register(injector.getInstance(ExamResource.class));
         environment.jersey().setUrlPattern("/api/*");

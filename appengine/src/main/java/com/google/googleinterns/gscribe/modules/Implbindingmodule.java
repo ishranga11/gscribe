@@ -24,7 +24,7 @@ import com.google.googleinterns.gscribe.utils.*;
 import com.google.googleinterns.gscribe.utils.impl.*;
 import com.google.inject.AbstractModule;
 
-public class implBindingModule extends AbstractModule {
+public class Implbindingmodule extends AbstractModule {
 
     @Override
     protected void configure() {

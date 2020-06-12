@@ -16,6 +16,8 @@
 
 package com.google.googleinterns.gscribe.modules;
 
+import com.google.googleinterns.gscribe.services.ExamParserService;
+import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.googleinterns.gscribe.services.impl.ExamParserServiceImpl;
 import com.google.googleinterns.gscribe.services.impl.TokenServiceImpl;
 import com.google.googleinterns.gscribe.utils.*;
@@ -29,14 +31,14 @@ public class ServicesModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public ExamParserServiceImpl examParserServiceProvider(ExamGenerator examGenerator, ExamValidator examValidator, GetExamFromSpreadsheet getExamFromSpreadsheet) {
+    public ExamParserService examParserServiceProvider(ExamGenerator examGenerator, ExamValidator examValidator, GetExamFromSpreadsheet getExamFromSpreadsheet) {
         return new ExamParserServiceImpl(examValidator, examGenerator, getExamFromSpreadsheet);
     }
 
     @Inject
     @Provides
     @Singleton
-    public TokenServiceImpl tokenServiceProvider(TokenGenerator tokenGenerator, TokenVerifier tokenVerifier) {
+    public TokenService tokenServiceProvider(TokenGenerator tokenGenerator, TokenVerifier tokenVerifier) {
         return new TokenServiceImpl(tokenGenerator, tokenVerifier);
     }
 

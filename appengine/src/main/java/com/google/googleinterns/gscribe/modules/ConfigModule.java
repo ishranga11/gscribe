@@ -36,8 +36,7 @@ public class ConfigModule extends AbstractModule {
         if (environment == Environment.LOCAL) {
             return new MySQLConfig("jdbc:mysql://localhost:3306/gscribe", "root", "pass");
         } else {
-            // TODO: Add for other environments
-            return null;
+            throw new UnsupportedOperationException("Invalid environment for database config");
         }
     }
 }
