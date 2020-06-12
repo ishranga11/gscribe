@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services.impl;
+package com.google.googleinterns.gscribe.utils.impl;
 
-public class ExamGeneratorImpl {
+import com.google.googleinterns.gscribe.utils.GetExamFromSpreadsheet;
+
+public class GetExamFromSpreadsheetImpl implements GetExamFromSpreadsheet {
 }

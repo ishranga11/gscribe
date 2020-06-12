@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services.impl;
+package com.google.googleinterns.gscribe.utils;
 
-public class TokenGenerationImpl {
+public interface TokenGenerator {
 }

@@ -16,12 +16,11 @@
 
 package com.google.googleinterns.gscribe.resources;
 
-import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.ExamMetadata;
-import com.google.googleinterns.gscribe.resources.io.ExamRequest;
+import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
+import com.google.googleinterns.gscribe.resources.io.response.ExamResponse;
+import com.google.googleinterns.gscribe.resources.io.response.ExamsListResponse;
 
 import javax.ws.rs.*;
-import java.util.List;
 
 @Path("/exam")
 @Produces("application/json")
@@ -41,8 +40,8 @@ public class ExamResource {
      * @return Exam object
      */
     @POST
-    public Exam postExam(@HeaderParam("authorization-code") String IDToken, ExamRequest request) {
-        return new Exam();
+    public ExamResponse postExam(@HeaderParam("authorization-code") String IDToken, ExamRequest request) {
+        return null;
     }
 
     /**
@@ -54,7 +53,7 @@ public class ExamResource {
      */
     @GET
     @Path("/all")
-    public List<ExamMetadata> getAllExamsId(@HeaderParam("authorization-code") String IDToken) {
+    public ExamsListResponse getAllExamsId(@HeaderParam("authorization-code") String IDToken) {
         return null;
     }
 
@@ -70,8 +69,8 @@ public class ExamResource {
      */
     @GET
     @Path("/{id}")
-    public Exam getExam(@HeaderParam("authorization-code") String IDToken, @PathParam("id") String id) {
-        return new Exam();
+    public ExamResponse getExam(@HeaderParam("authorization-code") String IDToken, @PathParam("id") String id) {
+        return null;
     }
 
 }

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io;
+package com.google.googleinterns.gscribe.utils;
 
-public class ExamException extends Exception {
-    public ExamException(String message) {
-        super(message);
-    }
+public interface TokenVerifier {
 }

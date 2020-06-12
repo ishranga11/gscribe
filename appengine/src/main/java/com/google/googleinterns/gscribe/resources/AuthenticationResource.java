@@ -16,14 +16,15 @@
 
 package com.google.googleinterns.gscribe.resources;
 
-import com.google.googleinterns.gscribe.resources.io.AuthenticationRequest;
-import com.google.googleinterns.gscribe.resources.io.AuthenticationResponse;
+import com.google.googleinterns.gscribe.resources.io.request.AuthenticationRequest;
+import com.google.googleinterns.gscribe.resources.io.response.AuthenticationResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("/authenticate")
 public class AuthenticationResource {
+
 
     /**
      * Get corresponding userID from the IDToken using tokenVerifier

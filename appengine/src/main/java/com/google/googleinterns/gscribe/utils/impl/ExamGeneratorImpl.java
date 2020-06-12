@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services.impl;
+package com.google.googleinterns.gscribe.utils.impl;
 
-public class TokenVerificationImpl {
+import com.google.googleinterns.gscribe.utils.ExamGenerator;
+
+public class ExamGeneratorImpl implements ExamGenerator {
 }

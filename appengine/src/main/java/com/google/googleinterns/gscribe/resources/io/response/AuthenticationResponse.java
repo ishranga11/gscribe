@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io;
+package com.google.googleinterns.gscribe.resources.io.response;
 
 public class AuthenticationResponse {
+
+
 }
