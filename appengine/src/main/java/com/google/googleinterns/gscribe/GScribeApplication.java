@@ -17,9 +17,13 @@
 package com.google.googleinterns.gscribe;
 
 import com.codahale.metrics.servlets.HealthCheckServlet;
+import com.google.googleinterns.gscribe.modules.ConfigModule;
+import com.google.googleinterns.gscribe.modules.DBConnectorModule;
+import com.google.googleinterns.gscribe.modules.DaoModule;
+import com.google.googleinterns.gscribe.resources.AuthenticationResource;
 import com.google.googleinterns.gscribe.resources.ExamResource;
-import com.google.googleinterns.gscribe.resources.HomeResource;
-import com.google.googleinterns.gscribe.resources.TokenResource;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
@@ -28,28 +32,29 @@ import io.dropwizard.setup.Environment;
 
 public class GScribeApplication extends Application<GScribeConfiguration> {
 
-  public static void main(String[] args) throws Exception {
-    new GScribeApplication().run(args);
-  }
+    public static void main(String[] args) throws Exception {
+        new GScribeApplication().run(args);
+    }
 
-  @Override
-  public String getName() {
-    return "HelloWorld";
-  }
+    @Override
+    public String getName() {
+        return "GScribeApplication";
+    }
 
-  @Override
-  public void initialize(Bootstrap<GScribeConfiguration> bootstrap) {
-    bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
-    bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.html" ));
-  }
+    @Override
+    public void initialize(Bootstrap<GScribeConfiguration> bootstrap) {
+        bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
+        bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.html"));
+    }
 
-  public void run(GScribeConfiguration configuration, Environment environment) throws Exception {
-    environment.jersey().register(new HomeResource());
-    environment.jersey().register(new ExamResource());
-    environment.jersey().register(new TokenResource());
-    environment.jersey().setUrlPattern("/api/*");
-    environment.servlets()
-            .addServlet("healthcheck", new HealthCheckServlet(environment.healthChecks()))
-            .addMapping("/_ah/health");
-  }
+    public void run(GScribeConfiguration configuration, Environment environment) {
+        Injector injector = Guice.createInjector(new ConfigModule(com.google.googleinterns.gscribe.Environment.LOCAL),
+                new DBConnectorModule(), new DaoModule());
+        environment.jersey().register(injector.getInstance(AuthenticationResource.class));
+        environment.jersey().register(injector.getInstance(ExamResource.class));
+        environment.jersey().setUrlPattern("/api/*");
+        environment.servlets()
+                .addServlet("healthcheck", new HealthCheckServlet(environment.healthChecks()))
+                .addMapping("/_ah/health");
+    }
 }

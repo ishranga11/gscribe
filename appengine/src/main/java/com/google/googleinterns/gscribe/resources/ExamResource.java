@@ -16,42 +16,62 @@
 
 package com.google.googleinterns.gscribe.resources;
 
+import com.google.googleinterns.gscribe.models.Exam;
+import com.google.googleinterns.gscribe.models.ExamMetadata;
+import com.google.googleinterns.gscribe.resources.io.ExamRequest;
+
 import javax.ws.rs.*;
+import java.util.List;
 
 @Path("/exam")
 @Produces("application/json")
 public class ExamResource {
 
-    @POST
-    /*
-    Input - IDToken, spreadsheetId, sheetName
-    Function - validate the exam from spreadsheet and then post exam in database
-    Output - if successfully validated then return examId
+    /**
+     * Get corresponding userID from the IDToken using tokenVerifier
+     * Get tokens for the user from the database
+     * Use the tokens to read exam from the spreadsheet
+     * Validate exam
+     * Convert exam from List<List<Object>> to Exam object
+     * post examMetadata in database to get examID
+     * post exam into the database
+     *
+     * @param IDToken ( from header )
+     * @param request ( must contain spreadsheetID, sheetName )
+     * @return Exam object
      */
-    public String postExam() {
-        return "/exam";
+    @POST
+    public Exam postExam(@HeaderParam("authorization-code") String IDToken, ExamRequest request) {
+        return new Exam();
     }
 
+    /**
+     * Get corresponding userID from the IDToken using tokenVerifier
+     * using userID get all exams metadata from database for current user
+     *
+     * @param IDToken ( from header )
+     * @return List of exam metadata for current user
+     */
     @GET
     @Path("/all")
-    /*
-    Input - IDToken
-    Function - get all exam ids for the exams posted by the user ( userId from IDToken )
-    Output - return exam ids for all exam posted by the user
-     */
-    public String getAllExamsId() {
-        return "/exam/all";
+    public List<ExamMetadata> getAllExamsId(@HeaderParam("authorization-code") String IDToken) {
+        return null;
     }
 
+    /**
+     * Get corresponding userID from the IDToken using tokenVerifier
+     * Check if exam with given examID was given by current user
+     * Fetch exam metadata for given examID
+     * Fetch exam questions for given examID
+     *
+     * @param IDToken ( from header )
+     * @param id      ( examID for some exam )
+     * @return exam object for given examID
+     */
     @GET
     @Path("/{id}")
-    /*
-    Input - IDToken
-    Function - validate if user from IDToken posted the exam and then return exam with examID id
-    Output - exam represented by examID id
-     */
-    public String getExam(@PathParam("id") String id) {
-        return "/exam/{id}";
+    public Exam getExam(@HeaderParam("authorization-code") String IDToken, @PathParam("id") String id) {
+        return new Exam();
     }
 
 }

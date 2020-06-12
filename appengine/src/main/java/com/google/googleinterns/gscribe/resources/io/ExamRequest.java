@@ -14,17 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources;
+package com.google.googleinterns.gscribe.resources.io;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-
-@Path("/")
-public class HomeResource {
-
-  @GET
-  // Template Hello World gate for API calls
-  public String get() {
-    return "Hello, World!";
-  }
+public class ExamRequest {
 }
