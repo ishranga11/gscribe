@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources;
+package com.google.googleinterns.gscribe.services.data;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import java.util.List;
 
-@Path("/")
-public class HomeResource {
+public class ExamSource {
 
-  @GET
-  public String get() {
-    return "Hello, World!";
-  }
+    List<List<Object>> exam;
+
+    public ExamSource() {
+    }
+
+    public List<List<Object>> getExam() {
+        return exam;
+    }
+
+    public void setExam(List<List<Object>> exam) {
+        this.exam = exam;
+    }
 }

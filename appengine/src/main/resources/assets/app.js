@@ -14,91 +14,120 @@
  * limitations under the License.
  */
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAuxD5s2daPcMJPgiFrTNNyH9YKz9vcohA",
-    authDomain: "scribe-for-blind.firebaseapp.com",
-    databaseURL: "https://scribe-for-blind.firebaseio.com",
-    projectId: "scribe-for-blind",
-    storageBucket: "scribe-for-blind.appspot.com",
-    messagingSenderId: "693599161458",
-    appId: "1:693599161458:web:5ea82cb14e1dcbe1bac6eb"
+let auth2;
+let googleUser;
+
+function init() {
+    gapi.load('auth2', function () {
+        auth2 = gapi.auth2.init({
+            'client_id': 'scribe-for-blind.apps.googleusercontent.com',
+            'cookiepolicy': 'single_host_origin',
+            'scope': 'profile'
+        });
+        $('.logged-in-element').hide();
+        auth2.isSignedIn.listen(signinChanged);
+        auth2.currentUser.listen(userChanged);
+    });
+}
+
+var signinChanged = function (val) {
+    if (val === true) setForLogin();
 };
-firebase.initializeApp(firebaseConfig);
 
-let displayName;
-let email;
-let accessToken;
-let refreshToken;
-
-function login(){
-    function newLogin(user){
-        let notLoginCard = document.getElementById("notLoginCard");
-        let loginCard = document.getElementById("loginCard");
-        let submitSheetForm = document.getElementById("submitSheetForm");
-        let loginCardTitle = document.getElementById("loginCardTitle");
-        let logoutButton = document.getElementById("logout");
-        let loginButton = document.getElementById("login");
-        if ( user ){
-            notLoginCard.style.display = "none";
-            submitSheetForm.style.display = "visible";
-            loginCard.style.display = "visible";
-            loginButton.style.display = "none";
-            logoutButton.style.display = "visible";
-
-            displayName =  user['displayName'];
-            email = user['email'];
-            refreshToken = user['refreshToken'];
-            loginCardTitle.innerHTML = "Hello: " + displayName + " ( " + email + " )";
-            user.getIdToken().then( function (idToken){
-                accessToken = idToken;
-            })
-
-        } else {
-            notLoginCard.style.display = "visible";
-            loginCard.style.display = "none";
-            submitSheetForm.style.display = "none";
-            loginButton.style.display = "visible";
-            logoutButton.style.display = "none";
-
-            let provider = new firebase.auth.GoogleAuthProvider();
-            provider.addScope('https://www.googleapis.com/auth/spreadsheets');
-            provider.addScope('https://www.googleapis.com/auth/drive.readonly');
-            firebase.auth().signInWithRedirect(provider).then(function(result) {
-                let token = result.credential.accessToken;
-                let user = result.user;
-            }).catch(function(error) {
-                let errorCode = error.code;
-                let errorMessage = error.message;
-                let email = error.email;
-                let credential = error.credential;
-            });
-        }
+var userChanged = function (user) {
+    if (user.getId()) {
+        googleUser = user;
     }
-    firebase.auth().onAuthStateChanged(newLogin);
+};
+
+function sendCode() {
+    auth2.grantOfflineAccess({
+        'scope': "https://www.googleapis.com/auth/spreadsheets"
+    }).then((res) => {
+        let code = res['code'];
+        jQuery.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            'type': 'POST',
+            'url': "/api/token",
+            'data': code,
+            'dataType': 'text',
+            'success': function (data) {
+                if (data === "Done") submitSheet();
+            }
+        });
+    });
+}
+
+function codeNeeded() {
+
+    let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
+    jQuery.ajax({
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        'type': 'POST',
+        'url': "/api/token/present",
+        'data': IDToken,
+        'dataType': 'text',
+        'success': function (data) {
+            if (data === "Needed") {
+                sendCode();
+            } else submitSheet();
+        }
+    });
+
 }
 
 function submitSheet() {
 
+    let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
     let spreadsheetId = document.getElementById("spreadsheetId").value;
     let sheetId = document.getElementById("sheetId").value;
     let queryInfo = {
-        'name': displayName,
-        'email': email,
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
+        'IDToken': IDToken,
         'spreadsheetId': spreadsheetId,
         'sheetId': sheetId
     };
-    let finalQuery = JSON.stringify(queryInfo);
+
+    $("#response-modal").modal({show: true});
+
+    jQuery.ajax({
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        'type': 'POST',
+        'url': "/api/exam",
+        'data': JSON.stringify(queryInfo),
+        'dataType': 'json',
+        'success': function (data) {
+            let responseModalBody = document.getElementById("response-modal-body");
+            responseModalBody.innerHTML = data;
+        }
+    });
 
 }
 
-window.onload = login;
+function setForLogin() {
+    $('.logged-in-element').show();
+    $('.logged-out-element').hide();
+    let profile = googleUser.getBasicProfile();
+    document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
+}
 
-function logout(){
-
-    firebase.auth().signOut().then(function() {
-    }).catch(function(error) {
+function login() {
+    auth2.signIn().then(function () {
+        googleUser = auth2.currentUser.get();
+        setForLogin();
     });
+}
 
+function logout() {
+    auth2.signOut().then(function () {
+        location.reload();
+    });
 }

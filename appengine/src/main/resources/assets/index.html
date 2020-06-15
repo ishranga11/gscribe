@@ -1,89 +1,115 @@
-/*
-* Copyright 2020 Google LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+<!--
+  ~ Copyright 2020 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login Page</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
-  </head>
-  <body>
-      <nav class="navbar navbar-light bg-light">
-          <a class="navbar-brand" href="#">GScribe</a>
-          <div id="navbarSupportedContent">
-              <ul class="navbar-nav mr-auto">
-                  <li class="nav-item">
-                      <button class="btn btn-dark navbar-btn pull-right" id="login" onclick="login()"> Login </button>
-                  </li>
-                  <li class="nav-item">
-                      <button class="btn btn-dark navbar-btn pull-right" id="logout" onclick="logout()"> Logout </button>
-                  </li>
-              </ul>
-          </div>
-      </nav>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">GScribe</a>
+    <div id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <button class="btn btn-dark navbar-btn pull-right logged-out-element" id="login" onclick="login()">
+                    Login
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-dark navbar-btn pull-right logged-in-element" id="logout" onclick="logout()">
+                    Logout
+                </button>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-      <div class="container">
-          <div class="card mx-auto">
-              <div class="card-header">
-                  Welcome to Gscribe!
-              </div>
-              <div class="card-body" id="notLoginCard">
-                  <h5 class="card-title">Sign-in</h5>
-                  <p class="card-text">You are not logged in, so you will be redirected to google sign-in.</p>
-              </div>
-              <div class="card-body" id="loginCard">
-                  <h5 class="card-title" id="loginCardTitle"></h5>
-              </div>
-          </div>
-          <div class="card mx-auto">
-              <div class="card-header">
-                  Submit a paper!
-              </div>
-              <div class="card-body" id="submitSheetForm">
-                  <div class="card-text">
-                      How to find spreadsheet and sheet ID?<br>
-                      https://docs.google.com/spreadsheets/d/<span class="color-pink">spreadsheetId</span>/edit#gid=<span class="color-pink">sheetId</span>
-                  </div>
-                  <form onsubmit="submitSheet()">
-                      <div class="form-group">
-                          <label for="spreadsheetId">Spreadsheet Id: </label>
-                          <input type="text" class="form-control" id="spreadsheetId" placeholder="Enter spreadsheet id">
-                      </div>
-                      <div class="form-group">
-                          <label for="sheetId">Sheet Id: </label>
-                          <input type="text" class="form-control" id="sheetId" placeholder="Enter sheet id">
-                      </div>
-                      <button type="submit" class="btn btn-primary">Submit</button>
-                  </form>
-              </div>
-          </div>
-      </div>
+<div class="container">
+    <div class="card mx-auto">
+        <div class="card-header">
+            Welcome to Gscribe!
+        </div>
+        <div class="card-body logged-out-element">
+            <h5 class="card-title">Sign-in</h5>
+            <p class="card-text">You are not logged in, so you will be redirected to google sign-in.</p>
+        </div>
+        <div class="card-body logged-in-element">
+            <h5 class="card-title" id="loginCardTitle"></h5>
+        </div>
+    </div>
+    <div class="card mx-auto logged-in-element" id="submitFormCard">
+        <div class="card-header">
+            Submit a paper!
+        </div>
+        <div class="card-body" id="submitSheetForm">
+            <div class="card-text">
+                How to find spreadsheet and sheet ID?<br>
+                https://docs.google.com/spreadsheets/d/<span
+                    class="color-pink">spreadsheetId</span>/edit#gid=<span class="color-pink">sheetId</span>
+            </div>
+            <form onsubmit="codeNeeded();return false;">
+                <div class="form-group">
+                    <label for="spreadsheetId">Spreadsheet Id: </label>
+                    <input class="form-control" id="spreadsheetId" placeholder="Enter spreadsheet id" type="text">
+                </div>
+                <div class="form-group">
+                    <label for="sheetId">Sheet Id: </label>
+                    <input class="form-control" id="sheetId" placeholder="Enter sheet id" type="text">
+                </div>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    <div aria-hidden="true" aria-labelledby="response-modal" class="modal fade" id="response-modal" role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Paper Submission Details</h5>
+                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="response-modal-body">
+                    Done
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script async defer src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script async defer src="https://apis.google.com/js/api.js?onload=init"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<script src="app.js" type="text/javascript"></script>
 
-    <script src="app.js" type="text/javascript"></script>
-
-  </body>
+</body>
 </html>
