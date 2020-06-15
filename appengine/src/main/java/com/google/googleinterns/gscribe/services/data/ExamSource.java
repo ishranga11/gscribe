@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.data;
+package com.google.googleinterns.gscribe.services.data;
 
 import java.util.List;
 

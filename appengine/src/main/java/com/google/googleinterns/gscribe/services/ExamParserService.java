@@ -16,9 +16,9 @@
 
 package com.google.googleinterns.gscribe.services;
 
-import com.google.googleinterns.gscribe.data.ExamSource;
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
+import com.google.googleinterns.gscribe.services.data.ExamSource;
 
 import java.util.List;
 

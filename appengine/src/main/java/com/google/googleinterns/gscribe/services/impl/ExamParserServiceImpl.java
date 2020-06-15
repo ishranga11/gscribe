@@ -16,13 +16,13 @@
 
 package com.google.googleinterns.gscribe.services.impl;
 
-import com.google.googleinterns.gscribe.data.ExamSource;
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
 import com.google.googleinterns.gscribe.services.ExamGenerationService;
 import com.google.googleinterns.gscribe.services.ExamParserService;
 import com.google.googleinterns.gscribe.services.ExamSourceService;
 import com.google.googleinterns.gscribe.services.ExamValidationService;
+import com.google.googleinterns.gscribe.services.data.ExamSource;
 
 import java.util.List;
 
