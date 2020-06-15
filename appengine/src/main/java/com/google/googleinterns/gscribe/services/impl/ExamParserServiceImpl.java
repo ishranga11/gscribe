@@ -16,29 +16,30 @@
 
 package com.google.googleinterns.gscribe.services.impl;
 
+import com.google.googleinterns.gscribe.data.ExamSource;
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
+import com.google.googleinterns.gscribe.services.ExamGenerationService;
 import com.google.googleinterns.gscribe.services.ExamParserService;
-import com.google.googleinterns.gscribe.utils.ExamGenerator;
-import com.google.googleinterns.gscribe.utils.ExamValidator;
-import com.google.googleinterns.gscribe.utils.GetExamFromSpreadsheet;
+import com.google.googleinterns.gscribe.services.ExamSourceService;
+import com.google.googleinterns.gscribe.services.ExamValidationService;
 
 import java.util.List;
 
 public class ExamParserServiceImpl implements ExamParserService {
 
-    private final ExamValidator examValidator;
-    private final ExamGenerator examGenerator;
-    private final GetExamFromSpreadsheet getExamFromSpreadsheet;
+    private final ExamValidationService examValidationService;
+    private final ExamGenerationService examGenerationService;
+    private final ExamSourceService examSourceService;
 
-    public ExamParserServiceImpl(ExamValidator examValidator, ExamGenerator examGenerator, GetExamFromSpreadsheet getExamFromSpreadsheet) {
-        this.examGenerator = examGenerator;
-        this.examValidator = examValidator;
-        this.getExamFromSpreadsheet = getExamFromSpreadsheet;
+    public ExamParserServiceImpl(ExamValidationService examValidationService, ExamGenerationService examGenerationService, ExamSourceService examSourceService) {
+        this.examGenerationService = examGenerationService;
+        this.examValidationService = examValidationService;
+        this.examSourceService = examSourceService;
     }
 
     @Override
-    public List<List<Object>> getExam(ExamMetadata metadata) {
+    public ExamSource getExam(ExamMetadata metadata) {
         return null;
     }
 

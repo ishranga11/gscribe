@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.utils;
+package com.google.googleinterns.gscribe.services;
 
-public interface TokenVerifier {
+public interface ExamValidationService {
 }

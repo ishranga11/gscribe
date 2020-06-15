@@ -14,32 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.modules;
+package com.google.googleinterns.gscribe.modules.services;
 
-import com.google.googleinterns.gscribe.services.ExamParserService;
+import com.google.googleinterns.gscribe.services.TokenGenerationService;
 import com.google.googleinterns.gscribe.services.TokenService;
-import com.google.googleinterns.gscribe.services.impl.ExamParserServiceImpl;
+import com.google.googleinterns.gscribe.services.TokenVerificationService;
 import com.google.googleinterns.gscribe.services.impl.TokenServiceImpl;
-import com.google.googleinterns.gscribe.utils.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
-public class ServicesModule extends AbstractModule {
+public class TokenServiceModule extends AbstractModule {
 
     @Inject
     @Provides
     @Singleton
-    public ExamParserService examParserServiceProvider(ExamGenerator examGenerator, ExamValidator examValidator, GetExamFromSpreadsheet getExamFromSpreadsheet) {
-        return new ExamParserServiceImpl(examValidator, examGenerator, getExamFromSpreadsheet);
-    }
-
-    @Inject
-    @Provides
-    @Singleton
-    public TokenService tokenServiceProvider(TokenGenerator tokenGenerator, TokenVerifier tokenVerifier) {
-        return new TokenServiceImpl(tokenGenerator, tokenVerifier);
+    public TokenService tokenServiceProvider(TokenGenerationService tokenGenerationService, TokenVerificationService tokenVerificationService) {
+        return new TokenServiceImpl(tokenGenerationService, tokenVerificationService);
     }
 
 }

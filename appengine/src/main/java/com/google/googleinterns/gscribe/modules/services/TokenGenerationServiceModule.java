@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.utils.impl;
+package com.google.googleinterns.gscribe.modules.services;
 
-import com.google.googleinterns.gscribe.utils.ExamValidator;
+import com.google.googleinterns.gscribe.services.TokenGenerationService;
+import com.google.googleinterns.gscribe.services.impl.TokenGenerationServiceImpl;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 
-public class ExamValidatorImpl implements ExamValidator {
+public class TokenGenerationServiceModule extends AbstractModule {
+
+    @Provides
+    @Singleton
+    TokenGenerationService tokenGenerationServiceProvider() {
+        return new TokenGenerationServiceImpl();
+    }
+
 }

@@ -54,7 +54,8 @@ public class AuthenticationResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public AuthenticationResponse isTokenAvailable(@HeaderParam("authorization-code") String IDToken) {
-        return new AuthenticationResponse();
+        if (IDToken == null) throw new WebApplicationException("Bad call");
+        else return new AuthenticationResponse();
     }
 
 

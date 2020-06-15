@@ -20,6 +20,12 @@ import com.google.googleinterns.gscribe.models.UserToken;
 
 public interface TokenService {
 
+    /**
+     * Taken IDToken ans using googleVerifier converts it into userID
+     *
+     * @param IDToken
+     * @return userID
+     */
     String verifyIDToken(String IDToken);
 
     UserToken generateToken(String IDToken, String authCode);

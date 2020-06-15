@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io.exception;
+package com.google.googleinterns.gscribe.services;
 
-public class AuthenticationException extends RuntimeException {
-    public AuthenticationException(String message) {
-        super(message);
-    }
+public interface ExamSourceService {
 }

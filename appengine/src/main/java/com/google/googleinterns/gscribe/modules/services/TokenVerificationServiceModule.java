@@ -14,7 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.utils;
+package com.google.googleinterns.gscribe.modules.services;
 
-public interface TokenGenerator {
+import com.google.googleinterns.gscribe.services.TokenVerificationService;
+import com.google.googleinterns.gscribe.services.impl.TokenVerificationServiceImpl;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+
+public class TokenVerificationServiceModule extends AbstractModule {
+
+    @Provides
+    @Singleton
+    TokenVerificationService tokenVerificationServiceProvider() {
+        return new TokenVerificationServiceImpl();
+    }
+
 }

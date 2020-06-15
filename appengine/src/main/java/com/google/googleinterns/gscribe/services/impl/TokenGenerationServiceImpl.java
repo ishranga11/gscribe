@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.utils;
+package com.google.googleinterns.gscribe.services.impl;
 
-public interface GetExamFromSpreadsheet {
+import com.google.googleinterns.gscribe.services.TokenGenerationService;
+
+public class TokenGenerationServiceImpl implements TokenGenerationService {
 }

@@ -16,6 +16,7 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.googleinterns.gscribe.data.ExamSource;
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
 
@@ -23,7 +24,7 @@ import java.util.List;
 
 public interface ExamParserService {
 
-    List<List<Object>> getExam(ExamMetadata metadata);
+    ExamSource getExam(ExamMetadata metadata);
 
     Exam generateExam(List<List<Object>> examObject, ExamMetadata metadata);
 

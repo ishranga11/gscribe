@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.utils.impl;
+package com.google.googleinterns.gscribe.services;
 
-import com.google.googleinterns.gscribe.utils.ExamGenerator;
-
-public class ExamGeneratorImpl implements ExamGenerator {
+public interface ExamGenerationService {
 }

@@ -17,20 +17,20 @@
 package com.google.googleinterns.gscribe.services.impl;
 
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.services.TokenGenerationService;
 import com.google.googleinterns.gscribe.services.TokenService;
-import com.google.googleinterns.gscribe.utils.TokenGenerator;
-import com.google.googleinterns.gscribe.utils.TokenVerifier;
+import com.google.googleinterns.gscribe.services.TokenVerificationService;
 import com.google.inject.Inject;
 
 public class TokenServiceImpl implements TokenService {
 
-    private final TokenGenerator tokenGenerator;
-    private final TokenVerifier tokenVerifier;
+    private final TokenGenerationService tokenGenerationService;
+    private final TokenVerificationService tokenVerificationService;
 
     @Inject
-    public TokenServiceImpl(TokenGenerator tokenGenerator, TokenVerifier tokenVerifier) {
-        this.tokenGenerator = tokenGenerator;
-        this.tokenVerifier = tokenVerifier;
+    public TokenServiceImpl(TokenGenerationService tokenGenerationService, TokenVerificationService tokenVerificationService) {
+        this.tokenGenerationService = tokenGenerationService;
+        this.tokenVerificationService = tokenVerificationService;
     }
 
     @Override
