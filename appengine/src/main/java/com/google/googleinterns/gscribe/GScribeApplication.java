@@ -20,7 +20,7 @@ import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.google.googleinterns.gscribe.modules.ConfigModule;
 import com.google.googleinterns.gscribe.modules.DBConnectorModule;
 import com.google.googleinterns.gscribe.modules.DaoModule;
-import com.google.googleinterns.gscribe.modules.services.*;
+import com.google.googleinterns.gscribe.modules.ServicesModule;
 import com.google.googleinterns.gscribe.resources.AuthenticationResource;
 import com.google.googleinterns.gscribe.resources.ExamResource;
 import com.google.inject.Guice;
@@ -49,9 +49,8 @@ public class GScribeApplication extends Application<GScribeConfiguration> {
     }
 
     public void run(GScribeConfiguration configuration, Environment environment) {
-        Injector injector = Guice.createInjector(new ConfigModule(com.google.googleinterns.gscribe.Environment.LOCAL), new DBConnectorModule(), new DaoModule(),
-                new ExamParserServiceModule(), new ExamGenerationServiceModule(), new ExamSourceServiceModule(), new ExamValidationServiceModule(),
-                new TokenGenerationServiceModule(), new TokenVerificationServiceModule(), new TokenServiceModule());
+        Injector injector = Guice.createInjector(new ConfigModule(com.google.googleinterns.gscribe.Environment.LOCAL),
+                new DBConnectorModule(), new DaoModule(), new ServicesModule());
         environment.jersey().register(injector.getInstance(AuthenticationResource.class));
         environment.jersey().register(injector.getInstance(ExamResource.class));
         environment.jersey().setUrlPattern("/api/*");

@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.modules.services;
+package com.google.googleinterns.gscribe.models;
 
-import com.google.googleinterns.gscribe.services.ExamGenerationService;
-import com.google.googleinterns.gscribe.services.impl.ExamGenerationServiceImpl;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-
-public class ExamGenerationServiceModule extends AbstractModule {
-
-    @Provides
-    @Singleton
-    ExamGenerationService examGenerationServiceProvider() {
-        return new ExamGenerationServiceImpl();
-    }
-
+public class MultipleChoiceQuestion extends Question {
 }

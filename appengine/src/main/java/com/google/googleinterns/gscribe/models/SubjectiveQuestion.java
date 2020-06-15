@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.models.questionTypes;
+package com.google.googleinterns.gscribe.models;
 
-import com.google.googleinterns.gscribe.models.Question;
-
-public class MCQ extends Question {
+public class SubjectiveQuestion extends Question {
 }
