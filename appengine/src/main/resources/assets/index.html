@@ -72,8 +72,8 @@
                     <input class="form-control" id="spreadsheetId" placeholder="Enter spreadsheet id" type="text">
                 </div>
                 <div class="form-group">
-                    <label for="sheetId">Sheet Id: </label>
-                    <input class="form-control" id="sheetId" placeholder="Enter sheet id" type="text">
+                    <label for="sheetName">Sheet Id: </label>
+                    <input class="form-control" id="sheetName" placeholder="Enter sheet name" type="text">
                 </div>
                 <button class="btn btn-primary" type="submit">Submit</button>
             </form>
@@ -81,25 +81,24 @@
     </div>
     <div aria-hidden="true" aria-labelledby="response-modal" class="modal fade" id="response-modal" role="dialog"
          tabindex="-1">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Paper Submission Details</h5>
+                    <h5 class="modal-title" id="modal-label"></h5>
                     <button aria-label="Close" class="close" data-dismiss="modal" type="button">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" id="response-modal-body">
-                    Done
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script async defer src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
 <script async defer src="https://apis.google.com/js/api.js?onload=init"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"

@@ -20,7 +20,7 @@ let googleUser;
 function init() {
     gapi.load('auth2', function () {
         auth2 = gapi.auth2.init({
-            'client_id': 'scribe-for-blind.apps.googleusercontent.com',
+            'client_id': '361993398276-n4dboc83jnellr02pkg0v8rh2rvlnqn6.apps.googleusercontent.com',
             'cookiepolicy': 'single_host_origin',
             'scope': 'profile'
         });
@@ -41,21 +41,28 @@ var userChanged = function (user) {
 };
 
 function sendCode() {
+    let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
     auth2.grantOfflineAccess({
         'scope': "https://www.googleapis.com/auth/spreadsheets"
     }).then((res) => {
         let code = res['code'];
+        let request = {
+            'authCode': code
+        }
         jQuery.ajax({
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authentication': IDToken
             },
             'type': 'POST',
-            'url': "/api/token",
-            'data': code,
-            'dataType': 'text',
-            'success': function (data) {
-                if (data === "Done") submitSheet();
+            'url': "/api/authenticate",
+            'data': JSON.stringify(request),
+            'success': function () {
+                submitSheet();
+            },
+            'error': function (data) {
+                fillErrorModal(data);
             }
         });
     });
@@ -67,16 +74,18 @@ function codeNeeded() {
     jQuery.ajax({
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authentication': IDToken
         },
-        'type': 'POST',
-        'url': "/api/token/present",
-        'data': IDToken,
-        'dataType': 'text',
-        'success': function (data) {
-            if (data === "Needed") {
+        'type': 'GET',
+        'url': "/api/authenticate",
+        'success': function () {
+            submitSheet();
+        },
+        'error': function (xhr, data) {
+            if (xhr.status === 401) {
                 sendCode();
-            } else submitSheet();
+            } else fillErrorModal(data);
         }
     });
 
@@ -86,30 +95,37 @@ function submitSheet() {
 
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
     let spreadsheetId = document.getElementById("spreadsheetId").value;
-    let sheetId = document.getElementById("sheetId").value;
+    let sheetName = document.getElementById("sheetName").value;
     let queryInfo = {
-        'IDToken': IDToken,
-        'spreadsheetId': spreadsheetId,
-        'sheetId': sheetId
+        'spreadsheetID': spreadsheetId,
+        'sheetName': sheetName
     };
-
-    $("#response-modal").modal({show: true});
-
     jQuery.ajax({
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authentication': IDToken
         },
         'type': 'POST',
         'url': "/api/exam",
         'data': JSON.stringify(queryInfo),
-        'dataType': 'json',
         'success': function (data) {
-            let responseModalBody = document.getElementById("response-modal-body");
-            responseModalBody.innerHTML = data;
+            fillExamModal(data);
+        },
+        'error': function (xhr, data) {
+            fillErrorModal(data);
         }
     });
 
+}
+
+function fillExamModal(data) {
+    let responseModalBody = document.getElementById("response-modal-body");
+    $("#response-modal").modal({show: true});
+}
+
+function fillErrorModal(message) {
+    $("#response-modal").modal({show: true});
 }
 
 function setForLogin() {

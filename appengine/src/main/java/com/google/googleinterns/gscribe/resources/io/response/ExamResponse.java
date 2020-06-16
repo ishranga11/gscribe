@@ -16,5 +16,24 @@
 
 package com.google.googleinterns.gscribe.resources.io.response;
 
+import com.google.googleinterns.gscribe.models.Exam;
+
 public class ExamResponse {
+
+    private Exam exam;
+
+    public ExamResponse() {
+    }
+
+    public ExamResponse(Exam exam) {
+        this.exam = exam;
+    }
+
+    public Exam getExam() {
+        return exam;
+    }
+
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 }

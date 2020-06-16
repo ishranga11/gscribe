@@ -17,14 +17,16 @@
 package com.google.googleinterns.gscribe.services.impl;
 
 import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.ExamMetadata;
+import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.services.ExamGenerationService;
 import com.google.googleinterns.gscribe.services.ExamParserService;
 import com.google.googleinterns.gscribe.services.ExamSourceService;
 import com.google.googleinterns.gscribe.services.ExamValidationService;
 import com.google.googleinterns.gscribe.services.data.ExamSource;
 
-import java.util.List;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class ExamParserServiceImpl implements ExamParserService {
 
@@ -39,17 +41,18 @@ public class ExamParserServiceImpl implements ExamParserService {
     }
 
     @Override
-    public ExamSource getExam(ExamMetadata metadata) {
-        return null;
+    public ExamSource getExam(ExamRequest examRequest, UserToken userToken) throws IOException, GeneralSecurityException {
+        return examSourceService.getExam(examRequest, userToken);
     }
 
     @Override
-    public Exam generateExam(List<List<Object>> examObject, ExamMetadata metadata) {
-        return null;
+    public Exam generateExam(ExamSource examSource, ExamRequest request, String userID) {
+        return examGenerationService.generate(examSource, request, userID);
     }
 
     @Override
-    public String validateExam(List<List<Object>> examObject) {
-        return null;
+    public void validateExam(ExamSource examSource) throws RuntimeException {
+        examValidationService.validate(examSource);
     }
+
 }

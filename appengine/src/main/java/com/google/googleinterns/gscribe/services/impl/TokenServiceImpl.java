@@ -18,28 +18,52 @@ package com.google.googleinterns.gscribe.services.impl;
 
 import com.google.googleinterns.gscribe.models.UserToken;
 import com.google.googleinterns.gscribe.services.TokenGenerationService;
+import com.google.googleinterns.gscribe.services.TokenRefreshService;
 import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.googleinterns.gscribe.services.TokenVerificationService;
 import com.google.inject.Inject;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class TokenServiceImpl implements TokenService {
 
     private final TokenGenerationService tokenGenerationService;
     private final TokenVerificationService tokenVerificationService;
+    private final TokenRefreshService tokenRefreshService;
 
     @Inject
-    public TokenServiceImpl(TokenGenerationService tokenGenerationService, TokenVerificationService tokenVerificationService) {
+    public TokenServiceImpl(TokenGenerationService tokenGenerationService, TokenVerificationService tokenVerificationService, TokenRefreshService tokenRefreshService) {
         this.tokenGenerationService = tokenGenerationService;
         this.tokenVerificationService = tokenVerificationService;
+        this.tokenRefreshService = tokenRefreshService;
     }
 
     @Override
-    public String verifyIDToken(String IDToken) {
-        return null;
+    public String verifyIDToken(String IDToken) throws GeneralSecurityException, IOException {
+        return tokenVerificationService.verify(IDToken);
+    }
+
+    /**
+     * Using TokenGenerationService generates tokens for given authCode
+     * Validates user and authCode by comparing unique user Id received from IDToken and authCode
+     *
+     * @param IDToken  ( user IDToken for authentication )
+     * @param authCode ( authentication code for generation of tokens )
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    @Override
+    public UserToken generateToken(String IDToken, String authCode) throws GeneralSecurityException, IOException {
+        String userID = tokenVerificationService.verify(IDToken);
+        UserToken token = tokenGenerationService.generate(authCode);
+        if (!userID.equals(token.getId())) throw new RuntimeException();
+        return token;
     }
 
     @Override
-    public UserToken generateToken(String IDToken, String authCode) {
-        return null;
+    public void refreshToken(UserToken token) throws IOException {
+        tokenRefreshService.refresh(token);
     }
 }

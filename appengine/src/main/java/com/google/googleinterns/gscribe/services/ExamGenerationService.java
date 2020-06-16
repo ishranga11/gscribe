@@ -16,5 +16,12 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.googleinterns.gscribe.models.Exam;
+import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
+import com.google.googleinterns.gscribe.services.data.ExamSource;
+
 public interface ExamGenerationService {
+
+    Exam generate(ExamSource examSource, ExamRequest request, String userID);
+
 }

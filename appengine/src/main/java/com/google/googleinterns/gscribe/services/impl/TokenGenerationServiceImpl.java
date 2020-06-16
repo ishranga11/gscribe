@@ -16,7 +16,67 @@
 
 package com.google.googleinterns.gscribe.services.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.ExamResource;
 import com.google.googleinterns.gscribe.services.TokenGenerationService;
+import com.google.googleinterns.gscribe.services.TokenVerificationService;
+import com.google.inject.Inject;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
 
 public class TokenGenerationServiceImpl implements TokenGenerationService {
+
+    private final TokenVerificationService tokenVerificationService;
+
+    @Inject
+    public TokenGenerationServiceImpl(TokenVerificationService tokenVerificationService) {
+        this.tokenVerificationService = tokenVerificationService;
+    }
+
+    /**
+     * Take authentication code as an input
+     * Uses credentials file allotted for the application to generate tokens for the given auth code
+     *
+     * @param authCode ( authentication code )
+     * @return userToken object containing access token, refresh token ans unique user Id
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    @Override
+    public UserToken generate(String authCode) throws GeneralSecurityException, IOException {
+        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+        final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
+        final String CREDENTIALS_FILE_PATH = "/credentials.json";
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        InputStream in = ExamResource.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setAccessType("offline").build();
+        GoogleAuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(authCode);
+        tokenRequest.setRedirectUri(clientSecrets.getWeb().getRedirectUris().get(0));
+        GoogleTokenResponse tokenResponse = tokenRequest.execute();
+        String accessToken = tokenResponse.getAccessToken();
+        String refreshToken = tokenResponse.getRefreshToken();
+        String userId = tokenVerificationService.verify(tokenResponse.getIdToken());
+        if (userId == null) throw new RuntimeException();
+        return new UserToken(userId, accessToken, refreshToken, null);
+    }
+
 }

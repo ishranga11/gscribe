@@ -16,5 +16,52 @@
 
 package com.google.googleinterns.gscribe.models;
 
+import java.sql.Timestamp;
+
 public class UserToken {
+
+    private String id;
+    private String accessToken;
+    private String refreshToken;
+    private Timestamp timestamp;
+
+    public UserToken(String id, String accessToken, String refreshToken, Timestamp timestamp) {
+        this.id = id;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.timestamp = timestamp;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }

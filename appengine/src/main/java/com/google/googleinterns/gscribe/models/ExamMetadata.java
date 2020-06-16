@@ -16,5 +16,86 @@
 
 package com.google.googleinterns.gscribe.models;
 
+import java.sql.Timestamp;
+
 public class ExamMetadata {
+
+    private String spreadsheetID;
+    private String sheetName;
+    private String userID;
+    private int id;
+    private int duration;
+    private Timestamp createdOn;
+
+    public ExamMetadata(String spreadsheetID, String sheetName, String userID, int id, int duration, Timestamp createdOn) {
+        this.spreadsheetID = spreadsheetID;
+        this.sheetName = sheetName;
+        this.userID = userID;
+        this.id = id;
+        this.duration = duration;
+        this.createdOn = createdOn;
+    }
+
+    public ExamMetadata(String spreadsheetID, String sheetName, String userID, int duration) {
+        this.spreadsheetID = spreadsheetID;
+        this.sheetName = sheetName;
+        this.userID = userID;
+        this.duration = duration;
+    }
+
+    public ExamMetadata(String spreadsheetID, int duration, int id, Timestamp createdOn) {
+        this.spreadsheetID = spreadsheetID;
+        this.duration = duration;
+        this.createdOn = createdOn;
+        this.id = id;
+    }
+
+    public String getSpreadsheetID() {
+        return spreadsheetID;
+    }
+
+    public void setSpreadsheetID(String spreadsheetID) {
+        this.spreadsheetID = spreadsheetID;
+    }
+
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public Timestamp getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
+    }
+
 }

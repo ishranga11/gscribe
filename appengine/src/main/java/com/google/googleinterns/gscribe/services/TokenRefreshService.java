@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io.response;
+package com.google.googleinterns.gscribe.services;
 
-public class AuthenticationResponse {
+import com.google.googleinterns.gscribe.models.UserToken;
 
-    private final String message;
+import java.io.IOException;
 
-    public AuthenticationResponse(String message) {
-        this.message = message;
-    }
+public interface TokenRefreshService {
 
-    public String getMessage() {
-        return message;
-    }
+    void refresh(UserToken userToken) throws IOException;
 
 }

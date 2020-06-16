@@ -17,4 +17,6 @@
 package com.google.googleinterns.gscribe.models;
 
 public enum QuestionType {
+    MCQ,
+    SUBJECTIVE
 }

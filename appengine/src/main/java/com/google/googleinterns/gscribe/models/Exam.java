@@ -16,5 +16,31 @@
 
 package com.google.googleinterns.gscribe.models;
 
+import java.util.ArrayList;
+
 public class Exam {
+
+    private ExamMetadata examMetadata;
+    private ArrayList<Question> questions;
+
+    public Exam(ExamMetadata examMetadata, ArrayList<Question> questions) {
+        this.examMetadata = examMetadata;
+        this.questions = questions;
+    }
+
+    public ExamMetadata getExamMetadata() {
+        return examMetadata;
+    }
+
+    public void setExamMetadata(ExamMetadata examMetadata) {
+        this.examMetadata = examMetadata;
+    }
+
+    public ArrayList<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(ArrayList<Question> questions) {
+        this.questions = questions;
+    }
 }

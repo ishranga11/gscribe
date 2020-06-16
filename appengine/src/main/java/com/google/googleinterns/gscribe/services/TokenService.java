@@ -18,16 +18,15 @@ package com.google.googleinterns.gscribe.services;
 
 import com.google.googleinterns.gscribe.models.UserToken;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 public interface TokenService {
 
-    /**
-     * Taken IDToken ans using googleVerifier converts it into userID
-     *
-     * @param IDToken
-     * @return userID
-     */
-    String verifyIDToken(String IDToken);
+    String verifyIDToken(String IDToken) throws GeneralSecurityException, IOException;
 
-    UserToken generateToken(String IDToken, String authCode);
+    UserToken generateToken(String IDToken, String authCode) throws GeneralSecurityException, IOException;
+
+    void refreshToken(UserToken token) throws IOException;
 
 }

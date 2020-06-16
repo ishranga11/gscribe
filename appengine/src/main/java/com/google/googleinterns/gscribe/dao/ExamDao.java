@@ -16,5 +16,20 @@
 
 package com.google.googleinterns.gscribe.dao;
 
-public class ExamDao {
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.SqlBatch;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+
+import java.util.List;
+
+public interface ExamDao {
+
+    @SqlBatch("insert into questions( exam_id, question, question_num ) values ( examID, question, questionNum )")
+    void insertExamQuestions(@Bind("question") List<String> question, @Bind("examID") int examID, @Bind("questionNum") List<Integer> questionNum);
+
+    @Mapper(ExamMetadataDao.ExamMetadataMapper.class)
+    @SqlQuery("SELECT * from exam where exam_id = :id")
+    List<String> getExamQuestions(@Bind("id") String id);
+
 }

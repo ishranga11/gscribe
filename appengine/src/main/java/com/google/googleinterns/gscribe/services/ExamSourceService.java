@@ -16,5 +16,15 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
+import com.google.googleinterns.gscribe.services.data.ExamSource;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 public interface ExamSourceService {
+
+    ExamSource getExam(ExamRequest request, UserToken token) throws IOException, GeneralSecurityException;
+
 }

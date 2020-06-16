@@ -17,17 +17,19 @@
 package com.google.googleinterns.gscribe.services;
 
 import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.ExamMetadata;
+import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.services.data.ExamSource;
 
-import java.util.List;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public interface ExamParserService {
 
-    ExamSource getExam(ExamMetadata metadata);
+    ExamSource getExam(ExamRequest examRequest, UserToken token) throws IOException, GeneralSecurityException;
 
-    Exam generateExam(List<List<Object>> examObject, ExamMetadata metadata);
+    Exam generateExam(ExamSource examSource, ExamRequest request, String userID);
 
-    String validateExam(List<List<Object>> examObject);
+    void validateExam(ExamSource examSource) throws RuntimeException;
 
 }

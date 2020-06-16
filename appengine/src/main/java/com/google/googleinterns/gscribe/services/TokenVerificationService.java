@@ -16,5 +16,11 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 public interface TokenVerificationService {
+
+    String verify(String IDToken) throws GeneralSecurityException, IOException;
+
 }

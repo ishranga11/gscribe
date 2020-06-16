@@ -22,7 +22,8 @@ public class ExamSource {
 
     List<List<Object>> exam;
 
-    public ExamSource() {
+    public ExamSource(List<List<Object>> exam) {
+        this.exam = exam;
     }
 
     public List<List<Object>> getExam() {

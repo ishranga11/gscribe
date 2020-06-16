@@ -16,15 +16,29 @@
 
 package com.google.googleinterns.gscribe.resources;
 
+import com.google.googleinterns.gscribe.dao.UserTokenDao;
+import com.google.googleinterns.gscribe.models.UserToken;
 import com.google.googleinterns.gscribe.resources.io.request.AuthenticationRequest;
 import com.google.googleinterns.gscribe.resources.io.response.AuthenticationResponse;
+import com.google.googleinterns.gscribe.services.TokenService;
+import com.google.inject.Inject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @Path("/authenticate")
 public class AuthenticationResource {
 
+    private final TokenService tokenService;
+    private final UserTokenDao userTokenDao;
+
+    @Inject
+    public AuthenticationResource(TokenService tokenService, UserTokenDao userTokenDao) {
+        this.tokenService = tokenService;
+        this.userTokenDao = userTokenDao;
+    }
 
     /**
      * Get corresponding userID from the IDToken using tokenVerifier
@@ -39,8 +53,10 @@ public class AuthenticationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public AuthenticationResponse saveToken(@HeaderParam("authorization-code") String IDToken, AuthenticationRequest request) {
-        return new AuthenticationResponse();
+    public AuthenticationResponse saveToken(@HeaderParam("Authentication") String IDToken, AuthenticationRequest request) throws GeneralSecurityException, IOException {
+        UserToken token = tokenService.generateToken(IDToken, request.getAuthCode());
+        userTokenDao.insertUserToken(token);
+        return new AuthenticationResponse("User saved.");
     }
 
     /**
@@ -53,9 +69,11 @@ public class AuthenticationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public AuthenticationResponse isTokenAvailable(@HeaderParam("authorization-code") String IDToken) {
-        if (IDToken == null) throw new WebApplicationException("Bad call");
-        else return new AuthenticationResponse();
+    public AuthenticationResponse isTokenAvailable(@HeaderParam("Authentication") String IDToken) throws GeneralSecurityException, IOException {
+        String userID = tokenService.verifyIDToken(IDToken);
+        UserToken token = userTokenDao.getUserToken(userID);
+        if (token == null) throw new NotAuthorizedException("User not authorized");
+        return new AuthenticationResponse("Success");
     }
 
 

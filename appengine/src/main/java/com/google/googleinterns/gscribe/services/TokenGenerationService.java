@@ -16,5 +16,13 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.googleinterns.gscribe.models.UserToken;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 public interface TokenGenerationService {
+
+    UserToken generate(String authCode) throws GeneralSecurityException, IOException;
+
 }

@@ -16,7 +16,9 @@
 
 package com.google.googleinterns.gscribe.resources.io.exception;
 
-public class AuthenticationException extends RuntimeException {
+import javax.ws.rs.WebApplicationException;
+
+public class AuthenticationException extends WebApplicationException {
     public AuthenticationException(String message) {
         super(message);
     }

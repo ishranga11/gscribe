@@ -16,5 +16,10 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.googleinterns.gscribe.services.data.ExamSource;
+
 public interface ExamValidationService {
+
+    void validate(ExamSource examSource) throws RuntimeException;
+
 }
