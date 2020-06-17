@@ -17,15 +17,16 @@
 package com.google.googleinterns.gscribe.services;
 
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.services.data.TokenResponse;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public interface TokenService {
 
-    String verifyIDToken(String IDToken) throws GeneralSecurityException, IOException;
+    String verifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException;
 
-    UserToken generateToken(String IDToken, String authCode) throws GeneralSecurityException, IOException;
+    TokenResponse generateToken(String authCode) throws GeneralSecurityException, IOException;
 
     void refreshToken(UserToken token) throws IOException;
 

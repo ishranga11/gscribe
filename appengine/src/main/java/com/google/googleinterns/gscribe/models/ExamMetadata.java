@@ -16,6 +16,8 @@
 
 package com.google.googleinterns.gscribe.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.sql.Timestamp;
 
 public class ExamMetadata {
@@ -25,6 +27,7 @@ public class ExamMetadata {
     private String userID;
     private int id;
     private int duration;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private Timestamp createdOn;
 
     public ExamMetadata(String spreadsheetID, String sheetName, String userID, int id, int duration, Timestamp createdOn) {

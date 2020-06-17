@@ -16,22 +16,22 @@
 
 package com.google.googleinterns.gscribe.models;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MultipleChoiceQuestion extends Question {
 
-    private ArrayList<String> options;
+    private List<String> options;
 
-    public MultipleChoiceQuestion(String statement, int points, int questionNumber, ArrayList<String> options) {
+    public MultipleChoiceQuestion(String statement, int points, int questionNumber, List<String> options) {
         super(QuestionType.MCQ, statement, points, questionNumber);
         this.options = options;
     }
 
-    public ArrayList<String> getOptions() {
+    public List<String> getOptions() {
         return options;
     }
 
-    public void setOptions(ArrayList<String> options) {
+    public void setOptions(List<String> options) {
         this.options = options;
     }
 }

@@ -22,6 +22,16 @@ import com.google.googleinterns.gscribe.services.data.ExamSource;
 
 public interface ExamGenerationService {
 
+    /**
+     * makes examMetadata object
+     * makes an arraylist of questions
+     * returns exam object
+     *
+     * @param examSource ( contains sheet instance containing exam )
+     * @param request    ( contains spreadsheetId and sheetName )
+     * @param userID     ( unique user ID of user )
+     * @return Exam object
+     */
     Exam generate(ExamSource examSource, ExamRequest request, String userID);
 
 }

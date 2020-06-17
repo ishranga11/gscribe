@@ -22,6 +22,12 @@ import java.io.IOException;
 
 public interface TokenRefreshService {
 
+    /**
+     * When the access Token expires then this method uses refreshToken to generate a new accessToken
+     *
+     * @param userToken ( contains refreshToken )
+     * @throws IOException ( if credentials file is not found or invalid )
+     */
     void refresh(UserToken userToken) throws IOException;
 
 }

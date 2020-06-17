@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services;
+package com.google.googleinterns.gscribe.resources.io.exception;
 
-import com.google.googleinterns.gscribe.services.data.ExamSource;
+import javax.ws.rs.BadRequestException;
 
-public interface ExamValidationService {
+public class InvalidAuthorizationRequestException extends BadRequestException {
 
-    /**
-     * check that the size of sheet is at least 3
-     * validate duration
-     * validate each question
-     *
-     * @param examSource ( contains instance of exam sheet )
-     */
-    void validate(ExamSource examSource) throws RuntimeException;
+    public InvalidAuthorizationRequestException() {
+        super("Bad Authorization credentials");
+    }
 
 }

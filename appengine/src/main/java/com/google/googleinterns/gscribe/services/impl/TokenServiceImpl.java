@@ -21,6 +21,7 @@ import com.google.googleinterns.gscribe.services.TokenGenerationService;
 import com.google.googleinterns.gscribe.services.TokenRefreshService;
 import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.googleinterns.gscribe.services.TokenVerificationService;
+import com.google.googleinterns.gscribe.services.data.TokenResponse;
 import com.google.inject.Inject;
 
 import java.io.IOException;
@@ -39,31 +40,40 @@ public class TokenServiceImpl implements TokenService {
         this.tokenRefreshService = tokenRefreshService;
     }
 
+    /**
+     * This function takes as input the IDToken passed in header for authentication
+     * If the JWT clears all authentication checks then unique userID is extracted from the JWT and returned
+     *
+     * @param IDTokenString ( a JWT, web token signed by google )
+     * @return userID ( unique user ID for the user included in JWT )
+     * @throws GeneralSecurityException,IOException ( by google verifier, or reading credentials file errors )
+     */
     @Override
-    public String verifyIDToken(String IDToken) throws GeneralSecurityException, IOException {
-        return tokenVerificationService.verify(IDToken);
+    public String verifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException {
+        return tokenVerificationService.verify(IDTokenString);
     }
 
     /**
-     * Using TokenGenerationService generates tokens for given authCode
-     * Validates user and authCode by comparing unique user Id received from IDToken and authCode
+     * Take authentication code as an input
+     * Uses credentials file allotted for the application to generate tokens for the given auth code
      *
-     * @param IDToken  ( user IDToken for authentication )
-     * @param authCode ( authentication code for generation of tokens )
-     * @return
-     * @throws GeneralSecurityException
-     * @throws IOException
+     * @param authCode ( authentication code )
+     * @return userToken object containing access token, refresh token ans unique user Id
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
      */
     @Override
-    public UserToken generateToken(String IDToken, String authCode) throws GeneralSecurityException, IOException {
-        String userID = tokenVerificationService.verify(IDToken);
-        UserToken token = tokenGenerationService.generate(authCode);
-        if (!userID.equals(token.getId())) throw new RuntimeException();
-        return token;
+    public TokenResponse generateToken(String authCode) throws GeneralSecurityException, IOException {
+        return tokenGenerationService.generate(authCode);
     }
 
+    /**
+     * When the access Token expires then this method uses refreshToken to generate a new accessToken
+     *
+     * @param userToken ( contains refreshToken )
+     * @throws IOException ( if credentials file is not found or invalid )
+     */
     @Override
-    public void refreshToken(UserToken token) throws IOException {
-        tokenRefreshService.refresh(token);
+    public void refreshToken(UserToken userToken) throws IOException {
+        tokenRefreshService.refresh(userToken);
     }
 }

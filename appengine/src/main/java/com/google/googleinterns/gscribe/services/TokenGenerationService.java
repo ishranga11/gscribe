@@ -16,13 +16,21 @@
 
 package com.google.googleinterns.gscribe.services;
 
-import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.services.data.TokenResponse;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public interface TokenGenerationService {
 
-    UserToken generate(String authCode) throws GeneralSecurityException, IOException;
+    /**
+     * Take authentication code as an input
+     * Uses credentials file allotted for the application to generate tokens for the given auth code
+     *
+     * @param authCode ( authentication code )
+     * @return userToken object containing access token, refresh token ans unique user Id
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     */
+    TokenResponse generate(String authCode) throws GeneralSecurityException, IOException;
 
 }

@@ -16,8 +16,16 @@
 
 package com.google.googleinterns.gscribe.resources.io.exception;
 
-public class ExamException extends RuntimeException {
-    public ExamException(String message) {
-        super(message);
+import javax.ws.rs.BadRequestException;
+
+public class MissingRequestParametersException extends BadRequestException {
+
+    public MissingRequestParametersException(String parameter) {
+        super("Missing request parameters: " + parameter);
     }
+
+    public MissingRequestParametersException() {
+        super("Missing request parameters: ");
+    }
+
 }

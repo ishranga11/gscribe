@@ -16,22 +16,26 @@
 
 package com.google.googleinterns.gscribe.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.googleinterns.gscribe.dao.ExamDao;
 import com.google.googleinterns.gscribe.dao.ExamMetadataDao;
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
+import com.google.googleinterns.gscribe.models.Question;
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.exception.InvalidIDTokenException;
+import com.google.googleinterns.gscribe.resources.io.exception.UserNotAuthorizedException;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.resources.io.response.ExamResponse;
 import com.google.googleinterns.gscribe.resources.io.response.ExamsListResponse;
 import com.google.googleinterns.gscribe.services.ExamParserService;
 import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.googleinterns.gscribe.services.data.ExamSource;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -69,31 +73,58 @@ public class ExamResource {
      * @param IDToken ( from header )
      * @param request ( must contain spreadsheetID, sheetName )
      * @return Exam object
+     * @throws InvalidIDTokenException      ( if IDToken is invalid )
+     * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
      */
     @POST
-    public ExamResponse postExam(@HeaderParam("Authentication") String IDToken, ExamRequest request) throws GeneralSecurityException, IOException, RuntimeException {
-        String userID = tokenService.verifyIDToken(IDToken);
-        UserToken token = userTokenDao.getUserToken(userID);
+    public ExamResponse postExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull ExamRequest request) throws GeneralSecurityException, IOException, RuntimeException {
+        String userID;
+        UserToken token;
         ExamSource examSource = null;
+        try {
+            userID = tokenService.verifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIDTokenException();
+        }
+        token = userTokenDao.getUserToken(userID);
+        if (token == null) {
+            throw new UserNotAuthorizedException();
+        }
         try {
             examSource = examParserService.getExam(request, token);
         } catch (GoogleJsonResponseException e) {
             if (e.getStatusCode() == 401) {
-                tokenService.refreshToken(token);
+                try {
+                    tokenService.refreshToken(token);
+                } catch (IOException ex) {
+                    throw new InternalServerErrorException();
+                }
                 userTokenDao.updateTokens(token);
-                examSource = examParserService.getExam(request, token);
+                try {
+                    examSource = examParserService.getExam(request, token);
+                } catch (GoogleJsonResponseException ex) {
+                    throw new UserNotAuthorizedException();
+                } catch (Exception ex) {
+                    throw new InternalServerErrorException();
+                }
             }
+        } catch (Exception ex) {
+            throw new InternalServerErrorException();
         }
+
         examParserService.validateExam(examSource);
+
         Exam exam = examParserService.generateExam(examSource, request, userID);
+        int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
+
         List<String> questionJSON = new ArrayList<>();
         List<Integer> questionNum = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
         for (int i = 0; i < exam.getQuestions().size(); i++) {
-            questionJSON.add(mapper.writeValueAsString(exam.getQuestions().get(i)));
+            questionJSON.add(new Gson().toJson(exam.getQuestions().get(i)));
             questionNum.add(exam.getQuestions().get(i).getQuestionNumber());
         }
-        int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
         examDao.insertExamQuestions(questionJSON, examID, questionNum);
         return new ExamResponse(exam);
     }
@@ -104,11 +135,20 @@ public class ExamResource {
      *
      * @param IDToken ( from header )
      * @return List of exam metadata for current user
+     * @throws InvalidIDTokenException      ( if IDToken is invalid )
+     * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
      */
     @GET
     @Path("/all")
-    public ExamsListResponse getAllExamsId(@HeaderParam("authorization-code") String IDToken) throws GeneralSecurityException, IOException {
-        String userID = tokenService.verifyIDToken(IDToken);
+    public ExamsListResponse getAllExamsId(@NotNull @HeaderParam("authorization-code") String IDToken) {
+        String userID;
+        try {
+            userID = tokenService.verifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIDTokenException();
+        }
         return new ExamsListResponse(examMetadataDao.getExamMetadataByUser(userID));
     }
 
@@ -121,13 +161,24 @@ public class ExamResource {
      * @param IDToken ( from header )
      * @param id      ( examID for some exam )
      * @return exam object for given examID
+     * @throws InvalidIDTokenException      ( if IDToken is invalid )
+     * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
      */
     @GET
     @Path("/{id}")
-    public ExamResponse getExam(@HeaderParam("authorization-code") String IDToken, @PathParam("id") String id) throws GeneralSecurityException, IOException {
-        String userID = tokenService.verifyIDToken(IDToken);
+    public ExamResponse getExam(@NotNull @HeaderParam("authorization-code") String IDToken, @NotNull @PathParam("id") String id) {
+        String userID;
+        try {
+            userID = tokenService.verifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIDTokenException();
+        }
         ExamMetadata metadata = examMetadataDao.getExamMetadataById(id, userID);
-        return new ExamResponse();
+        List<Question> questions = examDao.getExamQuestions(id);
+        Exam exam = new Exam(metadata, questions);
+        return new ExamResponse(exam);
     }
 
 }

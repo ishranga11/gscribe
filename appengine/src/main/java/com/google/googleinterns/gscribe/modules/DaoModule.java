@@ -16,6 +16,7 @@
 
 package com.google.googleinterns.gscribe.modules;
 
+import com.google.googleinterns.gscribe.dao.ExamDao;
 import com.google.googleinterns.gscribe.dao.ExamMetadataDao;
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.inject.AbstractModule;
@@ -38,6 +39,13 @@ public class DaoModule extends AbstractModule {
     @Singleton
     public ExamMetadataDao examMetadataDaoProvider(DBI dbi) {
         return dbi.onDemand(ExamMetadataDao.class);
+    }
+
+    @Inject
+    @Provides
+    @Singleton
+    public ExamDao examDaoProvider(DBI dbi) {
+        return dbi.onDemand(ExamDao.class);
     }
 
 }

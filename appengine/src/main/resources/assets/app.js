@@ -119,13 +119,67 @@ function submitSheet() {
 
 }
 
+function fillExamsTable(data) {
+
+    $('#examsList').empty();
+    let exams = data.examsList;
+    for (var i = 0; i < exams.length; i++) {
+        var examRow = '<tr>' +
+            '<td><button class="btn btn-link" onclick= "getExam(' + exams[i].id + ')"> ' + exams[i].id + '</button></td>' +
+            '<td>' + exams[i].spreadsheetID + '</td>' +
+            '<td>' + exams[i].duration + '</td>' +
+            '<td>' + exams[i].createdOn + '</td>' +
+            '</tr>';
+        $('#examsList').append(examRow);
+    }
+}
+
+function getExam(examID) {
+    let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
+    let url = "/api/exam/" + examID;
+    jQuery.ajax({
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'authorization-code': IDToken
+        },
+        'type': 'GET',
+        'url': url,
+        'success': function (data) {
+            fillExamModal(data);
+        }
+    });
+}
+
+function fetchExams() {
+
+    let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
+    jQuery.ajax({
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'authorization-code': IDToken
+        },
+        'type': 'GET',
+        'url': "/api/exam/all",
+        'success': function (data) {
+            fillExamsTable(data);
+        }
+    });
+
+}
+
 function fillExamModal(data) {
     let responseModalBody = document.getElementById("response-modal-body");
     $("#response-modal").modal({show: true});
+    responseModalBody.innerHTML = JSON.stringify(data);
 }
 
 function fillErrorModal(message) {
+    let responseModalBody = document.getElementById("response-modal-body");
     $("#response-modal").modal({show: true});
+    responseModalBody.innerHTML = JSON.stringify(message);
+
 }
 
 function setForLogin() {
@@ -133,6 +187,7 @@ function setForLogin() {
     $('.logged-out-element').hide();
     let profile = googleUser.getBasicProfile();
     document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
+    fetchExams();
 }
 
 function login() {

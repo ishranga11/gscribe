@@ -23,7 +23,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.googleinterns.gscribe.models.UserToken;
-import com.google.googleinterns.gscribe.resources.ExamResource;
 import com.google.googleinterns.gscribe.services.TokenRefreshService;
 
 import java.io.FileNotFoundException;
@@ -37,14 +36,14 @@ public class TokenRefreshImpl implements TokenRefreshService {
      * When the access Token expires then this method uses refreshToken to generate a new accessToken
      *
      * @param userToken ( contains refreshToken )
-     * @throws IOException
+     * @throws IOException ( if credentials file is not found or invalid )
      */
     @Override
     public void refresh(UserToken userToken) throws IOException {
 
         final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
         final String CREDENTIALS_FILE_PATH = "/credentials.json";
-        InputStream in = ExamResource.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        InputStream in = TokenRefreshImpl.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
         }

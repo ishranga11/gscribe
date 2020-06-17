@@ -26,29 +26,66 @@ import java.util.List;
 
 public class ExamGenerationServiceImpl implements ExamGenerationService {
 
+    /**
+     * Takes information needed for examMetadata and returns ExamMetadata object
+     *
+     * @param examSource ( contains sheet instance containing exam )
+     * @param request    ( contains spreadsheetId and sheetName )
+     * @param userID     ( unique user ID of user )
+     * @return examMetadata
+     */
     private ExamMetadata generateMetadata(ExamSource examSource, ExamRequest request, String userID) {
         int duration = Integer.parseInt(examSource.getExam().get(0).get(1).toString());
         return new ExamMetadata(request.getSpreadsheetID(), request.getSheetName(), userID, duration);
     }
 
+    /**
+     * reads the points of the question
+     * reads the statement of question
+     * return subjective question object
+     *
+     * @param questionObject ( question instance from sheet )
+     * @param questionNumber ( number of this question in order of questions )
+     * @return SubjectiveQuestion object for this question
+     */
     private Question createSubjectiveQuestion(List<Object> questionObject, int questionNumber) {
         int points = Integer.parseInt(questionObject.get(6).toString());
         String questionStatement = questionObject.get(1).toString();
         return new SubjectiveQuestion(questionStatement, points, questionNumber);
     }
 
+    /**
+     * reads the points of the question
+     * reads the statement of the question
+     * reads the options of the question
+     * returns the multiple choice question object
+     *
+     * @param questionObject ( question instance from sheet )
+     * @param questionNumber ( number of this question in order of questions )
+     * @return MultipleChoiceQuestion object for this question
+     */
     private Question CreateMultipleChoiceQuestion(List<Object> questionObject, int questionNumber) {
         int points = Integer.parseInt(questionObject.get(6).toString());
         String questionStatement = questionObject.get(1).toString();
-        ArrayList<String> options = new ArrayList<>();
+        List<String> options = new ArrayList<>();
         for (int i = 2; i < 6; i++) options.add(questionObject.get(i).toString());
         return new MultipleChoiceQuestion(questionStatement, points, questionNumber, options);
     }
 
+    /**
+     * makes examMetadata object
+     * makes an arraylist of questions
+     * returns exam object
+     *
+     * @param examSource ( contains sheet instance containing exam )
+     * @param request    ( contains spreadsheetId and sheetName )
+     * @param userID     ( unique user ID of user )
+     * @return Exam object
+     */
     @Override
     public Exam generate(ExamSource examSource, ExamRequest request, String userID) {
         ExamMetadata metadata = generateMetadata(examSource, request, userID);
-        ArrayList<Question> questions = new ArrayList<>();
+        List<Question> questions = new ArrayList<>();
         List<List<Object>> exam = examSource.getExam();
         int questionNumber;
         for (int i = 2; i < exam.size(); i++) {

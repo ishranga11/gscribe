@@ -16,10 +16,12 @@
 
 package com.google.googleinterns.gscribe.resources.io.exception;
 
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.BadRequestException;
 
-public class AuthenticationException extends WebApplicationException {
-    public AuthenticationException(String message) {
-        super(message);
+public class InvalidIDTokenException extends BadRequestException {
+
+    public InvalidIDTokenException() {
+        super("Invalid Authentication parameter");
     }
+
 }

@@ -16,20 +16,33 @@
 
 package com.google.googleinterns.gscribe.dao;
 
+import com.google.googleinterns.gscribe.models.Question;
+import com.google.gson.Gson;
+import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface ExamDao {
 
-    @SqlBatch("insert into questions( exam_id, question, question_num ) values ( examID, question, questionNum )")
+    @SqlBatch("insert into questions( exam_id, question, question_num ) values ( :examID, :question, :questionNum )")
     void insertExamQuestions(@Bind("question") List<String> question, @Bind("examID") int examID, @Bind("questionNum") List<Integer> questionNum);
 
-    @Mapper(ExamMetadataDao.ExamMetadataMapper.class)
-    @SqlQuery("SELECT * from exam where exam_id = :id")
-    List<String> getExamQuestions(@Bind("id") String id);
+    @Mapper(ExamDao.ExamMapper.class)
+    @SqlQuery("SELECT * from questions where exam_id = :id")
+    List<Question> getExamQuestions(@Bind("id") String id);
+
+    class ExamMapper implements ResultSetMapper<Question> {
+        @Override
+        public Question map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
+            return new Gson().fromJson(resultSet.getString("question"), Question.class);
+        }
+    }
 
 }

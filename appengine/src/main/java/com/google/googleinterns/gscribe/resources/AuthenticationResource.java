@@ -18,11 +18,17 @@ package com.google.googleinterns.gscribe.resources;
 
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.exception.InvalidAuthorizationRequestException;
+import com.google.googleinterns.gscribe.resources.io.exception.InvalidIDTokenException;
+import com.google.googleinterns.gscribe.resources.io.exception.MissingRequestParametersException;
+import com.google.googleinterns.gscribe.resources.io.exception.UserNotAuthorizedException;
 import com.google.googleinterns.gscribe.resources.io.request.AuthenticationRequest;
 import com.google.googleinterns.gscribe.resources.io.response.AuthenticationResponse;
 import com.google.googleinterns.gscribe.services.TokenService;
+import com.google.googleinterns.gscribe.services.data.TokenResponse;
 import com.google.inject.Inject;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -49,12 +55,48 @@ public class AuthenticationResource {
      * @param IDToken ( from header )
      * @param request ( must contain authCode )
      * @return a response message if tokens are saved in database for the user
+     * @throws MissingRequestParametersException    ( if request does not have authCode )
+     * @throws InvalidIDTokenException              ( if IDToken is invalid )
+     * @throws InternalServerErrorException         ( by GeneralSecurityException and IOException for credentials file )
+     * @throws InvalidAuthorizationRequestException ( if authCode is invalid, or user corresponding to IDToken and authCode are different )
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public AuthenticationResponse saveToken(@HeaderParam("Authentication") String IDToken, AuthenticationRequest request) throws GeneralSecurityException, IOException {
-        UserToken token = tokenService.generateToken(IDToken, request.getAuthCode());
+    public AuthenticationResponse saveToken(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull AuthenticationRequest request) {
+        UserToken token;
+        TokenResponse tokenResponse;
+        String userID, tokenResponseUserID;
+
+        if (request.getAuthCode() == null)
+            throw new MissingRequestParametersException();
+
+        try {
+            userID = tokenService.verifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIDTokenException();
+        }
+
+        try {
+            tokenResponse = tokenService.generateToken(request.getAuthCode());
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InvalidAuthorizationRequestException();
+        }
+
+        try {
+            tokenResponseUserID = tokenService.verifyIDToken(tokenResponse.getIDToken());
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIDTokenException();
+        }
+
+        if (!userID.equals(tokenResponseUserID))
+            throw new InvalidAuthorizationRequestException();
+
+        token = new UserToken(userID, tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(), null);
         userTokenDao.insertUserToken(token);
         return new AuthenticationResponse("User saved.");
     }
@@ -64,16 +106,29 @@ public class AuthenticationResource {
      * With corresponding userID check in database for tokens
      *
      * @param IDToken ( from header )
-     * @return a response based on if tokens are present in database for current user
+     * @return a success response containing message that user is authorized
+     * @throws InvalidIDTokenException      ( if IDToken is invalid )
+     * @throws InternalServerErrorException ( IOException or GeneralSecurityException due to credentials file )
+     * @throws UserNotAuthorizedException   ( if user is not found in the database )
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public AuthenticationResponse isTokenAvailable(@HeaderParam("Authentication") String IDToken) throws GeneralSecurityException, IOException {
-        String userID = tokenService.verifyIDToken(IDToken);
-        UserToken token = userTokenDao.getUserToken(userID);
-        if (token == null) throw new NotAuthorizedException("User not authorized");
-        return new AuthenticationResponse("Success");
+    public AuthenticationResponse isTokenAvailable(@NotNull @HeaderParam("Authentication") String IDToken) {
+        String userID;
+        UserToken token;
+
+        try {
+            userID = tokenService.verifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIDTokenException();
+        }
+
+        token = userTokenDao.getUserToken(userID);
+        if (token == null) throw new UserNotAuthorizedException();
+        return new AuthenticationResponse("User is Authorized");
     }
 
 

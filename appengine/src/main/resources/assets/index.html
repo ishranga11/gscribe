@@ -72,7 +72,7 @@
                     <input class="form-control" id="spreadsheetId" placeholder="Enter spreadsheet id" type="text">
                 </div>
                 <div class="form-group">
-                    <label for="sheetName">Sheet Id: </label>
+                    <label for="sheetName">Sheet Name: </label>
                     <input class="form-control" id="sheetName" placeholder="Enter sheet name" type="text">
                 </div>
                 <button class="btn btn-primary" type="submit">Submit</button>
@@ -95,6 +95,31 @@
                     <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="card mx-auto logged-in-element" id="allExamsCard">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <a aria-controls="examsCollapse" aria-expanded="true" class="btn btn-link" data-target="#examsCollapse"
+                   data-toggle="collapse" type="button">
+                    View your submitted exams!
+                </a>
+            </h5>
+        </div>
+
+        <div aria-labelledby="headingOne" class="collapse" id="examsCollapse">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Exam ID</th>
+                    <th scope="col">SpreadsheetId</th>
+                    <th scope="col">Duration</th>
+                    <th scope="col">Created On</th>
+                </tr>
+                </thead>
+                <tbody id="examsList">
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

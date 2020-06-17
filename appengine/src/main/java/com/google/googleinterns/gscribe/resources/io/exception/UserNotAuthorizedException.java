@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services;
+package com.google.googleinterns.gscribe.resources.io.exception;
 
-import com.google.googleinterns.gscribe.services.data.ExamSource;
+import javax.ws.rs.NotAuthorizedException;
 
-public interface ExamValidationService {
+public class UserNotAuthorizedException extends NotAuthorizedException {
 
-    /**
-     * check that the size of sheet is at least 3
-     * validate duration
-     * validate each question
-     *
-     * @param examSource ( contains instance of exam sheet )
-     */
-    void validate(ExamSource examSource) throws RuntimeException;
+    public UserNotAuthorizedException() {
+        super("User Not Authorized");
+    }
 
 }

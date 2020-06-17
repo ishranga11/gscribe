@@ -21,6 +21,14 @@ import java.security.GeneralSecurityException;
 
 public interface TokenVerificationService {
 
-    String verify(String IDToken) throws GeneralSecurityException, IOException;
+    /**
+     * This function takes as input the IDToken passed in header for authentication
+     * If the JWT clears all authentication checks then unique userID is extracted from the JWT and returned
+     *
+     * @param IDTokenString ( a JWT, web token signed by google )
+     * @return userID ( unique user ID for the user included in JWT )
+     * @throws GeneralSecurityException,IOException ( by google verifier, or reading credentials file errors )
+     */
+    String verify(String IDTokenString) throws GeneralSecurityException, IOException;
 
 }

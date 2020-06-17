@@ -25,6 +25,15 @@ import java.security.GeneralSecurityException;
 
 public interface ExamSourceService {
 
+    /**
+     * Reads the sheet identified by request
+     *
+     * @param request ( contains spreadsheetId, sheetName to be read )
+     * @param token   ( contains access token )
+     * @return an ExamSource object containing an image of the sheet identified with request
+     * @throws IOException              ( thrown by NetHttpTransport or when unable to read sheet )
+     * @throws GeneralSecurityException ( thrown by NetHttpTransport )
+     */
     ExamSource getExam(ExamRequest request, UserToken token) throws IOException, GeneralSecurityException;
 
 }

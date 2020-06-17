@@ -35,14 +35,31 @@ import java.util.List;
 
 public class ExamSourceServiceImpl implements ExamSourceService {
 
-    private int getNumberOfQuestions(Sheets service, String spreadsheetId, String sheetName) throws IOException {
+    /**
+     * Reads column 1 of the sheet and return the number of rows filled
+     * With help of this we identify the range of spreadsheet to be read
+     *
+     * @param service       ( sheet service instance )
+     * @param spreadsheetId ( spreadsheet ID to be read )
+     * @param sheetName     ( sheetName from spreadsheet to be read )
+     * @return number of rows filled in column 1
+     * @throws IOException ( if the spreadsheetId or sheetName is invalid )
+     */
+    private int getNumberOfRowsFilled(Sheets service, String spreadsheetId, String sheetName) throws IOException {
         final String noOfQuestionsChecker = sheetName + "!A:A";
         ValueRange response = service.spreadsheets().values().get(spreadsheetId, noOfQuestionsChecker).execute();
-        List<List<Object>> values = response.getValues();
-        if (values == null || values.isEmpty() || values.size() < 3) throw new RuntimeException();
-        return values.size();
+        return response.getValues().size();
     }
 
+    /**
+     * Reads the sheet identified by request
+     *
+     * @param request ( contains spreadsheetId, sheetName to be read )
+     * @param token   ( contains access token )
+     * @return an ExamSource object containing an image of the sheet identified with request
+     * @throws IOException              ( thrown by NetHttpTransport or when unable to read sheet )
+     * @throws GeneralSecurityException ( thrown by NetHttpTransport )
+     */
     public ExamSource getExam(ExamRequest request, UserToken token) throws IOException, GeneralSecurityException {
 
         // Set access token to get the spreadsheet Instance
@@ -52,7 +69,7 @@ public class ExamSourceServiceImpl implements ExamSourceService {
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("Gscribe").build();
 
         // Parse the Sheet
-        int numberOfQuestions = getNumberOfQuestions(service, request.getSpreadsheetID(), request.getSheetName());
+        int numberOfQuestions = getNumberOfRowsFilled(service, request.getSpreadsheetID(), request.getSheetName());
         String range = request.getSheetName() + "!A1:G" + numberOfQuestions;
         ValueRange response = service.spreadsheets().values().get(request.getSpreadsheetID(), range).execute();
         List<List<Object>> exam = response.getValues();

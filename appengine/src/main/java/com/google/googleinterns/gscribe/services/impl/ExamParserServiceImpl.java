@@ -40,18 +40,44 @@ public class ExamParserServiceImpl implements ExamParserService {
         this.examSourceService = examSourceService;
     }
 
+    /**
+     * Reads the sheet identified by request
+     *
+     * @param request ( contains spreadsheetId, sheetName to be read )
+     * @param token   ( contains access token )
+     * @return an ExamSource object containing an image of the sheet identified with request
+     * @throws IOException              ( thrown by NetHttpTransport or when unable to read sheet )
+     * @throws GeneralSecurityException ( thrown by NetHttpTransport )
+     */
     @Override
-    public ExamSource getExam(ExamRequest examRequest, UserToken userToken) throws IOException, GeneralSecurityException {
-        return examSourceService.getExam(examRequest, userToken);
+    public ExamSource getExam(ExamRequest request, UserToken token) throws IOException, GeneralSecurityException {
+        return examSourceService.getExam(request, token);
     }
 
+    /**
+     * makes examMetadata object
+     * makes an arraylist of questions
+     * returns exam object
+     *
+     * @param examSource ( contains sheet instance containing exam )
+     * @param request    ( contains spreadsheetId and sheetName )
+     * @param userID     ( unique user ID of user )
+     * @return Exam object
+     */
     @Override
     public Exam generateExam(ExamSource examSource, ExamRequest request, String userID) {
         return examGenerationService.generate(examSource, request, userID);
     }
 
+    /**
+     * check that the size of sheet is at least 3
+     * validate duration
+     * validate each question
+     *
+     * @param examSource ( contains instance of exam sheet )
+     */
     @Override
-    public void validateExam(ExamSource examSource) throws RuntimeException {
+    public void validateExam(ExamSource examSource) {
         examValidationService.validate(examSource);
     }
 

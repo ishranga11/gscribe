@@ -50,11 +50,10 @@ public class ServicesModule extends AbstractModule {
         return new ExamParserServiceImpl(examValidationService, examGenerationService, examSourceService);
     }
 
-    @Inject
     @Provides
     @Singleton
-    TokenGenerationService tokenGenerationServiceProvider(TokenVerificationService tokenVerificationService) {
-        return new TokenGenerationServiceImpl(tokenVerificationService);
+    TokenGenerationService tokenGenerationServiceProvider() {
+        return new TokenGenerationServiceImpl();
     }
 
     @Provides

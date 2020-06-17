@@ -16,14 +16,14 @@
 
 package com.google.googleinterns.gscribe.models;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Exam {
 
     private ExamMetadata examMetadata;
-    private ArrayList<Question> questions;
+    private List<Question> questions;
 
-    public Exam(ExamMetadata examMetadata, ArrayList<Question> questions) {
+    public Exam(ExamMetadata examMetadata, List<Question> questions) {
         this.examMetadata = examMetadata;
         this.questions = questions;
     }
@@ -36,11 +36,11 @@ public class Exam {
         this.examMetadata = examMetadata;
     }
 
-    public ArrayList<Question> getQuestions() {
+    public List<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(ArrayList<Question> questions) {
+    public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
 }
