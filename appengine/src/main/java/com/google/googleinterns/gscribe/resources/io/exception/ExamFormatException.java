@@ -16,9 +16,7 @@
 
 package com.google.googleinterns.gscribe.resources.io.exception;
 
-import javax.ws.rs.BadRequestException;
-
-public class ExamFormatException extends BadRequestException {
+public class ExamFormatException extends Exception {
 
     public ExamFormatException(String message) {
         super("Exam format Exception: " + message);

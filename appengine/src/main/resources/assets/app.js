@@ -112,8 +112,9 @@ function submitSheet() {
         'success': function (data) {
             fillExamModal(data);
         },
-        'error': function (xhr, data) {
-            fillErrorModal(data);
+        'error': function (xhr) {
+            let err = eval("(" + xhr.responseText + ")");
+            fillErrorModal(err.message);
         }
     });
 
@@ -170,17 +171,65 @@ function fetchExams() {
 }
 
 function fillExamModal(data) {
-    let responseModalBody = document.getElementById("response-modal-body");
-    $("#response-modal").modal({show: true});
-    responseModalBody.innerHTML = JSON.stringify(data);
+    $('#response-modal-body').empty();
+    document.getElementById('modal-label').innerHTML = 'Exam';
+    fillMetadata(data.exam.examMetadata);
+    fillQuestions(data.exam.questions);
+    $('#response-modal').modal({show: true});
 }
 
 function fillErrorModal(message) {
-    let responseModalBody = document.getElementById("response-modal-body");
-    $("#response-modal").modal({show: true});
-    responseModalBody.innerHTML = JSON.stringify(message);
-
+    document.getElementById('modal-label').innerHTML = "Error";
+    document.getElementById('response-modal-body').innerHTML = JSON.stringify(message);
+    $('#response-modal').modal({show: true});
 }
+
+function fillMetadata(data) {
+    let adder = '<div class="card">\n' +
+        '  <div class="card-header"> Exam Metadata </div>\n' +
+        '  <ul class="list-group list-group-flush">\n' +
+        '    <li class="list-group-item">Exam ID: ' + data.id + ' </li>\n' +
+        '    <li class="list-group-item">Exam Duration: ' + data.duration + ' </li>\n' +
+        '    <li class="list-group-item">Spreadsheet ID: ' + data.spreadsheetID + '</li>\n' +
+        '    <li class="list-group-item">Created On: ' + data.createdOn + '</li>\n' +
+        '  </ul>\n' +
+        '</div>';
+    $('#response-modal-body').append(adder);
+}
+
+function fillQuestions(questions) {
+    questions.forEach(question => {
+        if (question.type === "MCQ") fillMCQ(question);
+        else if (question.type === "SUBJECTIVE") fillSubjective(question);
+    });
+}
+
+function fillMCQ(question) {
+    let adder = '<div class="card">\n' +
+        '  <div class="card-body">\n' +
+        '    <h5 class="card-title">Question ' + question.questionNumber + ' ( ' + question.points + ' points ) </h5>\n' +
+        '    <p class="card-text"> ' + question.statement + ' </p>\n' +
+        '  </div>\n' +
+        '  <ul class="list-group list-group-flush">\n' +
+        '    <li class="list-group-item"> ' + question.options[0] + ' </li>\n' +
+        '    <li class="list-group-item"> ' + question.options[1] + ' </li>\n' +
+        '    <li class="list-group-item"> ' + question.options[2] + ' </li>\n' +
+        '    <li class="list-group-item"> ' + question.options[3] + ' </li>\n' +
+        '  </ul>' +
+        '</div>';
+    $('#response-modal-body').append(adder);
+}
+
+function fillSubjective(question) {
+    let adder = '<div class="card">\n' +
+        '  <div class="card-body">\n' +
+        '    <h5 class="card-title">Question ' + question.questionNumber + ' ( ' + question.points + ' points ) </h5>\n' +
+        '    <p class="card-text"> ' + question.statement + ' </p>\n' +
+        '  </div>\n' +
+        '</div>';
+    $('#response-modal-body').append(adder);
+}
+
 
 function setForLogin() {
     $('.logged-in-element').show();

@@ -18,6 +18,7 @@ package com.google.googleinterns.gscribe.services;
 
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.services.data.ExamSource;
 
@@ -30,6 +31,6 @@ public interface ExamParserService {
 
     Exam generateExam(ExamSource examSource, ExamRequest request, String userID);
 
-    void validateExam(ExamSource examSource) throws RuntimeException;
+    void validateExam(ExamSource examSource) throws RuntimeException, ExamFormatException;
 
 }

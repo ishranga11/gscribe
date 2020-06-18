@@ -24,6 +24,7 @@ import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
 import com.google.googleinterns.gscribe.models.Question;
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidIDTokenException;
 import com.google.googleinterns.gscribe.resources.io.exception.UserNotAuthorizedException;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
@@ -77,7 +78,7 @@ public class ExamResource {
      * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
      */
     @POST
-    public ExamResponse postExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull ExamRequest request) throws GeneralSecurityException, IOException, RuntimeException {
+    public ExamResponse postExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull ExamRequest request) {
         String userID;
         UserToken token;
         ExamSource examSource = null;
@@ -114,10 +115,15 @@ public class ExamResource {
             throw new InternalServerErrorException();
         }
 
-        examParserService.validateExam(examSource);
+        try {
+            examParserService.validateExam(examSource);
+        } catch (ExamFormatException e) {
+            throw new BadRequestException(e.getMessage());
+        }
 
         Exam exam = examParserService.generateExam(examSource, request, userID);
         int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
+        exam.getExamMetadata().setId(examID);
 
         List<String> questionJSON = new ArrayList<>();
         List<Integer> questionNum = new ArrayList<>();

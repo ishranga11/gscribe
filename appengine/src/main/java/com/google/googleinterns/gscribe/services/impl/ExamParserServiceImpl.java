@@ -18,6 +18,7 @@ package com.google.googleinterns.gscribe.services.impl;
 
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.services.ExamGenerationService;
 import com.google.googleinterns.gscribe.services.ExamParserService;
@@ -46,8 +47,7 @@ public class ExamParserServiceImpl implements ExamParserService {
      * @param request ( contains spreadsheetId, sheetName to be read )
      * @param token   ( contains access token )
      * @return an ExamSource object containing an image of the sheet identified with request
-     * @throws IOException              ( thrown by NetHttpTransport or when unable to read sheet )
-     * @throws GeneralSecurityException ( thrown by NetHttpTransport )
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
      */
     @Override
     public ExamSource getExam(ExamRequest request, UserToken token) throws IOException, GeneralSecurityException {
@@ -77,7 +77,7 @@ public class ExamParserServiceImpl implements ExamParserService {
      * @param examSource ( contains instance of exam sheet )
      */
     @Override
-    public void validateExam(ExamSource examSource) {
+    public void validateExam(ExamSource examSource) throws ExamFormatException {
         examValidationService.validate(examSource);
     }
 

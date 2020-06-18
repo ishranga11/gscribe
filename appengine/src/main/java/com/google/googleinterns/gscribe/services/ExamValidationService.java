@@ -16,6 +16,7 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.services.data.ExamSource;
 
 public interface ExamValidationService {
@@ -27,6 +28,6 @@ public interface ExamValidationService {
      *
      * @param examSource ( contains instance of exam sheet )
      */
-    void validate(ExamSource examSource) throws RuntimeException;
+    void validate(ExamSource examSource) throws RuntimeException, ExamFormatException;
 
 }

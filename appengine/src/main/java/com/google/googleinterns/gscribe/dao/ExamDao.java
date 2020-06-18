@@ -16,7 +16,10 @@
 
 package com.google.googleinterns.gscribe.dao;
 
+import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
 import com.google.googleinterns.gscribe.models.Question;
+import com.google.googleinterns.gscribe.models.QuestionType;
+import com.google.googleinterns.gscribe.models.SubjectiveQuestion;
 import com.google.gson.Gson;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -41,7 +44,13 @@ public interface ExamDao {
     class ExamMapper implements ResultSetMapper<Question> {
         @Override
         public Question map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
-            return new Gson().fromJson(resultSet.getString("question"), Question.class);
+            Question question = new Gson().fromJson(resultSet.getString("question"), Question.class);
+            if (question.getType().equals(QuestionType.MCQ)) {
+                return new Gson().fromJson(resultSet.getString("question"), MultipleChoiceQuestion.class);
+            } else if (question.getType().equals(QuestionType.SUBJECTIVE)) {
+                return new Gson().fromJson(resultSet.getString("question"), SubjectiveQuestion.class);
+            }
+            return null;
         }
     }
 

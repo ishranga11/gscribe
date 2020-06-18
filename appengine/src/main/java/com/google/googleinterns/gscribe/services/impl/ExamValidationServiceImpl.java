@@ -30,7 +30,7 @@ public class ExamValidationServiceImpl implements ExamValidationService {
      *
      * @param row1 ( row 1 of spreadsheet )
      */
-    private void validateDuration(List<Object> row1) {
+    private void validateDuration(List<Object> row1) throws ExamFormatException {
         if (row1.size() < 2) throw new ExamFormatException("duration not present in B1");
         String durationString = row1.get(1).toString();
         int duration;
@@ -49,7 +49,7 @@ public class ExamValidationServiceImpl implements ExamValidationService {
      * @param question    ( a list containing question )
      * @param questionRow ( row in which this question lies )
      */
-    private void checkMultipleChoiceQuestion(List<Object> question, int questionRow) {
+    private void checkMultipleChoiceQuestion(List<Object> question, int questionRow) throws ExamFormatException {
         if (question.get(1).equals("")) throw new ExamFormatException("missing question statement B" + questionRow);
         for (int i = 2; i < 6; i++) {
             if (question.get(i).equals(""))
@@ -64,7 +64,7 @@ public class ExamValidationServiceImpl implements ExamValidationService {
      * @param question    ( a list containing question )
      * @param questionRow ( row in which this question lies )
      */
-    private void checkSubjectiveQuestion(List<Object> question, int questionRow) {
+    private void checkSubjectiveQuestion(List<Object> question, int questionRow) throws ExamFormatException {
         if (question.get(1).equals("")) throw new ExamFormatException("missing question statement B" + questionRow);
         for (int i = 2; i < 6; i++) {
             if (!question.get(i).equals(""))
@@ -79,7 +79,7 @@ public class ExamValidationServiceImpl implements ExamValidationService {
      * @param pointsString ( points mentioned for question in sheet )
      * @param questionRow  ( row in which this question lies )
      */
-    private void validatePoints(String pointsString, int questionRow) {
+    private void validatePoints(String pointsString, int questionRow) throws ExamFormatException {
         int points;
         try {
             points = Integer.parseInt(pointsString);
@@ -98,7 +98,7 @@ public class ExamValidationServiceImpl implements ExamValidationService {
      * @param examSource ( contains instance of exam sheet )
      */
     @Override
-    public void validate(ExamSource examSource) {
+    public void validate(ExamSource examSource) throws ExamFormatException {
         List<List<Object>> exam = examSource.getExam();
         if (exam.size() < 3) throw new ExamFormatException("Improper exam template used");
         validateDuration(exam.get(0));
