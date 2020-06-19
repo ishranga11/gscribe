@@ -32,12 +32,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ExamDao {
+public interface QuestionsDao {
 
     @SqlBatch("insert into questions( exam_id, question, question_num ) values ( :examID, :question, :questionNum )")
     void insertExamQuestions(@Bind("question") List<String> question, @Bind("examID") int examID, @Bind("questionNum") List<Integer> questionNum);
 
-    @Mapper(ExamDao.ExamMapper.class)
+    @Mapper(QuestionsDao.ExamMapper.class)
     @SqlQuery("SELECT * from questions where exam_id = :id")
     List<Question> getExamQuestions(@Bind("id") String id);
 

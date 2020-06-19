@@ -18,14 +18,14 @@ package com.google.googleinterns.gscribe.models;
 
 import java.sql.Timestamp;
 
-public class UserToken {
+public class User {
 
     private String id;
     private String accessToken;
     private String refreshToken;
     private Timestamp timestamp;
 
-    public UserToken(String id, String accessToken, String refreshToken, Timestamp timestamp) {
+    public User(String id, String accessToken, String refreshToken, Timestamp timestamp) {
         this.id = id;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;

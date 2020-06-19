@@ -16,7 +16,7 @@
 
 package com.google.googleinterns.gscribe.dao;
 
-import com.google.googleinterns.gscribe.models.UserToken;
+import com.google.googleinterns.gscribe.models.User;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
@@ -32,19 +32,17 @@ public interface UserTokenDao {
 
     @Mapper(UserTokenMapper.class)
     @SqlQuery("SELECT * from user where id = :id")
-    UserToken getUserToken(@Bind("id") String id);
+    User getUserToken(@Bind("id") String id);
 
-    @SqlUpdate("INSERT INTO user( id, access_token, refresh_token ) VALUES ( :id, :accessToken, :refreshToken )")
-    void insertUserToken(@BindBean UserToken userToken);
+    @SqlUpdate("INSERT INTO user( id, access_token, refresh_token, timestamp ) VALUES ( :id, :accessToken, :refreshToken, CURRENT_TIMESTAMP ) " +
+            "ON DUPLICATE KEY UPDATE id=:id, access_token=:accessToken, refresh_token=:refreshToken, timestamp=CURRENT_TIMESTAMP")
+    void insertUserToken(@BindBean User user);
 
-    @SqlUpdate("UPDATE user set access_token = :accessToken, refresh_token = :refreshToken, timestamp = CURRENT_TIMESTAMP where id = :id;")
-    void updateTokens(@BindBean UserToken userToken);
-
-    class UserTokenMapper implements ResultSetMapper<UserToken> {
+    class UserTokenMapper implements ResultSetMapper<User> {
         @Override
-        public UserToken map(int i, ResultSet resultSet, StatementContext statementContext)
+        public User map(int i, ResultSet resultSet, StatementContext statementContext)
                 throws SQLException {
-            return new UserToken(
+            return new User(
                     resultSet.getString("id"),
                     resultSet.getString("access_token"),
                     resultSet.getString("refresh_token"),

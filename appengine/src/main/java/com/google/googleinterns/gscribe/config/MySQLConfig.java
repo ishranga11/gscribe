@@ -17,14 +17,11 @@
 package com.google.googleinterns.gscribe.config;
 
 public class MySQLConfig {
-    private final String url;
-    private final String userName;
-    private final String password;
+    private String url;
+    private String userName;
+    private String password;
 
-    public MySQLConfig(String url, String userName, String password) {
-        this.url = url;
-        this.userName = userName;
-        this.password = password;
+    public MySQLConfig() {
     }
 
     public String getUrl() {

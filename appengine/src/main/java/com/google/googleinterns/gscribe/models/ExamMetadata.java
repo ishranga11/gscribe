@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 
 public class ExamMetadata {
 
+    // TODO: add version for exams
     private String spreadsheetID;
     private String sheetName;
     private String userID;

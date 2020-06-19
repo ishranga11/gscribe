@@ -16,16 +16,30 @@
 
 package com.google.googleinterns.gscribe.resources.io.exception;
 
-import javax.ws.rs.BadRequestException;
+public class InvalidDatabaseDataException extends Exception {
 
-public class MissingRequestParametersException extends BadRequestException {
+    private final String message;
+    private int code;
 
-    public MissingRequestParametersException(String parameter) {
-        super("Missing request parameters: " + parameter);
+    public InvalidDatabaseDataException(String message) {
+        this.message = message;
     }
 
-    public MissingRequestParametersException() {
-        super("Missing request parameters: ");
+    public InvalidDatabaseDataException(String message, int code) {
+        this.message = message;
+        this.code = code;
     }
 
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 }
