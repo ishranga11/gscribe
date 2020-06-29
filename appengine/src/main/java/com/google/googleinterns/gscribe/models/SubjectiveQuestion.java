@@ -17,4 +17,9 @@
 package com.google.googleinterns.gscribe.models;
 
 public class SubjectiveQuestion extends Question {
+
+    public SubjectiveQuestion(String statement, int points, int questionNumber) {
+        super(QuestionType.SUBJECTIVE, statement, points, questionNumber);
+    }
+
 }

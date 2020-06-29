@@ -1,3 +1,10 @@
+database:
+  userName: root
+  password: pass
+  url: jdbc:mysql://localhost:3306/gscribe
+
+environment: LOCAL
+
 server:
   requestLog:
     appenders: []

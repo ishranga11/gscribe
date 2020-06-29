@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services;
+package com.google.googleinterns.gscribe.resources.io.exception;
 
-import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.ExamMetadata;
-import com.google.googleinterns.gscribe.services.data.ExamSource;
+public class InvalidRequestException extends Exception {
 
-import java.util.List;
+    private final String message;
+    private int code;
 
-public interface ExamParserService {
+    public InvalidRequestException(String message) {
+        this.message = message;
+    }
 
-    ExamSource getExam(ExamMetadata metadata);
+    public InvalidRequestException(String message, int code) {
+        this.message = message;
+        this.code = code;
+    }
 
-    Exam generateExam(List<List<Object>> examObject, ExamMetadata metadata);
+    @Override
+    public String getMessage() {
+        return message;
+    }
 
-    String validateExam(List<List<Object>> examObject);
+    public int getCode() {
+        return code;
+    }
 
+    public void setCode(int code) {
+        this.code = code;
+    }
 }

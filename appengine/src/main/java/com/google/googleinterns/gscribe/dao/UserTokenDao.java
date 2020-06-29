@@ -16,5 +16,39 @@
 
 package com.google.googleinterns.gscribe.dao;
 
-public class UserTokenDao {
+import com.google.googleinterns.gscribe.models.User;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public interface UserTokenDao {
+
+    @Mapper(UserTokenMapper.class)
+    @SqlQuery("SELECT * from user where id = :id")
+    User getUserToken(@Bind("id") String id);
+
+    @SqlUpdate("INSERT INTO user( id, access_token, refresh_token, timestamp ) VALUES ( :id, :accessToken, :refreshToken, CURRENT_TIMESTAMP ) " +
+            "ON DUPLICATE KEY UPDATE id=:id, access_token=:accessToken, refresh_token=:refreshToken, timestamp=CURRENT_TIMESTAMP")
+    void insertUserToken(@BindBean User user);
+
+    class UserTokenMapper implements ResultSetMapper<User> {
+        @Override
+        public User map(int i, ResultSet resultSet, StatementContext statementContext)
+                throws SQLException {
+            return new User(
+                    resultSet.getString("id"),
+                    resultSet.getString("access_token"),
+                    resultSet.getString("refresh_token"),
+                    resultSet.getTimestamp("timestamp")
+            );
+        }
+    }
+
 }

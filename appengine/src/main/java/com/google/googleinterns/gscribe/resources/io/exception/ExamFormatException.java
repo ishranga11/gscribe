@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services.impl;
+package com.google.googleinterns.gscribe.resources.io.exception;
 
-import com.google.googleinterns.gscribe.services.TokenGenerationService;
+public class ExamFormatException extends Exception {
 
-public class TokenGenerationServiceImpl implements TokenGenerationService {
+    public ExamFormatException(String message) {
+        super("Exam format Exception: " + message);
+    }
+
 }

@@ -16,5 +16,26 @@
 
 package com.google.googleinterns.gscribe.resources.io.response;
 
+import com.google.googleinterns.gscribe.models.ExamMetadata;
+
+import java.util.List;
+
 public class ExamsListResponse {
+
+    List<ExamMetadata> examsList;
+
+    public ExamsListResponse() {
+    }
+
+    public ExamsListResponse(List<ExamMetadata> examsList) {
+        this.examsList = examsList;
+    }
+
+    public List<ExamMetadata> getExamsList() {
+        return examsList;
+    }
+
+    public void setExamsList(List<ExamMetadata> examsList) {
+        this.examsList = examsList;
+    }
 }

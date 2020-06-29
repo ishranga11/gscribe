@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services.data;
+package com.google.googleinterns.gscribe.resources.io.exception;
 
-import java.util.List;
+public class InvalidDatabaseDataException extends Exception {
 
-public class ExamSource {
+    private final String message;
+    private int code;
 
-    List<List<Object>> exam;
-
-    public ExamSource() {
+    public InvalidDatabaseDataException(String message) {
+        this.message = message;
     }
 
-    public List<List<Object>> getExam() {
-        return exam;
+    public InvalidDatabaseDataException(String message, int code) {
+        this.message = message;
+        this.code = code;
     }
 
-    public void setExam(List<List<Object>> exam) {
-        this.exam = exam;
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 }

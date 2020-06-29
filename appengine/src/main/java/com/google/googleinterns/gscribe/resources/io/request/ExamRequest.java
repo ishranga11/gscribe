@@ -17,4 +17,26 @@
 package com.google.googleinterns.gscribe.resources.io.request;
 
 public class ExamRequest {
+
+    private String spreadsheetID;
+    private String sheetName;
+
+    public ExamRequest() {
+    }
+
+    public String getSpreadsheetID() {
+        return spreadsheetID;
+    }
+
+    public void setSpreadsheetID(String spreadsheetID) {
+        this.spreadsheetID = spreadsheetID;
+    }
+
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+    }
 }
