@@ -1,0 +1,5 @@
+target/*
+.idea/*
+tokens/*
+src/main/resources/credentials.json
+dependency-reduced-pom.xml
