@@ -1,5 +1,6 @@
 vm: true
 runtime: custom
+env: flex
 
 resources:
   cpu: 0.1
