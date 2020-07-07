@@ -34,13 +34,31 @@ import java.util.List;
 
 public interface QuestionsDao {
 
+    /**
+     * Inserts a list of all questions of a particular exam to the database
+     * A JSON object of the question is inserted for the question
+     *
+     * @param question    ( question JSON string )
+     * @param examID      ( to identify particular exam )
+     * @param questionNum ( question number of corresponding question )
+     */
     @SqlBatch("insert into questions( exam_id, question, question_num ) values ( :examID, :question, :questionNum )")
     void insertExamQuestions(@Bind("question") List<String> question, @Bind("examID") int examID, @Bind("questionNum") List<Integer> questionNum);
 
+    /**
+     * Queries all the questions of the exam identified by exam id examID
+     *
+     * @param examID ( to identify particular exam )
+     * @return list of question objects
+     */
     @Mapper(QuestionsDao.ExamMapper.class)
-    @SqlQuery("SELECT * from questions where exam_id = :id")
-    List<Question> getExamQuestions(@Bind("id") String id);
+    @SqlQuery("SELECT * from questions where exam_id = :exam_id")
+    List<Question> getExamQuestions(@Bind("exam_id") int examID);
 
+    /**
+     * A Mapper class to map a question response to question object
+     * Mapping is done based on the question type
+     */
     class ExamMapper implements ResultSetMapper<Question> {
         @Override
         public Question map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {

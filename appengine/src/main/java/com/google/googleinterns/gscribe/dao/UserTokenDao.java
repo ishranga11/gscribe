@@ -30,14 +30,32 @@ import java.sql.SQLException;
 
 public interface UserTokenDao {
 
+    /**
+     * Queries user object for user identified with id userID
+     * Called to check the availability of tokens or to use tokens for this user
+     *
+     * @param userID ( unique user id of user, here paper setter )
+     * @return user object
+     */
     @Mapper(UserTokenMapper.class)
-    @SqlQuery("SELECT * from user where id = :id")
-    User getUserToken(@Bind("id") String id);
+    @SqlQuery("SELECT * from user where id = :user_id")
+    User getUserToken(@Bind("user_id") String userID);
 
-    @SqlUpdate("INSERT INTO user( id, access_token, refresh_token, timestamp ) VALUES ( :id, :accessToken, :refreshToken, CURRENT_TIMESTAMP ) " +
-            "ON DUPLICATE KEY UPDATE id=:id, access_token=:accessToken, refresh_token=:refreshToken, timestamp=CURRENT_TIMESTAMP")
+    /**
+     * Inserts new user with ( id, access token, refresh_token )
+     * Or to Update the tokens for the user
+     * id here denotes the unique user id of the user
+     * timestamp denotes the latest time when the tokens were created or updated
+     *
+     * @param user ( user object )
+     */
+    @SqlUpdate("INSERT INTO user( id, access_token, refresh_token ) VALUES ( :id, :accessToken, :refreshToken ) " +
+            "ON DUPLICATE KEY UPDATE access_token=:accessToken, refresh_token=:refreshToken, timestamp=CURRENT_TIMESTAMP")
     void insertUserToken(@BindBean User user);
 
+    /**
+     * A mapper class to map user response to user object
+     */
     class UserTokenMapper implements ResultSetMapper<User> {
         @Override
         public User map(int i, ResultSet resultSet, StatementContext statementContext)
