@@ -142,7 +142,7 @@ function getExam(examID) {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'authorization-code': IDToken
+            'Authentication': IDToken
         },
         'type': 'GET',
         'url': url,
@@ -159,7 +159,7 @@ function fetchExams() {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'authorization-code': IDToken
+            'Authentication': IDToken
         },
         'type': 'GET',
         'url': "/api/exam/all",
@@ -251,3 +251,5 @@ function logout() {
         location.reload();
     });
 }
+
+window.onload = init;
