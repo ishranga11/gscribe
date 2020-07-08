@@ -42,6 +42,18 @@ public interface UserTokenDao {
     User getUserToken(@Bind("user_id") String userID);
 
     /**
+     * Queries user object for user who created exam with exam id examID
+     * Called when a response is to be submitted to response sheet in google sheets for the exam identified by examID
+     * As to access the spreadsheet instance user token is needed so this function is called to retrieve user object
+     *
+     * @param examID ( to identify particular exam )
+     * @return user object
+     */
+    @Mapper(UserTokenMapper.class)
+    @SqlQuery("SELECT user.id,access_token,refresh_token,user.timestamp FROM user inner join exam on exam.created_by=user.id where exam.id = :exam_id;")
+    User getUserTokenByExamID(@Bind("exam_id") int examID);
+
+    /**
      * Inserts new user with ( id, access token, refresh_token )
      * Or to Update the tokens for the user
      * id here denotes the unique user id of the user
