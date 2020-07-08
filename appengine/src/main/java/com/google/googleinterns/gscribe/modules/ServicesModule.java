@@ -18,8 +18,10 @@ package com.google.googleinterns.gscribe.modules;
 
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.services.ExamSheetsService;
+import com.google.googleinterns.gscribe.services.SheetService;
 import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.googleinterns.gscribe.services.impl.ExamSheetsServiceImpl;
+import com.google.googleinterns.gscribe.services.impl.SheetServiceImpl;
 import com.google.googleinterns.gscribe.services.impl.TokenServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -40,6 +42,13 @@ public class ServicesModule extends AbstractModule {
     @Singleton
     public TokenService tokenServiceProvider() {
         return new TokenServiceImpl();
+    }
+
+    @Inject
+    @Provides
+    @Singleton
+    public SheetService sheetServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
+        return new SheetServiceImpl(tokenService, userTokenDao);
     }
 
 }
