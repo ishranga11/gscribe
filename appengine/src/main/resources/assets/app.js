@@ -15,8 +15,13 @@
  */
 
 let auth2;
-let googleUser;
 
+/**
+ * Called on window load
+ * Initializes the gapi library with client_id of the client to be able to use gapi oauth functionality
+ * Initially hides all elements which should be visible if user is logged in
+ * Adds listener for change in sign in status or user from logout state to login state
+ */
 function init() {
     gapi.load('auth2', function () {
         auth2 = gapi.auth2.init({
@@ -25,21 +30,28 @@ function init() {
             'scope': 'profile'
         });
         $('.logged-in-element').hide();
-        auth2.isSignedIn.listen(signinChanged);
-        auth2.currentUser.listen(userChanged);
+        auth2.isSignedIn.listen(signInChanged);
     });
 }
 
-var signinChanged = function (val) {
+/**
+ * Called by gapi sign in status listener
+ * Whenever user logout then the window refreshes, so this is basically used when user login
+ * When user login then set page for login state by function setForLogin
+ * @param val ( true if user is signed in else false )
+ */
+let signInChanged = function (val) {
     if (val === true) setForLogin();
 };
 
-var userChanged = function (user) {
-    if (user.getId()) {
-        googleUser = user;
-    }
-};
-
+/**
+ * Called when the backend returns that the user is not authorized
+ * This function asks the user to grant offline access to google sheets
+ * When user grants offline access to google sheets an authorization code is generated which can be used to generate tokens
+ * A post call is made to the backend with the authorization code and IDToken to authorize user
+ * On success move to submitSheet function
+ * On error display error in modal
+ */
 function sendCode() {
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
     auth2.grantOfflineAccess({
@@ -68,6 +80,14 @@ function sendCode() {
     });
 }
 
+/**
+ * Called when user wants to submit the question paper
+ * First checks if the user is authorized for the service
+ * i.e. the backend holds tokens for spreadsheet access token for this user
+ * If user is authorized then move to submitSheet function
+ * If user is not authorized then call sendCode function to send authorization code for user
+ * Else display error in error modal
+ */
 function codeNeeded() {
 
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
@@ -91,6 +111,12 @@ function codeNeeded() {
 
 }
 
+/**
+ * Called when user is authorized
+ * spreadsheetId and sheet name are sent for sheet where the question paper lies
+ * On success show exam object in the exam modal
+ * On error display the error in error modal
+ */
 function submitSheet() {
 
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
@@ -120,6 +146,12 @@ function submitSheet() {
 
 }
 
+/**
+ * Called to fill exam table on the page
+ * This exam table acts as a compact way to view all exams created by user showing minimal info i.e. exam metadata
+ * The table is filled with exam metadata of all exams created by user
+ * @param data ( exam metadata list response object )
+ */
 function fillExamsTable(data) {
 
     $('#examsList').empty();
@@ -135,6 +167,14 @@ function fillExamsTable(data) {
     }
 }
 
+/**
+ * Called when user clicks on exam id in exams metadata table
+ * Here user wants to view the exam for corresponding exam id
+ * A request is made to the backend to fetch corresponding exam object
+ * On success fill exam modal with the exam object
+ * On error display error in error modal
+ * @param examID
+ */
 function getExam(examID) {
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
     let url = "/api/exam/" + examID;
@@ -148,10 +188,20 @@ function getExam(examID) {
         'url': url,
         'success': function (data) {
             fillExamModal(data);
+        },
+        'error': function (data) {
+            fillErrorModal(data);
         }
     });
 }
 
+/**
+ * Called to load exam metadata table with exam metadata of all exams created by user
+ * This function is called when page loads
+ * A request is made to the backend for list of exam metadata
+ * On success fill the exam metadata table
+ * On error display error in error modal
+ */
 function fetchExams() {
 
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
@@ -165,11 +215,21 @@ function fetchExams() {
         'url': "/api/exam/all",
         'success': function (data) {
             fillExamsTable(data);
+        },
+        'error': function (data) {
+            fillErrorModal(data);
         }
     });
 
 }
 
+/**
+ * Called to fill exam modal with the exam object
+ * At first the exam metadata is filled
+ * Then all the questions are filled into the modal
+ * And then finally display the modal
+ * @param data ( exam object )
+ */
 function fillExamModal(data) {
     $('#response-modal-body').empty();
     document.getElementById('modal-label').innerHTML = 'Exam';
@@ -178,12 +238,23 @@ function fillExamModal(data) {
     $('#response-modal').modal({show: true});
 }
 
+/**
+ * Called to fill error modal with error message
+ * Then show the error modal
+ * @param message
+ */
 function fillErrorModal(message) {
     document.getElementById('modal-label').innerHTML = "Error";
     document.getElementById('response-modal-body').innerHTML = JSON.stringify(message);
     $('#response-modal').modal({show: true});
 }
 
+/**
+ * Called to fill exam metadata in the exam modal
+ * A card is made listing all the exam metadata information
+ * And finally append the card in the exam modal
+ * @param data ( exam metadata )
+ */
 function fillMetadata(data) {
     let adder = '<div class="card">\n' +
         '  <div class="card-header"> Exam Metadata </div>\n' +
@@ -197,6 +268,11 @@ function fillMetadata(data) {
     $('#response-modal-body').append(adder);
 }
 
+/**
+ * Called to fill all questions in the exam modal
+ * Filling question is done by different functions based on question type
+ * @param questions ( list of all questions JSON )
+ */
 function fillQuestions(questions) {
     questions.forEach(question => {
         if (question.type === "MCQ") fillMCQ(question);
@@ -204,6 +280,12 @@ function fillQuestions(questions) {
     });
 }
 
+/**
+ * Called to fill MCQ question into the exam modal
+ * A card is made for the question listing the question fields
+ * Finally the question is appended to the exam modal
+ * @param question
+ */
 function fillMCQ(question) {
     let adder = '<div class="card">\n' +
         '  <div class="card-body">\n' +
@@ -220,6 +302,12 @@ function fillMCQ(question) {
     $('#response-modal-body').append(adder);
 }
 
+/**
+ * Called to fill SUBJECTIVE question into the exam modal
+ * A card is made for the question listing the question fields
+ * Finally the question is appended to the exam modal
+ * @param question
+ */
 function fillSubjective(question) {
     let adder = '<div class="card">\n' +
         '  <div class="card-body">\n' +
@@ -230,7 +318,12 @@ function fillSubjective(question) {
     $('#response-modal-body').append(adder);
 }
 
-
+/**
+ * Called to set the page for user login
+ * Hide all elements meant for logout state and show all elements for login state
+ * Display a welcome message mentioning user name and email id
+ * Finally fill the exam metadata table using fetchExams function
+ */
 function setForLogin() {
     $('.logged-in-element').show();
     $('.logged-out-element').hide();
@@ -239,13 +332,20 @@ function setForLogin() {
     fetchExams();
 }
 
+/**
+ * Called when user clicks login button and login is done
+ * Calls setForLogin function to set the page for login state
+ */
 function login() {
     auth2.signIn().then(function () {
-        googleUser = auth2.currentUser.get();
         setForLogin();
     });
 }
 
+/**
+ * This function is called when user clicks logout button
+ * Refresh the page to set page to logout state
+ */
 function logout() {
     auth2.signOut().then(function () {
         location.reload();
