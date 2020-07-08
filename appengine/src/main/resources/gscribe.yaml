@@ -1,3 +1,10 @@
+database:
+  userName: USERNAME_PLACEHOLDER
+  password: PASSWORD_PLACEHOLDER
+  url: URL_PLACEHOLDER
+
+environment: LOCAL
+
 server:
   requestLog:
     appenders: []

@@ -14,7 +14,30 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.dao;
+package com.google.googleinterns.gscribe.models;
 
-public class ExamDao {
+
+public class Answer {
+
+    private String answer;
+    private int questionNum;
+
+    public Answer() {
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public int getQuestionNum() {
+        return questionNum;
+    }
+
+    public void setQuestionNum(int questionNum) {
+        this.questionNum = questionNum;
+    }
 }

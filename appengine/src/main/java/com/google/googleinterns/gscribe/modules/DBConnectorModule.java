@@ -18,17 +18,21 @@ package com.google.googleinterns.gscribe.modules;
 
 import com.google.googleinterns.gscribe.config.MySQLConfig;
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import org.skife.jdbi.v2.DBI;
 
 public class DBConnectorModule extends AbstractModule {
 
-    @Inject
+    MySQLConfig config;
+
+    public DBConnectorModule(MySQLConfig config) {
+        this.config = config;
+    }
+
     @Provides
     @Singleton
-    public DBI dBIProvider(MySQLConfig mySQLConfig) {
-        return new DBI(mySQLConfig.getUrl(), mySQLConfig.getUserName(), mySQLConfig.getPassword());
+    public DBI dBIProvider() {
+        return new DBI(config.getUrl(), config.getUserName(), config.getPassword());
     }
 }
