@@ -21,7 +21,8 @@ public class MySQLConfig {
     private String userName;
     private String password;
 
-    public MySQLConfig() {}
+    public MySQLConfig() {
+    }
 
     public String getUrl() {
         return url;
