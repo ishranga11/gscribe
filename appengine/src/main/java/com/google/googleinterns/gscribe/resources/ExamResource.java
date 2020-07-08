@@ -16,20 +16,20 @@
 
 package com.google.googleinterns.gscribe.resources;
 
-import com.google.googleinterns.gscribe.dao.ExamMetadataDao;
-import com.google.googleinterns.gscribe.dao.QuestionsDao;
-import com.google.googleinterns.gscribe.dao.UserTokenDao;
-import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.ExamMetadata;
-import com.google.googleinterns.gscribe.models.Question;
-import com.google.googleinterns.gscribe.models.User;
+import com.google.googleinterns.gscribe.dao.*;
+import com.google.googleinterns.gscribe.models.*;
 import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
+import com.google.googleinterns.gscribe.resources.io.request.ExamInstanceRequest;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
+import com.google.googleinterns.gscribe.resources.io.request.ExamSubmitRequest;
+import com.google.googleinterns.gscribe.resources.io.response.ExamInstanceResponse;
 import com.google.googleinterns.gscribe.resources.io.response.ExamResponse;
+import com.google.googleinterns.gscribe.resources.io.response.ExamSubmitResponse;
 import com.google.googleinterns.gscribe.resources.io.response.ExamsListResponse;
 import com.google.googleinterns.gscribe.services.ExamSheetsService;
+import com.google.googleinterns.gscribe.services.SheetService;
 import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -50,30 +50,43 @@ public class ExamResource {
     private final UserTokenDao userTokenDao;
     private final ExamMetadataDao examMetadataDao;
     private final QuestionsDao questionsDao;
+    private final ExamInstanceDao examInstanceDao;
+    private final AnswerDao answerDao;
+    private final SheetService sheetService;
 
     @Inject
-    public ExamResource(ExamSheetsService examSheetsService, TokenService tokenService, UserTokenDao userTokenDao, ExamMetadataDao examMetadataDao, QuestionsDao questionsDao) {
+    public ExamResource(ExamSheetsService examSheetsService, TokenService tokenService, UserTokenDao userTokenDao, ExamMetadataDao examMetadataDao, QuestionsDao questionsDao, ExamInstanceDao examInstanceDao, AnswerDao answerDao, SheetService sheetService) {
         this.examSheetsService = examSheetsService;
         this.tokenService = tokenService;
         this.userTokenDao = userTokenDao;
         this.examMetadataDao = examMetadataDao;
         this.questionsDao = questionsDao;
+        this.examInstanceDao = examInstanceDao;
+        this.answerDao = answerDao;
+        this.sheetService = sheetService;
     }
 
     /**
-     * Get corresponding userID from the IDToken using tokenVerifier
+     * Called when paper setter submits question paper
+     * Gets corresponding userID from the IDToken using tokenVerifier
      * Get tokens for the user from the database
      * Use the tokens to read exam from the spreadsheet
      * Validate exam
      * Convert exam from List<List<Object>> to Exam object
      * post examMetadata in database to get examID
+     * make response template in google sheets for this exam
      * post exam into the database
      *
-     * @param IDToken ( from header )
-     * @param request ( must contain spreadsheetID, sheetName )
+     * @param IDToken ( used to authenticate user, here paper setter )
+     * @param request ( contains spreadsheetID, sheetName )
      * @return Exam object
-     * @throws BadRequestException          ( if IDToken is invalid )
-     * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
+     * @throws BadRequestException          ( if IDToken is invalid,
+     *                                      if user cannot access spreadsheet given in the request,
+     *                                      if the question paper is not following correct format as defined in template )
+     * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file,
+     *                                      if the database contains malformed used token data,
+     *                                      unable to create response sheet in spreadsheet for this exam )
+     * @throws NotAuthorizedException       ( if the user is not authorized i.e. no tokens for user available in database )
      */
     @POST
     public ExamResponse postExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull ExamRequest request) {
@@ -100,31 +113,38 @@ public class ExamResource {
             throw new InternalServerErrorException();
         }
 
-        int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
-        exam.getExamMetadata().setId(examID);
+        try {
+            int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
+            exam.getExamMetadata().setId(examID);
 
-        List<String> questionJSON = new ArrayList<>();
-        List<Integer> questionNum = new ArrayList<>();
-        for (int i = 0; i < exam.getQuestions().size(); i++) {
-            questionJSON.add(new Gson().toJson(exam.getQuestions().get(i)));
-            questionNum.add(exam.getQuestions().get(i).getQuestionNumber());
+            sheetService.makeResponseSheet(exam, token);
+
+            List<String> questionJSON = new ArrayList<>();
+            List<Integer> questionNum = new ArrayList<>();
+            for (int i = 0; i < exam.getQuestions().size(); i++) {
+                questionJSON.add(new Gson().toJson(exam.getQuestions().get(i)));
+                questionNum.add(exam.getQuestions().get(i).getQuestionNumber());
+            }
+            questionsDao.insertExamQuestions(questionJSON, examID, questionNum);
+        } catch (Exception e) {
+            throw new InternalServerErrorException();
         }
-        questionsDao.insertExamQuestions(questionJSON, examID, questionNum);
         return new ExamResponse(exam);
     }
 
     /**
+     * Called to fill exam metadata table on paper setter dashboard
      * Get corresponding userID from the IDToken using tokenVerifier
      * using userID get all exams metadata from database for current user
      *
-     * @param IDToken ( from header )
-     * @return List of exam metadata for current user
+     * @param IDToken ( used to authenticate user, here paper setter )
+     * @return List of exam metadata
      * @throws BadRequestException          ( if IDToken is invalid )
      * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
      */
     @GET
     @Path("/all")
-    public ExamsListResponse getAllExamsId(@NotNull @HeaderParam("authorization-code") String IDToken) {
+    public ExamsListResponse getAllExamsId(@NotNull @HeaderParam("Authentication") String IDToken) {
         String userID;
         try {
             userID = tokenService.verifyIDToken(IDToken);
@@ -133,24 +153,25 @@ public class ExamResource {
         } catch (InvalidRequestException e) {
             throw new BadRequestException(e.getMessage());
         }
-        return new ExamsListResponse(examMetadataDao.getExamMetadataByUser(userID));
+        return new ExamsListResponse(examMetadataDao.getExamMetadataListByUser(userID));
     }
 
     /**
+     * Called when paper setter requests to view exam object for an exam identified by exam id {id}
      * Get corresponding userID from the IDToken using tokenVerifier
      * Check if exam with given examID was given by current user
      * Fetch exam metadata for given examID
      * Fetch exam questions for given examID
      *
-     * @param IDToken ( from header )
+     * @param IDToken ( used to authenticate user, here paper setter )
      * @param id      ( examID for some exam )
-     * @return exam object for given examID
+     * @return exam object
      * @throws BadRequestException          ( if IDToken is invalid )
      * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
      */
     @GET
     @Path("/{id}")
-    public ExamResponse getExam(@NotNull @HeaderParam("authorization-code") String IDToken, @NotNull @PathParam("id") String id) {
+    public ExamResponse getExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull @PathParam("id") int id) {
         String userID;
         try {
             userID = tokenService.verifyIDToken(IDToken);
@@ -159,10 +180,112 @@ public class ExamResource {
         } catch (InvalidRequestException e) {
             throw new BadRequestException(e.getMessage());
         }
-        ExamMetadata metadata = examMetadataDao.getExamMetadataById(id, userID);
+        ExamMetadata metadata = examMetadataDao.getExamMetadataByUser(id, userID);
         List<Question> questions = questionsDao.getExamQuestions(id);
         Exam exam = new Exam(metadata, questions);
         return new ExamResponse(exam);
+    }
+
+    /**
+     * Called when examinee wants to start the exam via google assistant
+     * Get corresponding userID from the IDToken using firebaseTokenVerifier
+     * firebaseTokenVerifier is used as this IDToken was generated for firebase functions
+     * Check if the exam is already taken by the user or not
+     * Fetch exam metadata and questions for the exam
+     * Check if the examID is correct using that metadata and questions returned are not null
+     * Create exam instance for the user and insert in database
+     * Return exam instance response with exam and exam instance id
+     *
+     * @param IDToken             ( used to authenticate user, here examinee )
+     * @param examInstanceRequest ( exam start request containing student roll number and exam id of exam to be taken )
+     * @return exam instance response object having ( exam, exam instance id )
+     * @throws InternalServerErrorException ( by GeneralSecurityException and IOException for credentials file )
+     * @throws BadRequestException          ( if the IDToken is invalid,
+     *                                      if the examinee already attempted this exam,
+     *                                      if the exam id is invalid )
+     */
+    @POST
+    @Path("/start")
+    public ExamInstanceResponse startExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull ExamInstanceRequest examInstanceRequest) {
+        String userID;
+        try {
+            userID = tokenService.firebaseVerifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (InvalidRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+
+        ExamInstance examInstance = new ExamInstance(examInstanceRequest.getExamID(), examInstanceRequest.getStudentRollNum(), userID);
+        if (examInstanceDao.getExamInstanceByUserDetails(examInstanceRequest.getExamID(), examInstanceRequest.getStudentRollNum()) != null) {
+            throw new BadRequestException("Exam already taken!");
+        }
+
+        ExamMetadata metadata = examMetadataDao.getExamMetadataByExamId(examInstanceRequest.getExamID());
+        List<Question> questions = questionsDao.getExamQuestions(examInstanceRequest.getExamID());
+        Exam exam = new Exam(metadata, questions);
+
+        if (metadata == null || questions == null) {
+            throw new BadRequestException("Incorrect exam ID requested");
+        }
+        int examInstanceID = examInstanceDao.insertExamInstance(examInstance);
+        return new ExamInstanceResponse(exam, examInstanceID);
+
+    }
+
+    /**
+     * Called when examinee wants to submit the exam
+     * Get corresponding userID from the IDToken using firebaseTokenVerifier
+     * firebaseTokenVerifier is used as this IDToken was generated for firebase functions
+     * Check if the exam instance is same as when it was created checking same ( user id, exam id, student roll number )
+     * Update the end time in exam instance
+     * Insert answers for the exam instance
+     * Write back responses to the responses sheet for this exam
+     *
+     * @param IDToken           ( used to authenticate user, here examinee )
+     * @param examSubmitRequest ( contains exam instance object )
+     * @return ExamSubmitResponse object containing success message
+     */
+    @POST
+    @Path("/submit")
+    public ExamSubmitResponse submitExam(@NotNull @HeaderParam("Authentication") String IDToken, @NotNull ExamSubmitRequest examSubmitRequest) {
+        String userID;
+        try {
+            userID = tokenService.firebaseVerifyIDToken(IDToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new InternalServerErrorException();
+        } catch (InvalidRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+        ExamInstance examInstance = examInstanceDao.getExamInstanceByExamInstanceID(examSubmitRequest.getExamInstance().getId());
+        if (examInstance == null || examInstance.getExamID() != examSubmitRequest.getExamInstance().getExamID() ||
+                !userID.equals(examInstance.getUserID()) || examInstance.getStudentRollNum() != examSubmitRequest.getExamInstance().getStudentRollNum()) {
+            throw new BadRequestException("Malformed request");
+        }
+
+        examSubmitRequest.getExamInstance().setStartTime(examInstance.getStartTime());
+
+        try {
+
+            List<Answer> answers = examSubmitRequest.getExamInstance().getAnswers();
+            List<String> answerJSON = new ArrayList<>();
+            List<Integer> questionNumber = new ArrayList<>();
+            for (Answer answer : answers) {
+                answerJSON.add(new Gson().toJson(answer));
+                questionNumber.add(answer.getQuestionNum());
+            }
+            examInstanceDao.updateExamInstanceEndTime(examInstance.getExamID());
+            answerDao.insertAnswers(examSubmitRequest.getExamInstance().getId(), questionNumber, answerJSON);
+
+            User user = userTokenDao.getUserTokenByExamID(examInstance.getExamID());
+            ExamMetadata examMetadata = examMetadataDao.getExamMetadataByExamId(examInstance.getExamID());
+            sheetService.addResponse(examSubmitRequest.getExamInstance(), user, examMetadata);
+
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to submit Exam");
+        }
+        return new ExamSubmitResponse("Exam Submitted Successfully");
+
     }
 
 }
