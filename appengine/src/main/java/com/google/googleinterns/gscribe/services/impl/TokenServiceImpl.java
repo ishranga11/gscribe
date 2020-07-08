@@ -41,6 +41,7 @@ import java.util.List;
 public class TokenServiceImpl implements TokenService {
 
     /**
+     * Called to verify IDToken received from paper setter
      * This function takes as input the IDToken passed in header for authentication
      * If the JWT clears all authentication checks then unique userID is extracted from the JWT and returned
      *
@@ -68,6 +69,30 @@ public class TokenServiceImpl implements TokenService {
     }
 
     /**
+     * Called to verify IDToken received from examinee
+     * As this function was originally intended for firebase function client so client id is added for that service
+     * This function takes as input the IDToken passed in header for authentication
+     * If the JWT clears all authentication checks then unique userID is extracted from the JWT and returned
+     *
+     * @param IDTokenString ( a JWT, web token signed by google )
+     * @return userID ( unique user ID for the user included in JWT )
+     * @throws GeneralSecurityException,IOException ( by google verifier, or reading credentials file errors )
+     * @throws InvalidRequestException              ( if the verification fails then returned token is null, If we receive null token then return this exception )
+     */
+    @Override
+    public String firebaseVerifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException {
+        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+        String clientID = "201502787341-rqsisrvv0givo5agv86p44e2hjui05or.apps.googleusercontent.com";
+
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(clientID)).build();
+        GoogleIdToken idToken = verifier.verify(IDTokenString);
+        if (idToken == null) throw new InvalidRequestException("Authentication failed");
+        return idToken.getPayload().getSubject();
+    }
+
+    /**
+     * Called when user is being authorized so tokens are generated from authorization code
      * Generates new accessToken and refreshToken from authorization code
      * Needs credentials file to generate the tokens
      *
@@ -101,7 +126,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     /**
-     * Refreshes the access token of the user
+     * Called when access token expires so new access token is required
      * The user tokens are retrieved from database and refreshed if the access token expires
      * After getting a GoogleTokenResponse for validation we check that this refreshToken is valid for the main user
      * For validation verify the IDToken from the token received from refreshToken to get a userID

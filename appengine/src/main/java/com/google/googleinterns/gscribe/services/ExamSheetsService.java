@@ -29,6 +29,7 @@ import java.security.GeneralSecurityException;
 public interface ExamSheetsService {
 
     /**
+     * Called to completely process and validate the question paper from spreadsheet and return an Exam object
      * This method first parses the spreadsheet with getExamSheet method
      * To reuse the accessTokens at first older access token is used to access the spreadsheet
      * If the accessToken has expired identified by GoogleJsonResponseException then refresh the accessToken

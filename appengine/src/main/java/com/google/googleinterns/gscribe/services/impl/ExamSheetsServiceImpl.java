@@ -50,6 +50,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called when parsing question paper from spreadsheet to know how many rows should be read
      * Reads column 1 of the sheet and return the number of rows filled
      * With help of this we identify the range of spreadsheet to be read
      *
@@ -66,6 +67,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to extract question paper from spreadsheet and feed into ExamSource object
      * Reads the sheet identified by request ( spreadsheetID, sheetName )
      *
      * @param request ( contains spreadsheetId, sheetName to be read )
@@ -73,7 +75,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
      * @return an ExamSource object containing an image of the sheet identified with request
      * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
      */
-    public ExamSource getExamSheet(ExamRequest request, User token) throws IOException, GeneralSecurityException {
+    private ExamSource getExamSheet(ExamRequest request, User token) throws IOException, GeneralSecurityException {
         /* Set access token to get the spreadsheet Instance */
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -92,6 +94,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to generate an exam metadata object combining various metadata fields
      * Takes information needed for examMetadata and returns ExamMetadata object
      *
      * @param examSource ( contains sheet instance containing exam )
@@ -105,6 +108,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called when a List<Object> of subjective question needs to be converted to Question object
      * reads the points of the question
      * reads the statement of question
      * return subjective question object
@@ -120,6 +124,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called when a List<Object> of MCQ question needs to be converted to Question object
      * reads the points of the question
      * reads the statement of the question
      * reads the options of the question
@@ -138,6 +143,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to combine all exam fields to create a single exam object
      * makes examMetadata object
      * makes an arraylist of questions
      * returns exam object
@@ -147,7 +153,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
      * @param userID     ( unique user ID of user )
      * @return Exam object
      */
-    public Exam generateExam(ExamSource examSource, ExamRequest request, String userID) {
+    private Exam generateExam(ExamSource examSource, ExamRequest request, String userID) {
         ExamMetadata metadata = generateMetadata(examSource, request, userID);
         List<Question> questions = new ArrayList<>();
         List<List<Object>> exam = examSource.getExam();
@@ -164,6 +170,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to validate that duration of exam is in proper range
      * in the exam template duration is to be mentioned in B1
      * check that in B1 duration is mentioned in proper format and in range 1-300
      *
@@ -185,6 +192,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to validate MCQ question
      * check that the question has statement in column 2
      * check that the question has options in column 3-6
      *
@@ -202,6 +210,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to validate subjective question
      * check that the question has statement in column 2
      * check that the question has no options in column 3-6
      *
@@ -219,6 +228,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to validate that points for a question are in proper range
      * check that the points are in proper format
      * check that the points lie in range of 1-100
      *
@@ -239,6 +249,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to validate whole exam
      * check that the size of sheet is at least 3
      * validate duration
      * validate each question
@@ -250,7 +261,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
      *                             if question had invalid question type,
      *                             if points verification for any question fails )
      */
-    public void validateExam(ExamSource examSource) throws ExamFormatException {
+    private void validateExam(ExamSource examSource) throws ExamFormatException {
         List<List<Object>> exam = examSource.getExam();
         if (exam.size() < 3) throw new ExamFormatException("Improper exam template used");
         validateDuration(exam.get(0));
@@ -265,6 +276,7 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
     }
 
     /**
+     * Called to completely process and validate the question paper from spreadsheet and return an Exam object
      * This method first parses the spreadsheet with getExamSheet method
      * To reuse the accessTokens at first older access token is used to access the spreadsheet
      * If the accessToken has expired identified by GoogleJsonResponseException then refresh the accessToken
