@@ -16,37 +16,20 @@
 
 package com.google.googleinterns.gscribe.models;
 
-public class Question {
+import java.util.List;
 
-    private QuestionType type;
-    private String statement;
-    private int points;
-    private int questionNumber;
+public class Questions {
 
-    public Question() {
+    private List<Question> questions;
+
+    public Questions() {
     }
 
-    public Question(QuestionType type, String statement, int points, int questionNumber) {
-        this.type = type;
-        this.statement = statement;
-        this.points = points;
-        this.questionNumber = questionNumber;
+    public List<Question> getQuestions() {
+        return questions;
     }
 
-    public QuestionType getType() {
-        return type;
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
-
-    public String getStatement() {
-        return statement;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public int getQuestionNumber() {
-        return questionNumber;
-    }
-
 }

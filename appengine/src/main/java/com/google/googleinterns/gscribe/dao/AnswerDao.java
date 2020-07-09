@@ -16,8 +16,9 @@
 
 package com.google.googleinterns.gscribe.dao;
 
-import com.google.googleinterns.gscribe.models.Answer;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.googleinterns.gscribe.models.Answers;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
@@ -27,7 +28,6 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public interface AnswerDao {
 
@@ -37,27 +37,30 @@ public interface AnswerDao {
      * @param examInstanceID ( to identify particular exam instance )
      * @return List of answers
      */
-    @Mapper(AnswerDao.AnswerMapper.class)
+    @Mapper(AnswersMapper.class)
     @SqlQuery("SELECT * from answers where exam_instance_id = :exam_instance_id")
-    List<Answer> getAnswersByExamInstanceID(@Bind("exam_instance_id") int examInstanceID);
+    Answers getAnswersByExamInstanceID(@Bind("exam_instance_id") int examInstanceID);
 
     /**
      * Inserts All responses for a corresponding exam instance
      *
      * @param examInstanceID ( to identify particular exam instance )
-     * @param questionNumber ( question number of corresponding answer )
-     * @param answers        ( answer JSON )
+     * @param answersJSON    ( answers object JSON containing all answers list )
      */
-    @SqlBatch("INSERT INTO answers ( exam_instance_id, answer, question_num ) VALUES ( :exam_instance_id, :answer, :question_num )")
-    void insertAnswers(@Bind("exam_instance_id") int examInstanceID, @Bind("question_num") List<Integer> questionNumber, @Bind("answer") List<String> answers);
+    @SqlBatch("INSERT INTO answers ( exam_instance_id, answers ) VALUES ( :exam_instance_id, :answers )")
+    void insertAnswers(@Bind("exam_instance_id") int examInstanceID, @Bind("answers") String answersJSON);
 
     /**
      * A Mapper class to map answer JSON object from MySQL database to Answer class
      */
-    class AnswerMapper implements ResultSetMapper<Answer> {
+    class AnswersMapper implements ResultSetMapper<Answers> {
         @Override
-        public Answer map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
-            return new Gson().fromJson(resultSet.getString("answer"), Answer.class);
+        public Answers map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
+            try {
+                return new ObjectMapper().readValue(resultSet.getString("answers"), Answers.class);
+            } catch (JsonProcessingException e) {
+                throw new SQLException("broken answer format in database");
+            }
         }
     }
 

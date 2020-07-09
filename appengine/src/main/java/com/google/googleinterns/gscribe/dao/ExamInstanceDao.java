@@ -45,7 +45,7 @@ public interface ExamInstanceDao {
      * @param examInstanceID ( to identify particular exam instance )
      * @return exam instance object
      */
-    @Mapper(ExamInstanceDao.ExamInstanceMapper.class)
+    @Mapper(ExamInstanceMapper.class)
     @SqlQuery("SELECT * from exam_instance where id = :exam_instance_id")
     ExamInstance getExamInstanceByExamInstanceID(@Bind("exam_instance_id") int examInstanceID);
 
@@ -57,7 +57,7 @@ public interface ExamInstanceDao {
      * @param rollNumber ( roll number of student )
      * @return exam instance object
      */
-    @Mapper(ExamInstanceDao.ExamInstanceMapper.class)
+    @Mapper(ExamInstanceMapper.class)
     @SqlQuery("SELECT * from exam_instance where exam_id = :exam_id and student_roll_num = :student_roll_num")
     ExamInstance getExamInstanceByUserDetails(@Bind("exam_id") int examID, @Bind("student_roll_num") int rollNumber);
 

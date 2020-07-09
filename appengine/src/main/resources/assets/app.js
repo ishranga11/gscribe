@@ -327,7 +327,7 @@ function fillSubjective(question) {
 function setForLogin() {
     $('.logged-in-element').show();
     $('.logged-out-element').hide();
-    let profile = googleUser.getBasicProfile();
+    let profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
     fetchExams();
 }

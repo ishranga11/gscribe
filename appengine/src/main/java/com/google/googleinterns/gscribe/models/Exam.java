@@ -16,14 +16,16 @@
 
 package com.google.googleinterns.gscribe.models;
 
-import java.util.List;
 
 public class Exam {
 
     private ExamMetadata examMetadata;
-    private List<Question> questions;
+    private Questions questions;
 
-    public Exam(ExamMetadata examMetadata, List<Question> questions) {
+    public Exam() {
+    }
+
+    public Exam(ExamMetadata examMetadata, Questions questions) {
         this.examMetadata = examMetadata;
         this.questions = questions;
     }
@@ -36,11 +38,11 @@ public class Exam {
         this.examMetadata = examMetadata;
     }
 
-    public List<Question> getQuestions() {
+    public Questions getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<Question> questions) {
+    public void setQuestions(Questions questions) {
         this.questions = questions;
     }
 }

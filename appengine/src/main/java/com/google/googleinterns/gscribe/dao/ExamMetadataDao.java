@@ -37,7 +37,7 @@ public interface ExamMetadataDao {
      * @param userID ( unique user id of user, here paper setter )
      * @return exam metadata object
      */
-    @Mapper(ExamMetadataDao.ExamMetadataMapper.class)
+    @Mapper(ExamMetadataMapper.class)
     @SqlQuery("SELECT * from exam where id = :exam_id and created_by=:userId")
     ExamMetadata getExamMetadataByUser(@Bind("exam_id") int examID, @Bind("userId") String userID);
 
@@ -48,7 +48,7 @@ public interface ExamMetadataDao {
      * @param examID ( to identify particular exam )
      * @return exam metadata object
      */
-    @Mapper(ExamMetadataDao.ExamMetadataMapper.class)
+    @Mapper(ExamMetadataMapper.class)
     @SqlQuery("SELECT * from exam where id = :exam_id")
     ExamMetadata getExamMetadataByExamId(@Bind("exam_id") int examID);
 
@@ -58,7 +58,7 @@ public interface ExamMetadataDao {
      * @param userID ( unique user id of user, here paper setter )
      * @return list of exam metadata
      */
-    @Mapper(ExamMetadataDao.ExamMetadataMapper.class)
+    @Mapper(ExamMetadataMapper.class)
     @SqlQuery("SELECT * from exam where created_by = :userID")
     List<ExamMetadata> getExamMetadataListByUser(@Bind("userID") String userID);
 

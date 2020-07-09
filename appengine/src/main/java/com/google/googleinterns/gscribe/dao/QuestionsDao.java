@@ -16,11 +16,9 @@
 
 package com.google.googleinterns.gscribe.dao;
 
-import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
-import com.google.googleinterns.gscribe.models.Question;
-import com.google.googleinterns.gscribe.models.QuestionType;
-import com.google.googleinterns.gscribe.models.SubjectiveQuestion;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.googleinterns.gscribe.models.Questions;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
@@ -30,45 +28,40 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public interface QuestionsDao {
 
     /**
-     * Inserts a list of all questions of a particular exam to the database
-     * A JSON object of the question is inserted for the question
+     * Inserts a JSON of all questions of a particular exam to the database for a given examID
      *
-     * @param question    ( question JSON string )
-     * @param examID      ( to identify particular exam )
-     * @param questionNum ( question number of corresponding question )
+     * @param examID    ( to identify particular exam )
+     * @param questions ( all questions list JSON )
      */
-    @SqlBatch("insert into questions( exam_id, question, question_num ) values ( :examID, :question, :questionNum )")
-    void insertExamQuestions(@Bind("question") List<String> question, @Bind("examID") int examID, @Bind("questionNum") List<Integer> questionNum);
+    @SqlBatch("insert into questions( exam_id, questions ) values ( :examID, :question )")
+    void insertExamQuestions(@Bind("examID") int examID, @Bind("questions") String questions);
 
     /**
-     * Queries all the questions of the exam identified by exam id examID
+     * Queries the questions list JSON of the exam identified by exam id examID
      *
      * @param examID ( to identify particular exam )
-     * @return list of question objects
+     * @return questions object
      */
-    @Mapper(QuestionsDao.ExamMapper.class)
+    @Mapper(ExamMapper.class)
     @SqlQuery("SELECT * from questions where exam_id = :exam_id")
-    List<Question> getExamQuestions(@Bind("exam_id") int examID);
+    Questions getExamQuestions(@Bind("exam_id") int examID);
 
     /**
-     * A Mapper class to map a question response to question object
-     * Mapping is done based on the question type
+     * A Mapper class to map a questions list response to questions object
      */
-    class ExamMapper implements ResultSetMapper<Question> {
+    class ExamMapper implements ResultSetMapper<Questions> {
         @Override
-        public Question map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
-            Question question = new Gson().fromJson(resultSet.getString("question"), Question.class);
-            if (question.getType().equals(QuestionType.MCQ)) {
-                return new Gson().fromJson(resultSet.getString("question"), MultipleChoiceQuestion.class);
-            } else if (question.getType().equals(QuestionType.SUBJECTIVE)) {
-                return new Gson().fromJson(resultSet.getString("question"), SubjectiveQuestion.class);
+        public Questions map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                return objectMapper.readValue(resultSet.getString("questions"), Questions.class);
+            } catch (JsonProcessingException e) {
+                throw new SQLException("broken question format in database");
             }
-            return null;
         }
     }
 

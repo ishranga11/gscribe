@@ -16,6 +16,7 @@
 
 package com.google.googleinterns.gscribe.resources;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.googleinterns.gscribe.dao.*;
 import com.google.googleinterns.gscribe.models.*;
 import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
@@ -31,7 +32,6 @@ import com.google.googleinterns.gscribe.resources.io.response.ExamsListResponse;
 import com.google.googleinterns.gscribe.services.ExamSheetsService;
 import com.google.googleinterns.gscribe.services.SheetService;
 import com.google.googleinterns.gscribe.services.TokenService;
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 
 import javax.validation.constraints.NotNull;
@@ -121,8 +121,9 @@ public class ExamResource {
 
             List<String> questionJSON = new ArrayList<>();
             List<Integer> questionNum = new ArrayList<>();
+            ObjectMapper objectMapper = new ObjectMapper();
             for (int i = 0; i < exam.getQuestions().size(); i++) {
-                questionJSON.add(new Gson().toJson(exam.getQuestions().get(i)));
+                questionJSON.add(objectMapper.writeValueAsString(exam.getQuestions().get(i)));
                 questionNum.add(exam.getQuestions().get(i).getQuestionNumber());
             }
             questionsDao.insertExamQuestions(questionJSON, examID, questionNum);
@@ -270,8 +271,9 @@ public class ExamResource {
             List<Answer> answers = examSubmitRequest.getExamInstance().getAnswers();
             List<String> answerJSON = new ArrayList<>();
             List<Integer> questionNumber = new ArrayList<>();
+            ObjectMapper objectMapper = new ObjectMapper();
             for (Answer answer : answers) {
-                answerJSON.add(new Gson().toJson(answer));
+                answerJSON.add(objectMapper.writeValueAsString(answer));
                 questionNumber.add(answer.getQuestionNum());
             }
             examInstanceDao.updateExamInstanceEndTime(examInstance.getExamID());

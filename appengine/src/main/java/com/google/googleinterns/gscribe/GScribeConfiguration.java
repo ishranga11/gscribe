@@ -31,28 +31,27 @@ public class GScribeConfiguration extends Configuration {
      */
     @Valid
     @NotNull
+    @JsonProperty("database")
     private MySQLConfig mySQLConfig;
 
     @Valid
     @NotNull
+    @JsonProperty("environment")
     private Environment environment;
 
-    @JsonProperty("database")
+
     public MySQLConfig getMySQLConfig() {
         return mySQLConfig;
     }
 
-    @JsonProperty("database")
     public void setMySQLConfig(MySQLConfig mySQLConfig) {
         this.mySQLConfig = mySQLConfig;
     }
-
 
     public Environment getEnvironment() {
         return environment;
     }
 
-    @JsonProperty("environment")
     public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
