@@ -18,11 +18,13 @@ package com.google.googleinterns.gscribe.models;
 
 public class Question {
 
-    private final QuestionType type;
-    private final String statement;
-    private final int points;
-    private final int questionNumber;
+    private QuestionType type;
+    private String statement;
+    private int points;
+    private int questionNumber;
 
+    public Question() {
+    }
 
     public Question(QuestionType type, String statement, int points, int questionNumber) {
         this.type = type;

@@ -22,6 +22,9 @@ public class MultipleChoiceQuestion extends Question {
 
     private List<String> options;
 
+    public MultipleChoiceQuestion() {
+    }
+
     public MultipleChoiceQuestion(String statement, int points, int questionNumber, List<String> options) {
         super(QuestionType.MCQ, statement, points, questionNumber);
         this.options = options;

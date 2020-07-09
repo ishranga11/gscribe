@@ -25,6 +25,9 @@ public class User {
     private String refreshToken;
     private Timestamp timestamp;
 
+    public User() {
+    }
+
     public User(String id, String accessToken, String refreshToken, Timestamp timestamp) {
         this.id = id;
         this.accessToken = accessToken;

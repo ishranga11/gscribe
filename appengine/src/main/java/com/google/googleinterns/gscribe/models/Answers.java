@@ -16,5 +16,25 @@
 
 package com.google.googleinterns.gscribe.models;
 
-public class UserToken {
+import java.util.List;
+
+public class Answers {
+
+    private List<Answer> answers;
+
+    public Answers() {
+    }
+
+    public Answers(List<Answer> answers) {
+        this.answers = answers;
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
+    }
+
 }
