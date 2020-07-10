@@ -53,9 +53,10 @@ public class ExamResource {
     private final ExamInstanceDao examInstanceDao;
     private final AnswerDao answerDao;
     private final SheetService sheetService;
+    private final ObjectMapper objectMapper;
 
     @Inject
-    public ExamResource(ExamSheetsService examSheetsService, TokenService tokenService, UserTokenDao userTokenDao, ExamMetadataDao examMetadataDao, QuestionsDao questionsDao, ExamInstanceDao examInstanceDao, AnswerDao answerDao, SheetService sheetService) {
+    public ExamResource(ExamSheetsService examSheetsService, TokenService tokenService, UserTokenDao userTokenDao, ExamMetadataDao examMetadataDao, QuestionsDao questionsDao, ExamInstanceDao examInstanceDao, AnswerDao answerDao, SheetService sheetService, ObjectMapper objectMapper) {
         this.examSheetsService = examSheetsService;
         this.tokenService = tokenService;
         this.userTokenDao = userTokenDao;
@@ -64,6 +65,7 @@ public class ExamResource {
         this.examInstanceDao = examInstanceDao;
         this.answerDao = answerDao;
         this.sheetService = sheetService;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -116,17 +118,9 @@ public class ExamResource {
         try {
             int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
             exam.getExamMetadata().setId(examID);
-
             sheetService.makeResponseSheet(exam, token);
-
-            List<String> questionJSON = new ArrayList<>();
-            List<Integer> questionNum = new ArrayList<>();
-            ObjectMapper objectMapper = new ObjectMapper();
-            for (int i = 0; i < exam.getQuestions().size(); i++) {
-                questionJSON.add(objectMapper.writeValueAsString(exam.getQuestions().get(i)));
-                questionNum.add(exam.getQuestions().get(i).getQuestionNumber());
-            }
-            questionsDao.insertExamQuestions(questionJSON, examID, questionNum);
+            String questionJSON = objectMapper.writeValueAsString(exam.getQuestionsList());
+            questionsDao.insertExamQuestions(examID, questionJSON);
         } catch (Exception e) {
             throw new InternalServerErrorException();
         }
@@ -182,7 +176,7 @@ public class ExamResource {
             throw new BadRequestException(e.getMessage());
         }
         ExamMetadata metadata = examMetadataDao.getExamMetadataByUser(id, userID);
-        List<Question> questions = questionsDao.getExamQuestions(id);
+        Questions questions = questionsDao.getExamQuestions(id);
         Exam exam = new Exam(metadata, questions);
         return new ExamResponse(exam);
     }
@@ -217,13 +211,13 @@ public class ExamResource {
             throw new BadRequestException(e.getMessage());
         }
 
-        ExamInstance examInstance = new ExamInstance(examInstanceRequest.getExamID(), examInstanceRequest.getStudentRollNum(), userID);
+        ExamInstance examInstance = new ExamInstance(examInstanceRequest.getExamID(), userID, examInstanceRequest.getStudentRollNum());
         if (examInstanceDao.getExamInstanceByUserDetails(examInstanceRequest.getExamID(), examInstanceRequest.getStudentRollNum()) != null) {
             throw new BadRequestException("Exam already taken!");
         }
 
         ExamMetadata metadata = examMetadataDao.getExamMetadataByExamId(examInstanceRequest.getExamID());
-        List<Question> questions = questionsDao.getExamQuestions(examInstanceRequest.getExamID());
+        Questions questions = questionsDao.getExamQuestions(examInstanceRequest.getExamID());
         Exam exam = new Exam(metadata, questions);
 
         if (metadata == null || questions == null) {
@@ -277,7 +271,7 @@ public class ExamResource {
                 questionNumber.add(answer.getQuestionNum());
             }
             examInstanceDao.updateExamInstanceEndTime(examInstance.getExamID());
-            answerDao.insertAnswers(examSubmitRequest.getExamInstance().getId(), questionNumber, answerJSON);
+            // answerDao.insertAnswers(examSubmitRequest.getExamInstance().getId(), questionNumber, answerJSON);
 
             User user = userTokenDao.getUserTokenByExamID(examInstance.getExamID());
             ExamMetadata examMetadata = examMetadataDao.getExamMetadataByExamId(examInstance.getExamID());

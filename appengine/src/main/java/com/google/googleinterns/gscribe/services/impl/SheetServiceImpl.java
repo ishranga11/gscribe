@@ -26,10 +26,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
-import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.ExamInstance;
-import com.google.googleinterns.gscribe.models.ExamMetadata;
-import com.google.googleinterns.gscribe.models.User;
+import com.google.googleinterns.gscribe.models.*;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
 import com.google.googleinterns.gscribe.services.SheetService;
@@ -110,12 +107,13 @@ public class SheetServiceImpl implements SheetService {
         String spreadsheetID = exam.getExamMetadata().getSpreadsheetID();
         sheetSetup(service, spreadsheetID, sheetName);
 
+        List<Question> questions = exam.getQuestionsList().getQuestions();
         List<List<Object>> writeBack = new ArrayList<>();
         List<Object> header = new ArrayList<>();
         header.add("Start time");
         header.add("RollNumber");
-        for (int i = 0; i < exam.getQuestions().size(); i++) {
-            header.add(exam.getQuestions().get(i).getStatement());
+        for (Question question : questions) {
+            header.add(question.getStatement());
         }
         header.add("Final Points");
         writeBack.add(header);

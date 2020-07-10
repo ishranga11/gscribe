@@ -166,7 +166,9 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
             else if (currentQuestion.get(0).equals("SUBJECTIVE"))
                 questions.add(createSubjectiveQuestion(currentQuestion, questionNumber));
         }
-        return new Exam(metadata, questions);
+        Questions questionsList = new Questions();
+        questionsList.setQuestions(questions);
+        return new Exam(metadata, questionsList);
     }
 
     /**
