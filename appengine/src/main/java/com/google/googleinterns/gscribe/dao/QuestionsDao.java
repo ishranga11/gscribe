@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
 import com.google.googleinterns.gscribe.models.Questions;
 import com.google.googleinterns.gscribe.models.SubjectiveQuestion;
+import com.google.inject.Inject;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -56,6 +57,7 @@ public interface QuestionsDao {
 
         private final ObjectMapper objectMapper;
 
+        @Inject
         public QuestionsMapper(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
         }
