@@ -14,55 +14,49 @@
  * limitations under the License.
  */
 
-package daoTesting;
+package com.google.googleinterns.gscribe.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.googleinterns.gscribe.dao.QuestionsDao;
 import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
 import com.google.googleinterns.gscribe.models.Questions;
 import com.google.googleinterns.gscribe.models.SubjectiveQuestion;
-import module.DBIProvider;
-import org.junit.jupiter.api.*;
+import com.google.googleinterns.gscribe.provider.DBIProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QuestionsDaoTesting {
+public class QuestionsDaoTest {
 
-    static Handle handle;
-    static DBI dbi;
-    static int EXAM_ID = 100;
-    static private QuestionsDao questionsDao;
+    private static final int EXAM_ID = 100;
+    private static Handle handle;
+    private static QuestionsDao questionsDao;
 
     @BeforeAll
-    public static void init() {
-        dbi = new DBIProvider().getDBI();
-        dbi.registerMapper(new QuestionsDao.QuestionsMapper(new ObjectMapper()));
-        questionsDao = dbi.onDemand(QuestionsDao.class);
+    public static void init() throws IOException {
+        DBI dbi = new DBIProvider().getDBI();
         handle = dbi.open();
         handle.insert("delete from exam where id = " + EXAM_ID);
         handle.insert("delete from user where id = 'user'");
         handle.insert("insert into user(id,access_token,refresh_token) values ( 'user','a_token','r_token')");
         handle.insert("insert into exam(id,created_by,spreadsheet_id,duration) values ( " + EXAM_ID + " ,'user','spreadsheet_id',100)");
-        handle.close();
-    }
-
-    @AfterAll
-    public static void tearDownAll() {
-        handle = dbi.open();
-        handle.insert("delete from exam where id=" + EXAM_ID);
-        handle.insert("delete from user where id = 'user'");
-        handle.close();
+        dbi.registerMapper(new QuestionsDao.QuestionsMapper(new ObjectMapper()));
+        questionsDao = dbi.onDemand(QuestionsDao.class);
     }
 
     @BeforeEach
     public void setUp() {
+        handle.insert("delete from questions where exam_id=" + EXAM_ID);
     }
 
     @Test
@@ -72,9 +66,7 @@ public class QuestionsDaoTesting {
         String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
 
         questionsDao.insertExamQuestions(examID, questionsJSON);
-        handle = dbi.open();
         List<Map<String, Object>> list = handle.createQuery("select * from questions where exam_id=" + examID).list();
-        handle.close();
 
         assertFalse(list.isEmpty());
         Map<String, Object> addedQuestion = list.get(0);
@@ -95,23 +87,13 @@ public class QuestionsDaoTesting {
     }
 
     @Test
-    public void addQuestionNotInJSONFormatTest() {
-
-        Assertions.assertThrows(UnableToExecuteStatementException.class, () -> {
-            int examID = EXAM_ID;
-            String questionsJSON = " random string ";
-            questionsDao.insertExamQuestions(examID, questionsJSON);
-        });
-
-    }
-
-    @Test
     void addQuestionsForSameExamIDTwice() {
 
         assertThrows(UnableToExecuteStatementException.class, () -> {
             int examID = EXAM_ID;
             String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
             String questionsJSON2 = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB2\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ2\", \"questionNumber\": 2}]}";
+
             questionsDao.insertExamQuestions(examID, questionsJSON);
             questionsDao.insertExamQuestions(examID, questionsJSON2);
         });
@@ -130,9 +112,7 @@ public class QuestionsDaoTesting {
         MultipleChoiceQuestion mcqQuestion = new MultipleChoiceQuestion("MCQ1", 4, 2, options);
         SubjectiveQuestion subjectiveQuestion = new SubjectiveQuestion("SUB1", 5, 1);
 
-        handle = dbi.open();
         handle.insert("insert into questions(exam_id,questions) values ( " + examID + ", '" + questionsJSON + "' )");
-        handle.close();
         Questions questions = questionsDao.getExamQuestions(examID);
 
         assertNotEquals(null, questions);
@@ -153,16 +133,10 @@ public class QuestionsDaoTesting {
     }
 
     @Test
-    public void getQuestionsForInvalidExamIDTest() {
+    public void getQuestionsByNotUsedExamIDTest() {
         Questions questions = questionsDao.getExamQuestions(1000);
-        assertNull(questions);
-    }
 
-    @AfterEach
-    public void tearDown() {
-        handle = dbi.open();
-        handle.insert("delete from questions where exam_id=" + EXAM_ID);
-        handle.close();
+        assertNull(questions);
     }
 
 }
