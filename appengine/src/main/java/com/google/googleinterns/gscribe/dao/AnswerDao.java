@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.googleinterns.gscribe.models.Answers;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
@@ -45,7 +45,7 @@ public interface AnswerDao {
      * @param examInstanceID ( to identify particular exam instance )
      * @param answersJSON    ( answers object JSON containing all answers list )
      */
-    @SqlBatch("INSERT INTO answers ( exam_instance_id, answers ) VALUES ( :exam_instance_id, :answers )")
+    @SqlUpdate("INSERT INTO answers ( exam_instance_id, answers ) VALUES ( :exam_instance_id, :answers )")
     void insertAnswers(@Bind("exam_instance_id") int examInstanceID, @Bind("answers") String answersJSON);
 
     class AnswersMapper implements ResultSetMapper<Answers> {

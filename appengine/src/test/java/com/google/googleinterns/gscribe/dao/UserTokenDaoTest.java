@@ -14,45 +14,39 @@
  * limitations under the License.
  */
 
-package daoTesting;
+package com.google.googleinterns.gscribe.dao;
 
-import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.models.User;
-import module.DBIProvider;
-import org.junit.jupiter.api.*;
+import com.google.googleinterns.gscribe.provider.DBIProvider;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserTokenDaoTesting {
+public class UserTokenDaoTest {
 
-    static Handle handle;
-    static DBI dbi;
-    static private UserTokenDao userTokenDao;
+    private static Handle handle;
+    private static UserTokenDao userTokenDao;
 
     @BeforeAll
-    public static void init() {
-        dbi = new DBIProvider().getDBI();
+    public static void init() throws IOException {
+        DBI dbi = new DBIProvider().getDBI();
         userTokenDao = dbi.onDemand(UserTokenDao.class);
-    }
-
-    @AfterAll
-    public static void tearDownAll() {
         handle = dbi.open();
         handle.insert("delete from user where id = 'user'");
-        handle.close();
     }
 
     @BeforeEach
     public void setUp() {
-        handle = dbi.open();
         handle.insert("delete from user where id = 'user'");
-        handle.close();
     }
 
     @Test
@@ -61,9 +55,7 @@ public class UserTokenDaoTesting {
         User userToAdd = new User("user", "a_token", "r_token", null);
 
         userTokenDao.insertUserToken(userToAdd);
-        handle = dbi.open();
         List<Map<String, Object>> result = handle.createQuery("select * from user where id = 'user'").list();
-        handle.close();
 
         assertFalse(result.isEmpty());
         Map<String, Object> user = result.get(0);
@@ -81,9 +73,7 @@ public class UserTokenDaoTesting {
 
         userTokenDao.insertUserToken(userToAdd);
         userTokenDao.insertUserToken(userToAdd2);
-        handle = dbi.open();
         List<Map<String, Object>> result = handle.createQuery("select * from user where id = 'user'").list();
-        handle.close();
 
         assertFalse(result.isEmpty());
         Map<String, Object> user = result.get(0);
@@ -98,6 +88,7 @@ public class UserTokenDaoTesting {
 
         assertThrows(UnableToExecuteStatementException.class, () -> {
             User userToAdd = new User(null, "a_token", "r_token", null);
+
             userTokenDao.insertUserToken(userToAdd);
         });
 
@@ -108,6 +99,7 @@ public class UserTokenDaoTesting {
 
         assertThrows(UnableToExecuteStatementException.class, () -> {
             User userToAdd = new User("user", null, "r_token", null);
+
             userTokenDao.insertUserToken(userToAdd);
         });
 
@@ -118,6 +110,7 @@ public class UserTokenDaoTesting {
 
         assertThrows(UnableToExecuteStatementException.class, () -> {
             User userToAdd = new User("user", "a_token", null, null);
+
             userTokenDao.insertUserToken(userToAdd);
         });
 
@@ -126,11 +119,9 @@ public class UserTokenDaoTesting {
     @Test
     public void getUserTokenTest() {
 
-        handle = dbi.open();
         handle.insert("insert into user(id,access_token,refresh_token) values ('user','a_token','r_token') ");
-        handle.close();
-
         User user = userTokenDao.getUserToken("user");
+
         assertEquals("user", user.getId());
         assertEquals("a_token", user.getAccessToken());
         assertEquals("r_token", user.getRefreshToken());
@@ -138,44 +129,34 @@ public class UserTokenDaoTesting {
     }
 
     @Test
-    public void getUserTokenNotInDatabaseTest() {
+    public void getUserTokenByNotUsedUserIDTest() {
         User user = userTokenDao.getUserToken("user2");
+
         assertNull(user);
     }
 
     @Test
     public void getUserTokenByExamIDTest() {
 
-        handle = dbi.open();
         handle.insert("insert into user(id,access_token,refresh_token) values ('user','a_token','r_token') ");
         handle.insert("insert into exam(id,created_by,spreadsheet_id,duration) values ( 1,'user','spreadsheet_id',100)");
-        handle.close();
 
         User user = userTokenDao.getUserTokenByExamID(1);
         assertEquals("user", user.getId());
         assertEquals("a_token", user.getAccessToken());
         assertEquals("r_token", user.getRefreshToken());
 
-        handle = dbi.open();
         handle.insert("delete from exam where id = 1");
-        handle.close();
 
     }
 
     @Test
     public void getUserTokenByExamIDExamNotPresentTest() {
 
-        handle = dbi.open();
         handle.insert("insert into user(id,access_token,refresh_token) values ('user','a_token','r_token') ");
-        handle.close();
-
         User user = userTokenDao.getUserTokenByExamID(1);
+
         assertNull(user);
-
-    }
-
-    @AfterEach
-    public void tearDown() {
 
     }
 
