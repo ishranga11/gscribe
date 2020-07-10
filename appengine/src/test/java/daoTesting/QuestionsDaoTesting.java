@@ -90,9 +90,6 @@ public class QuestionsDaoTesting {
             String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
 
             questionsDao.insertExamQuestions(examID, questionsJSON);
-            handle = dbi.open();
-            List<Map<String, Object>> list = handle.createQuery("select * from questions where exam_id=" + examID).list();
-            handle.close();
         });
 
     }
@@ -104,9 +101,6 @@ public class QuestionsDaoTesting {
             int examID = EXAM_ID;
             String questionsJSON = " random string ";
             questionsDao.insertExamQuestions(examID, questionsJSON);
-            handle = dbi.open();
-            List<Map<String, Object>> list = handle.createQuery("select * from questions where exam_id=" + examID).list();
-            handle.close();
         });
 
     }
