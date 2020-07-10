@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.services.data;
+package module;
 
-import java.util.List;
+import org.skife.jdbi.v2.DBI;
 
-public class ExamSource {
+public class DBIProvider {
 
-    List<List<Object>> exam;
-
-    public ExamSource() {
+    public DBI getDBI() {
+        DBI dbi;
+        String url = "jdbc:mysql://localhost:3306/gscribe_test";
+        String username = "root";
+        String password = "pass";
+        dbi = new DBI(url, username, password);
+        return dbi;
     }
 
-    public List<List<Object>> getExam() {
-        return exam;
-    }
-
-    public void setExam(List<List<Object>> exam) {
-        this.exam = exam;
-    }
 }

@@ -25,11 +25,6 @@ public class Answer {
     public Answer() {
     }
 
-    public Answer(String answer, int questionNum) {
-        this.answer = answer;
-        this.questionNum = questionNum;
-    }
-
     public String getAnswer() {
         return answer;
     }

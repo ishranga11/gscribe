@@ -36,7 +36,7 @@ public class ExamInstance {
     public ExamInstance() {
     }
 
-    public ExamInstance(int examID, int studentRollNum, String userID) {
+    public ExamInstance(int examID, String userID, int studentRollNum) {
         this.examID = examID;
         this.studentRollNum = studentRollNum;
         this.userID = userID;

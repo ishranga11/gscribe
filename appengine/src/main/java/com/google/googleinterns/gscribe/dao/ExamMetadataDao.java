@@ -84,8 +84,8 @@ public interface ExamMetadataDao {
         public ExamMetadata map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
             return new ExamMetadata(
                     resultSet.getString("spreadsheet_id"),
-                    resultSet.getInt("duration"),
                     resultSet.getInt("id"),
+                    resultSet.getInt("duration"),
                     resultSet.getTimestamp("created_on")
             );
         }

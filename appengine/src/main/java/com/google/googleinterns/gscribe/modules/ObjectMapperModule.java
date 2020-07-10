@@ -17,14 +17,15 @@
 package com.google.googleinterns.gscribe.modules;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
-public class ObjectMapperModule {
+public class ObjectMapperModule extends AbstractModule {
 
     @Provides
     @Singleton
-    ObjectMapper objectMapperProvider() {
+    public ObjectMapper objectMapperProvider() {
         return new ObjectMapper();
     }
 

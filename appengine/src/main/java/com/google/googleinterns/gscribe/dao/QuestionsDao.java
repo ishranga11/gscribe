@@ -17,18 +17,20 @@
 package com.google.googleinterns.gscribe.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
 import com.google.googleinterns.gscribe.models.Questions;
-import com.google.inject.Inject;
+import com.google.googleinterns.gscribe.models.SubjectiveQuestion;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public interface QuestionsDao {
 
@@ -38,7 +40,7 @@ public interface QuestionsDao {
      * @param examID    ( to identify particular exam )
      * @param questions ( all questions list JSON )
      */
-    @SqlBatch("insert into questions( exam_id, questions ) values ( :examID, :question )")
+    @SqlUpdate("insert into questions ( exam_id, questions ) values ( :examID, :questions )")
     void insertExamQuestions(@Bind("examID") int examID, @Bind("questions") String questions);
 
     /**
@@ -47,30 +49,38 @@ public interface QuestionsDao {
      * @param examID ( to identify particular exam )
      * @return questions object
      */
-    @Mapper(ExamMapper.class)
     @SqlQuery("SELECT * from questions where exam_id = :exam_id")
     Questions getExamQuestions(@Bind("exam_id") int examID);
 
-    /**
-     * A Mapper class to map a questions list response to questions object
-     */
-    class ExamMapper implements ResultSetMapper<Questions> {
+    class QuestionsMapper implements ResultSetMapper<Questions> {
 
-        ObjectMapper objectMapper;
+        private final ObjectMapper objectMapper;
 
-        @Inject
-        ExamMapper(ObjectMapper objectMapper) {
+        public QuestionsMapper(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
         }
 
         @Override
         public Questions map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
             try {
-                return objectMapper.readValue(resultSet.getString("questions"), Questions.class);
+                JsonNode node = objectMapper.readTree(resultSet.getString("questions"));
+                JsonNode questions = node.get("questions");
+                Questions questionsList = new Questions();
+                questionsList.setQuestions(new ArrayList<>());
+                for (JsonNode question : questions) {
+                    if (question.get("type").asText().equals("MCQ")) {
+                        questionsList.getQuestions().add(objectMapper.treeToValue(question, MultipleChoiceQuestion.class));
+                    } else if (question.get("type").asText().equals("SUBJECTIVE")) {
+                        questionsList.getQuestions().add(objectMapper.treeToValue(question, SubjectiveQuestion.class));
+                    }
+                }
+                return questionsList;
             } catch (JsonProcessingException e) {
+                System.out.println(e.getMessage());
                 throw new SQLException("broken question format in database");
             }
         }
+
     }
 
 }

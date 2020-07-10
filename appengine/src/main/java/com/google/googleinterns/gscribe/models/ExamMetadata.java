@@ -50,7 +50,7 @@ public class ExamMetadata {
         this.duration = duration;
     }
 
-    public ExamMetadata(String spreadsheetID, int duration, int id, Timestamp createdOn) {
+    public ExamMetadata(String spreadsheetID, int id, int duration, Timestamp createdOn) {
         this.spreadsheetID = spreadsheetID;
         this.duration = duration;
         this.createdOn = createdOn;
