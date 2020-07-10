@@ -23,7 +23,6 @@ import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlBatch;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
@@ -37,7 +36,6 @@ public interface AnswerDao {
      * @param examInstanceID ( to identify particular exam instance )
      * @return List of answers
      */
-    @Mapper(AnswersMapper.class)
     @SqlQuery("SELECT * from answers where exam_instance_id = :exam_instance_id")
     Answers getAnswersByExamInstanceID(@Bind("exam_instance_id") int examInstanceID);
 
@@ -50,18 +48,23 @@ public interface AnswerDao {
     @SqlBatch("INSERT INTO answers ( exam_instance_id, answers ) VALUES ( :exam_instance_id, :answers )")
     void insertAnswers(@Bind("exam_instance_id") int examInstanceID, @Bind("answers") String answersJSON);
 
-    /**
-     * A Mapper class to map answer JSON object from MySQL database to Answer class
-     */
     class AnswersMapper implements ResultSetMapper<Answers> {
+
+        ObjectMapper objectMapper;
+
+        public AnswersMapper(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
         @Override
         public Answers map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
             try {
-                return new ObjectMapper().readValue(resultSet.getString("answers"), Answers.class);
+                return objectMapper.readValue(resultSet.getString("answers"), Answers.class);
             } catch (JsonProcessingException e) {
                 throw new SQLException("broken answer format in database");
             }
         }
+
     }
 
 }
