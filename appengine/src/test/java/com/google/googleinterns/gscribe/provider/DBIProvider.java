@@ -31,7 +31,6 @@ public class DBIProvider {
 
         DBI dbi = new DBI("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         InputStream in = QuestionsDaoTest.class.getResourceAsStream("/schema.sql");
-        System.out.println(in.toString());
         StringWriter writer = new StringWriter();
         IOUtils.copy(in, writer, "UTF-8");
         String sql = writer.toString();

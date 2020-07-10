@@ -16,7 +16,6 @@
 
 package com.google.googleinterns.gscribe.modules;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.googleinterns.gscribe.dao.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -43,8 +42,8 @@ public class DaoModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public QuestionsDao examDaoProvider(DBI dbi, ObjectMapper objectMapper) {
-        dbi.registerMapper(new QuestionsDao.QuestionsMapper(objectMapper));
+    public QuestionsDao examDaoProvider(DBI dbi, QuestionsDao.QuestionsMapper questionsMapper) {
+        dbi.registerMapper(questionsMapper);
         return dbi.onDemand(QuestionsDao.class);
     }
 
@@ -58,8 +57,8 @@ public class DaoModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public AnswerDao answerDaoProvider(DBI dbi, ObjectMapper objectMapper) {
-        dbi.registerMapper(new AnswerDao.AnswersMapper(objectMapper));
+    public AnswerDao answerDaoProvider(DBI dbi, AnswerDao.AnswersMapper answersMapper) {
+        dbi.registerMapper(answersMapper);
         return dbi.onDemand(AnswerDao.class);
     }
 
