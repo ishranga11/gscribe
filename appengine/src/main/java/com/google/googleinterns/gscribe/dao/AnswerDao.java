@@ -19,6 +19,7 @@ package com.google.googleinterns.gscribe.dao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.googleinterns.gscribe.models.Answers;
+import com.google.inject.Inject;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -52,6 +53,7 @@ public interface AnswerDao {
 
         ObjectMapper objectMapper;
 
+        @Inject
         public AnswersMapper(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
         }
