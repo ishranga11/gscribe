@@ -20,14 +20,14 @@ package com.google.googleinterns.gscribe.models;
 public class Exam {
 
     private ExamMetadata examMetadata;
-    private Questions questions;
+    private Questions questionsList;
 
     public Exam() {
     }
 
-    public Exam(ExamMetadata examMetadata, Questions questions) {
+    public Exam(ExamMetadata examMetadata, Questions questionsList) {
         this.examMetadata = examMetadata;
-        this.questions = questions;
+        this.questionsList = questionsList;
     }
 
     public ExamMetadata getExamMetadata() {
@@ -38,11 +38,11 @@ public class Exam {
         this.examMetadata = examMetadata;
     }
 
-    public Questions getQuestions() {
-        return questions;
+    public Questions getQuestionsList() {
+        return questionsList;
     }
 
     public void setQuestions(Questions questions) {
-        this.questions = questions;
+        this.questionsList = questions;
     }
 }
