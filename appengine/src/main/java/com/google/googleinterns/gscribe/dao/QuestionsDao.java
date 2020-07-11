@@ -78,7 +78,6 @@ public interface QuestionsDao {
                 }
                 return questionsList;
             } catch (JsonProcessingException e) {
-                System.out.println(e.getMessage());
                 throw new SQLException("broken question format in database");
             }
         }
