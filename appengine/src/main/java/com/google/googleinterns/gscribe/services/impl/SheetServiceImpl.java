@@ -107,7 +107,7 @@ public class SheetServiceImpl implements SheetService {
         String spreadsheetID = exam.getExamMetadata().getSpreadsheetID();
         sheetSetup(service, spreadsheetID, sheetName);
 
-        List<Question> questions = exam.getQuestionsList().getQuestionsList();
+        List<Question> questions = exam.getQuestions().getQuestionsList();
         List<List<Object>> writeBack = new ArrayList<>();
         List<Object> header = new ArrayList<>();
         header.add("Start time");

@@ -155,20 +155,20 @@ public class ExamSheetsServiceImpl implements ExamSheetsService {
      */
     private Exam generateExam(ExamSource examSource, ExamRequest request, String userID) {
         ExamMetadata metadata = generateMetadata(examSource, request, userID);
-        List<Question> questions = new ArrayList<>();
+        List<Question> questionsList = new ArrayList<>();
         List<List<Object>> exam = examSource.getExam();
         int questionNumber;
         for (int i = 2; i < exam.size(); i++) {
             questionNumber = i - 1;
             List<Object> currentQuestion = exam.get(i);
             if (currentQuestion.get(0).equals("MCQ"))
-                questions.add(CreateMultipleChoiceQuestion(currentQuestion, questionNumber));
+                questionsList.add(CreateMultipleChoiceQuestion(currentQuestion, questionNumber));
             else if (currentQuestion.get(0).equals("SUBJECTIVE"))
-                questions.add(createSubjectiveQuestion(currentQuestion, questionNumber));
+                questionsList.add(createSubjectiveQuestion(currentQuestion, questionNumber));
         }
-        Questions questionsList = new Questions();
-        questionsList.setQuestions(questions);
-        return new Exam(metadata, questionsList);
+        Questions questions = new Questions();
+        questions.setQuestionsList(questionsList);
+        return new Exam(metadata, questions);
     }
 
     /**

@@ -117,7 +117,7 @@ public class ExamResource {
             int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
             exam.getExamMetadata().setId(examID);
             sheetService.makeResponseSheet(exam, token);
-            String questionJSON = objectMapper.writeValueAsString(exam.getQuestionsList());
+            String questionJSON = objectMapper.writeValueAsString(exam.getQuestions());
             questionsDao.insertExamQuestions(examID, questionJSON);
         } catch (Exception e) {
             throw new InternalServerErrorException();

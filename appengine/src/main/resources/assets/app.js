@@ -234,7 +234,7 @@ function fillExamModal(data) {
     $('#response-modal-body').empty();
     document.getElementById('modal-label').innerHTML = 'Exam';
     fillMetadata(data.exam.examMetadata);
-    fillQuestions(data.exam.questionsList.questions);
+    fillQuestions(data.exam.questions.questionsList);
     $('#response-modal').modal({show: true});
 }
 
