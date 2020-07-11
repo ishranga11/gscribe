@@ -116,10 +116,10 @@ public class QuestionsDaoTest {
         Questions questions = questionsDao.getExamQuestions(examID);
 
         assertNotEquals(null, questions);
-        assertEquals(2, questions.getQuestions().size());
-        SubjectiveQuestion subjectiveQuestionReceived = (SubjectiveQuestion) questions.getQuestions().get(0);
+        assertEquals(2, questions.getQuestionsList().size());
+        SubjectiveQuestion subjectiveQuestionReceived = (SubjectiveQuestion) questions.getQuestionsList().get(0);
         assertNotEquals(null, subjectiveQuestionReceived);
-        MultipleChoiceQuestion mcqQuestionReceived = (MultipleChoiceQuestion) questions.getQuestions().get(1);
+        MultipleChoiceQuestion mcqQuestionReceived = (MultipleChoiceQuestion) questions.getQuestionsList().get(1);
         assertNotEquals(null, mcqQuestion);
         assertEquals(subjectiveQuestion.getStatement(), subjectiveQuestionReceived.getStatement());
         assertEquals(subjectiveQuestion.getPoints(), subjectiveQuestionReceived.getPoints());

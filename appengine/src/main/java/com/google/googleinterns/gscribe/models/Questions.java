@@ -20,16 +20,16 @@ import java.util.List;
 
 public class Questions {
 
-    private List<Question> questions;
+    private List<Question> questionsList;
 
     public Questions() {
     }
 
-    public List<Question> getQuestions() {
-        return questions;
+    public List<Question> getQuestionsList() {
+        return questionsList;
     }
 
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
+    public void setQuestionsList(List<Question> questionsList) {
+        this.questionsList = questionsList;
     }
 }

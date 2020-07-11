@@ -111,14 +111,14 @@ public class AnswersDaoTest {
         Answers answers = answerDao.getAnswersByExamInstanceID(examInstanceID);
 
         assertNotEquals(null, answers);
-        assertEquals(2, answers.getAnswers().size());
-        assertNotNull(answers.getAnswers().get(0));
-        assertNotNull(answers.getAnswers().get(1));
+        assertEquals(2, answers.getAnswersList().size());
+        assertNotNull(answers.getAnswersList().get(0));
+        assertNotNull(answers.getAnswersList().get(1));
 
-        assertEquals("ANSWER1", answers.getAnswers().get(0).getAnswer());
-        assertEquals("ANSWER2", answers.getAnswers().get(1).getAnswer());
-        assertEquals(1, answers.getAnswers().get(0).getQuestionNum());
-        assertEquals(2, answers.getAnswers().get(1).getQuestionNum());
+        assertEquals("ANSWER1", answers.getAnswersList().get(0).getAnswer());
+        assertEquals("ANSWER2", answers.getAnswersList().get(1).getAnswer());
+        assertEquals(1, answers.getAnswersList().get(0).getQuestionNum());
+        assertEquals(2, answers.getAnswersList().get(1).getQuestionNum());
     }
 
     @Test
