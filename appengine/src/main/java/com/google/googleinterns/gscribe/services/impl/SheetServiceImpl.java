@@ -107,7 +107,7 @@ public class SheetServiceImpl implements SheetService {
         String spreadsheetID = exam.getExamMetadata().getSpreadsheetID();
         sheetSetup(service, spreadsheetID, sheetName);
 
-        List<Question> questions = exam.getQuestionsList().getQuestions();
+        List<Question> questions = exam.getQuestionsList().getQuestionsList();
         List<List<Object>> writeBack = new ArrayList<>();
         List<Object> header = new ArrayList<>();
         header.add("Start time");
@@ -173,8 +173,8 @@ public class SheetServiceImpl implements SheetService {
         List<Object> response = new ArrayList<>();
         response.add(examInstance.getStartTime().toString());
         response.add(Integer.toString(examInstance.getStudentRollNum()));
-        for (int i = 0; i < examInstance.getAnswers().size(); i++) {
-            response.add(examInstance.getAnswers().get(i).getAnswer());
+        for (int i = 0; i < examInstance.getAnswers().getAnswersList().size(); i++) {
+            response.add(examInstance.getAnswers().getAnswersList().get(i).getAnswer());
         }
         response.add("-");
         List<List<Object>> toWrite = new ArrayList<>();

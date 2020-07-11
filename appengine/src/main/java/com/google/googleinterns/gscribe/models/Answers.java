@@ -20,16 +20,16 @@ import java.util.List;
 
 public class Answers {
 
-    private List<Answer> answers;
+    private List<Answer> answersList;
 
     public Answers() {
     }
 
-    public List<Answer> getAnswers() {
-        return answers;
+    public List<Answer> getAnswersList() {
+        return answersList;
     }
 
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
+    public void setAnswersList(List<Answer> answersList) {
+        this.answersList = answersList;
     }
 }

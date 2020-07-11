@@ -68,12 +68,12 @@ public interface QuestionsDao {
                 JsonNode node = objectMapper.readTree(resultSet.getString("questions"));
                 JsonNode questions = node.get("questions");
                 Questions questionsList = new Questions();
-                questionsList.setQuestions(new ArrayList<>());
+                questionsList.setQuestionsList(new ArrayList<>());
                 for (JsonNode question : questions) {
                     if (question.get("type").asText().equals("MCQ")) {
-                        questionsList.getQuestions().add(objectMapper.treeToValue(question, MultipleChoiceQuestion.class));
+                        questionsList.getQuestionsList().add(objectMapper.treeToValue(question, MultipleChoiceQuestion.class));
                     } else if (question.get("type").asText().equals("SUBJECTIVE")) {
-                        questionsList.getQuestions().add(objectMapper.treeToValue(question, SubjectiveQuestion.class));
+                        questionsList.getQuestionsList().add(objectMapper.treeToValue(question, SubjectiveQuestion.class));
                     }
                 }
                 return questionsList;

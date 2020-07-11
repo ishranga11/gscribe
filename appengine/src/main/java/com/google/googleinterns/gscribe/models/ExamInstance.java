@@ -19,7 +19,6 @@ package com.google.googleinterns.gscribe.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 public class ExamInstance {
 
@@ -31,7 +30,7 @@ public class ExamInstance {
     private Timestamp startTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private Timestamp endTime;
-    private List<Answer> answers;
+    private Answers answers;
 
     public ExamInstance() {
     }
@@ -99,11 +98,11 @@ public class ExamInstance {
         this.endTime = endTime;
     }
 
-    public List<Answer> getAnswers() {
+    public Answers getAnswers() {
         return answers;
     }
 
-    public void setAnswers(List<Answer> answers) {
+    public void setAnswers(Answers answers) {
         this.answers = answers;
     }
 }

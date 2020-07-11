@@ -38,8 +38,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Path("/exam")
 @Produces("application/json")
@@ -262,16 +260,9 @@ public class ExamResource {
 
         try {
 
-            List<Answer> answers = examSubmitRequest.getExamInstance().getAnswers();
-            List<String> answerJSON = new ArrayList<>();
-            List<Integer> questionNumber = new ArrayList<>();
-            ObjectMapper objectMapper = new ObjectMapper();
-            for (Answer answer : answers) {
-                answerJSON.add(objectMapper.writeValueAsString(answer));
-                questionNumber.add(answer.getQuestionNum());
-            }
+            String answersJSON = objectMapper.writeValueAsString(examSubmitRequest.getExamInstance().getAnswers());
             examInstanceDao.updateExamInstanceEndTime(examInstance.getExamID());
-            // answerDao.insertAnswers(examSubmitRequest.getExamInstance().getId(), questionNumber, answerJSON);
+            answerDao.insertAnswers(examSubmitRequest.getExamInstance().getId(), answersJSON);
 
             User user = userTokenDao.getUserTokenByExamID(examInstance.getExamID());
             ExamMetadata examMetadata = examMetadataDao.getExamMetadataByExamId(examInstance.getExamID());
