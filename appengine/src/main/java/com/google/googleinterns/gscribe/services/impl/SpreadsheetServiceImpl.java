@@ -48,7 +48,7 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
     }
 
     /**
-     * Called when responses sheet needs to be setup for the exam
+     * Called when responses sheet needs to be setup for the newly created exam
      * Fetch all the sheets metadata in the spreadsheet and check if sheet with name sheetName already exists
      * If sheet already exists then clear the sheet
      * If sheet does not exist then create new sheet with name sheetName in the spreadsheet
@@ -155,6 +155,58 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
     }
 
     /**
+     * Called to read spreadsheet identified by spreadsheet id and range given in arguments
+     * Calls parseSpreadsheet function to parse the spreadsheet
+     * If first time gets 401 error then refresh the token as access token might have expired
+     *
+     * @param user          ( user object containing tokens )
+     * @param spreadsheetID ( spreadsheet ID of spreadsheet to be read )
+     * @param range         ( range to be read from spreadsheet )
+     * @return ValueRange object
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     */
+    private ValueRange parseSpreadsheet(User user, String spreadsheetID, String range) throws GeneralSecurityException, IOException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+        Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(user.getAccessToken());
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("Gscribe").build();
+
+        return service.spreadsheets().values().get(spreadsheetID, range).execute();
+    }
+
+    /**
+     * Called to read spreadsheet identified by spreadsheet id and range given in arguments
+     * Calls parseSpreadsheet function to parse the spreadsheet
+     * If first time gets 401 error then refresh the token as access token might have expired
+     *
+     * @param user          ( user object containing tokens )
+     * @param spreadsheetID ( spreadsheet ID of spreadsheet to be read )
+     * @param range         ( range to be read from spreadsheet )
+     * @return ValueRange object
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws InvalidDatabaseDataException         ( when the token received from database is invalid or inconsistent with user )
+     * @throws InvalidRequestException              ( when unable to parse the spreadsheet )
+     */
+    @Override
+    public ValueRange parseSpreadsheetRequest(User user, String spreadsheetID, String range) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException {
+        try {
+            return parseSpreadsheet(user, spreadsheetID, range);
+        } catch (GoogleJsonResponseException e) {
+            if (e.getStatusCode() == 401) {
+                tokenService.refreshToken(user);
+                userTokenDao.insertUserToken(user);
+                try {
+                    return parseSpreadsheet(user, spreadsheetID, range);
+                } catch (GoogleJsonResponseException ex) {
+                    throw new InvalidRequestException("Unable to parse Spreadsheet");
+                }
+            } else {
+                throw new InvalidRequestException("Unable to parse Spreadsheet");
+            }
+        }
+    }
+
+    /**
      * Called to submit response to the responses spreadsheet
      * Forms the response row to be added to spreadsheet having ( start time, student roll number, answers ..., '-' for final points )
      * Append the responses to the spreadsheet
@@ -198,7 +250,7 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
      * @throws InvalidRequestException              ( If unable to access spreadsheet to submit response )
      */
     @Override
-    public void addResponse(ExamInstance examInstance, User user, ExamMetadata examMetadata) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException {
+    public void addResponseRequest(ExamInstance examInstance, User user, ExamMetadata examMetadata) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException {
         try {
             addResponseToSheet(examInstance, user, examMetadata);
         } catch (GoogleJsonResponseException e) {

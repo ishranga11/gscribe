@@ -16,6 +16,7 @@
 
 package com.google.googleinterns.gscribe.services;
 
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.googleinterns.gscribe.models.Exam;
 import com.google.googleinterns.gscribe.models.ExamInstance;
 import com.google.googleinterns.gscribe.models.ExamMetadata;
@@ -23,10 +24,26 @@ import com.google.googleinterns.gscribe.models.User;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public interface SpreadsheetService {
+
+    /**
+     * Called to read spreadsheet identified by spreadsheet id and range given in arguments
+     * Calls parseSpreadsheet function to parse the spreadsheet
+     * If first time gets 401 error then refresh the token as access token might have expired
+     *
+     * @param user          ( user object containing tokens )
+     * @param spreadsheetID ( spreadsheet ID of spreadsheet to be read )
+     * @param range         ( range to be read from spreadsheet )
+     * @return ValueRange object
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws InvalidDatabaseDataException         ( when the token received from database is invalid or inconsistent with user )
+     * @throws InvalidRequestException              ( when unable to parse the spreadsheet )
+     */
+    ValueRange parseSpreadsheetRequest(@NotNull User user, @NotNull String spreadsheetID, @NotNull String range) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException;
 
     /**
      * Called when exam is submitted by the paper setter and now responses sheet should be made
@@ -54,6 +71,6 @@ public interface SpreadsheetService {
      * @throws InvalidDatabaseDataException         ( If the user tokens stored in database are malformed )
      * @throws InvalidRequestException              ( If unable to access spreadsheet to submit response )
      */
-    void addResponse(ExamInstance examInstance, User user, ExamMetadata examMetadata) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException;
+    void addResponseRequest(ExamInstance examInstance, User user, ExamMetadata examMetadata) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException;
 
 }

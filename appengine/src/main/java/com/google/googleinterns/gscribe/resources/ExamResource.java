@@ -266,7 +266,7 @@ public class ExamResource {
 
             User user = userTokenDao.getUserTokenByExamID(examInstance.getExamID());
             ExamMetadata examMetadata = examMetadataDao.getExamMetadataByExamId(examInstance.getExamID());
-            spreadsheetService.addResponse(examSubmitRequest.getExamInstance(), user, examMetadata);
+            spreadsheetService.addResponseRequest(examSubmitRequest.getExamInstance(), user, examMetadata);
 
         } catch (Exception e) {
             throw new BadRequestException("Failed to submit Exam");

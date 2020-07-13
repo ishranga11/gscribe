@@ -33,8 +33,8 @@ public class ServicesModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public ExamService examParserServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
-        return new ExamServiceImpl(tokenService, userTokenDao);
+    public ExamService examParserServiceProvider(SpreadsheetService spreadsheetService) {
+        return new ExamServiceImpl(spreadsheetService);
     }
 
     @Inject

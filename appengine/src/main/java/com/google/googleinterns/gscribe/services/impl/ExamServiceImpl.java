@@ -16,23 +16,14 @@
 
 package com.google.googleinterns.gscribe.services.impl;
 
-import com.google.api.client.auth.oauth2.BearerToken;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.models.*;
 import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.services.ExamService;
-import com.google.googleinterns.gscribe.services.TokenService;
+import com.google.googleinterns.gscribe.services.SpreadsheetService;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -41,28 +32,28 @@ import java.util.List;
 
 public class ExamServiceImpl implements ExamService {
 
-    private final TokenService tokenService;
-    private final UserTokenDao userTokenDao;
+    private final SpreadsheetService spreadsheetService;
 
-    public ExamServiceImpl(TokenService tokenService, UserTokenDao userTokenDao) {
-        this.tokenService = tokenService;
-        this.userTokenDao = userTokenDao;
+    public ExamServiceImpl(SpreadsheetService spreadsheetService) {
+        this.spreadsheetService = spreadsheetService;
     }
 
     /**
      * Called when parsing question paper from spreadsheet to know how many rows should be read
-     * Reads column 1 of the sheet and return the number of rows filled
+     * Reads column A of the sheet and returns the number of rows filled in column A
      * With help of this we identify the range of spreadsheet to be read
      *
-     * @param service       ( sheet service instance )
+     * @param user          ( user tokens to be passed to spreadsheetService )
      * @param spreadsheetId ( spreadsheet ID to be read )
      * @param sheetName     ( sheetName from spreadsheet to be read )
      * @return number of rows filled in column 1
-     * @throws IOException ( if the spreadsheetId or sheetName is invalid )
+     * @throws IOException,GeneralSecurityException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file   )
+     * @throws InvalidDatabaseDataException         ( thrown by TokenService when refreshing the token, user ID mismatches )
+     * @throws InvalidRequestException              ( when unable to access spreadsheet instance with user tokens indicating that user does not have access to that spreadsheet )
      */
-    private int getNumberOfRowsFilled(Sheets service, String spreadsheetId, String sheetName) throws IOException {
-        final String noOfQuestionsChecker = sheetName + "!A:A";
-        ValueRange response = service.spreadsheets().values().get(spreadsheetId, noOfQuestionsChecker).execute();
+    private int getNumberOfRowsFilled(User user, String spreadsheetId, String sheetName) throws IOException, InvalidRequestException, GeneralSecurityException, InvalidDatabaseDataException {
+        String range = sheetName + "!A:A";
+        ValueRange response = spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, range);
         return response.getValues().size();
     }
 
@@ -70,24 +61,18 @@ public class ExamServiceImpl implements ExamService {
      * Called to extract question paper from spreadsheet and feed into ExamSource object
      * Reads the sheet identified by request ( spreadsheetID, sheetName )
      *
-     * @param request ( contains spreadsheetId, sheetName to be read )
-     * @param token   ( contains access token )
-     * @return an ExamSource object containing an image of the sheet identified with request
+     * @param request ( request object containing spreadsheetId, sheetName to be read )
+     * @param user    ( user object containing tokens )
+     * @return an ExamSource object
      * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws InvalidDatabaseDataException         ( thrown by TokenService when refreshing the token, user ID mismatches )
+     * @throws InvalidRequestException              ( when unable to access spreadsheet instance with user tokens indicating that user does not have access to that spreadsheet )
      */
-    private ExamSource getExamSheet(ExamRequest request, User token) throws IOException, GeneralSecurityException {
-        /* Set access token to get the spreadsheet Instance */
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-        Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(token.getAccessToken());
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("Gscribe").build();
-
-        /* Parse the Sheet */
+    private ExamSource getExamSheet(ExamRequest request, User user) throws IOException, GeneralSecurityException, InvalidRequestException, InvalidDatabaseDataException {
         ExamSource examSource;
-        int numberOfRowsFilled;
-        numberOfRowsFilled = getNumberOfRowsFilled(service, request.getSpreadsheetID(), request.getSheetName());
+        int numberOfRowsFilled = getNumberOfRowsFilled(user, request.getSpreadsheetID(), request.getSheetName());
         String range = request.getSheetName() + "!A1:G" + numberOfRowsFilled;
-        ValueRange response = service.spreadsheets().values().get(request.getSpreadsheetID(), range).execute();
+        ValueRange response = spreadsheetService.parseSpreadsheetRequest(user, request.getSpreadsheetID(), range);
         List<List<Object>> exam = response.getValues();
         examSource = new ExamSource(exam);
         return examSource;
@@ -109,13 +94,13 @@ public class ExamServiceImpl implements ExamService {
 
     /**
      * Called when a List<Object> of subjective question needs to be converted to Question object
-     * reads the points of the question
-     * reads the statement of question
-     * return subjective question object
+     * Reads the points of the question
+     * Reads the statement of question
+     * Return subjective question object
      *
      * @param questionObject ( question instance from sheet )
      * @param questionNumber ( number of this question in order of questions )
-     * @return SubjectiveQuestion object for this question
+     * @return Question object
      */
     private Question createSubjectiveQuestion(List<Object> questionObject, int questionNumber) {
         int points = Integer.parseInt(questionObject.get(6).toString());
@@ -125,14 +110,14 @@ public class ExamServiceImpl implements ExamService {
 
     /**
      * Called when a List<Object> of MCQ question needs to be converted to Question object
-     * reads the points of the question
-     * reads the statement of the question
-     * reads the options of the question
-     * returns the multiple choice question object
+     * Reads the points of the question
+     * Reads the statement of the question
+     * Reads the options of the question
+     * Returns the multiple choice question object
      *
      * @param questionObject ( question instance from sheet )
      * @param questionNumber ( number of this question in order of questions )
-     * @return MultipleChoiceQuestion object for this question
+     * @return Question Object
      */
     private Question CreateMultipleChoiceQuestion(List<Object> questionObject, int questionNumber) {
         int points = Integer.parseInt(questionObject.get(6).toString());
@@ -144,9 +129,10 @@ public class ExamServiceImpl implements ExamService {
 
     /**
      * Called to combine all exam fields to create a single exam object
-     * makes examMetadata object
-     * makes an arraylist of questions
-     * returns exam object
+     * Makes examMetadata object
+     * Makes a list of questions
+     * Question object is added based on question type
+     * Returns exam object
      *
      * @param examSource ( contains sheet instance containing exam )
      * @param request    ( contains spreadsheetId and sheetName )
@@ -173,7 +159,7 @@ public class ExamServiceImpl implements ExamService {
 
     /**
      * Called to validate that duration of exam is in proper range
-     * in the exam template duration is to be mentioned in B1
+     * In the exam template duration is to be mentioned in B1
      * check that in B1 duration is mentioned in proper format and in range 1-300
      *
      * @param row1 ( row 1 of spreadsheet )
@@ -198,8 +184,8 @@ public class ExamServiceImpl implements ExamService {
      * check that the question has statement in column 2
      * check that the question has options in column 3-6
      *
-     * @param question    ( a list containing question )
-     * @param questionRow ( row in which this question lies )
+     * @param question    ( instance of row of spreadsheet containing question )
+     * @param questionRow ( row number of row in which this question lies )
      * @throws ExamFormatException ( if question statement is missing in column B of the row
      *                             if question has empty options field )
      */
@@ -216,8 +202,8 @@ public class ExamServiceImpl implements ExamService {
      * check that the question has statement in column 2
      * check that the question has no options in column 3-6
      *
-     * @param question    ( a list containing question )
-     * @param questionRow ( row in which this question lies )
+     * @param question    ( instance of row of spreadsheet containing question )
+     * @param questionRow ( row number of row in which this question lies )
      * @throws ExamFormatException ( if question statement is missing in column B of the row
      *                             if question has non empty options field )
      */
@@ -231,8 +217,8 @@ public class ExamServiceImpl implements ExamService {
 
     /**
      * Called to validate that points for a question are in proper range
-     * check that the points are in proper format
-     * check that the points lie in range of 1-100
+     * Check that the points are in proper format
+     * Check that the points lie in range of 1-100
      *
      * @param pointsString ( points mentioned for question in sheet )
      * @param questionRow  ( row in which this question lies )
@@ -252,9 +238,9 @@ public class ExamServiceImpl implements ExamService {
 
     /**
      * Called to validate whole exam
-     * check that the size of sheet is at least 3
+     * check that the size of sheet is at least 3 as first two rows are taken by template
      * validate duration
-     * validate each question
+     * validate each question based on question type
      *
      * @param examSource ( contains instance of exam sheet )
      * @throws ExamFormatException ( if duration verification fails,
@@ -295,31 +281,14 @@ public class ExamServiceImpl implements ExamService {
      */
     @Override
     public Exam getExam(ExamRequest examRequest, User user) throws IOException, GeneralSecurityException, ExamFormatException, InvalidDatabaseDataException, InvalidRequestException {
-
-        ExamSource examSource;
-        try {
-            examSource = getExamSheet(examRequest, user);
-        } catch (GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 401) {
-                tokenService.refreshToken(user);
-                userTokenDao.insertUserToken(user);
-                try {
-                    examSource = getExamSheet(examRequest, user);
-                } catch (GoogleJsonResponseException ex) {
-                    throw new InvalidRequestException("Unable to parse Spreadsheet");
-                }
-            } else {
-                throw new InvalidRequestException("Unable to parse Spreadsheet");
-            }
-        }
-
+        ExamSource examSource = getExamSheet(examRequest, user);
         validateExam(examSource);
         return generateExam(examSource, examRequest, user.getId());
     }
 
     /**
      * Private class to wrap List<List<Object>>
-     * It takes sheet instance
+     * It represents the sheet instance
      */
     private static class ExamSource {
         private final List<List<Object>> exam;

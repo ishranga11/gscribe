@@ -33,13 +33,13 @@ public interface TokenService {
      *
      * @param IDTokenString ( a JWT, web token signed by google )
      * @return userID ( unique user ID for the user included in JWT )
-     * @throws GeneralSecurityException,IOException ( by google verifier, or reading credentials file errors )
-     * @throws InvalidRequestException              ( if the verification fails then returned token is null, If we receive null token then return this exception )
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws InvalidRequestException              ( if the verification fails then returned token is null, then throw this exception )
      */
     String verifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException;
 
     /**
-     * Called to verify IDToken received from examinee
+     * Called to verify IDToken received from firebase functions
      * As this function was originally intended for firebase function client so client id is added for that service
      * This function takes as input the IDToken passed in header for authentication
      * If the JWT clears all authentication checks then unique userID is extracted from the JWT and returned
@@ -52,12 +52,12 @@ public interface TokenService {
     String firebaseVerifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException;
 
     /**
-     * Called when user is being authorized so tokens are generated from authorization code
+     * Called when user is being authorized so new tokens are generated from authorization code
      * Generates new accessToken and refreshToken from authorization code
      * Needs credentials file to generate the tokens
      *
      * @param authCode ( authentication code )
-     * @return userToken object containing access token, refresh token ans unique user Id
+     * @return userToken object containing access token, refresh token and unique user Id
      * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
      * @throws InvalidRequestException              ( if the authorization code is invalid )
      */
