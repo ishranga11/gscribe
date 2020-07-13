@@ -33,7 +33,7 @@ public interface TokenService {
      *
      * @param IDTokenString ( a JWT, web token signed by google )
      * @return userID ( unique user ID for the user included in JWT )
-     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws GeneralSecurityException,IOException ( thrown by GoogleTokenVerifier verify function  )
      * @throws InvalidRequestException              ( if the verification fails then returned token is null, then throw this exception )
      */
     String verifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException;
@@ -46,7 +46,7 @@ public interface TokenService {
      *
      * @param IDTokenString ( a JWT, web token signed by google )
      * @return userID ( unique user ID for the user included in JWT )
-     * @throws GeneralSecurityException,IOException ( by google verifier, or reading credentials file errors )
+     * @throws GeneralSecurityException,IOException ( thrown by GoogleTokenVerifier verify function  )
      * @throws InvalidRequestException              ( if the verification fails then returned token is null, If we receive null token then return this exception )
      */
     String firebaseVerifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException;
@@ -58,8 +58,8 @@ public interface TokenService {
      *
      * @param authCode ( authentication code )
      * @return userToken object containing access token, refresh token and unique user Id
-     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
-     * @throws InvalidRequestException              ( if the authorization code is invalid )
+     * @throws IOException             ( thrown by GoogleTokenResponse execute function )
+     * @throws InvalidRequestException ( if the authorization code is invalid )
      */
     TokenResponse generateToken(String authCode) throws GeneralSecurityException, IOException, InvalidRequestException;
 
@@ -71,7 +71,7 @@ public interface TokenService {
      * Compare both userIDs of main request and refreshToken
      *
      * @param user ( contains refreshToken )
-     * @throws IOException,GeneralSecurityException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws IOException,GeneralSecurityException ( thrown by GoogleTokenVerifier verify function  )
      * @throws InvalidDatabaseDataException         ( if the userID retrieved from refreshing the access token is different than the actual userID,
      *                                              if the IDToken retrieved from refreshing the token is not verified by googleVerifier
      *                                              if the refresh token is not correct and TokenRequestException is received )

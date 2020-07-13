@@ -18,7 +18,6 @@ package com.google.googleinterns.gscribe.services.impl;
 
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -41,10 +40,56 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
 
     private final TokenService tokenService;
     private final UserTokenDao userTokenDao;
+    private final NetHttpTransport HTTP_TRANSPORT;
+    private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    public SpreadsheetServiceImpl(TokenService tokenService, UserTokenDao userTokenDao) {
+    public SpreadsheetServiceImpl(TokenService tokenService, UserTokenDao userTokenDao, NetHttpTransport http_transport) {
         this.tokenService = tokenService;
         this.userTokenDao = userTokenDao;
+        HTTP_TRANSPORT = http_transport;
+    }
+
+    /**
+     * Called to refresh user tokens
+     * When on first time access of the spreadsheet instance GoogleJsonResponseException is received with code 401 then it means that access token is not correct
+     * Due to a possibility that access token might have expired, this function is called to refresh the tokens
+     *
+     * @param exceptionCode ( exception status code thrown by GoogleJsonResponseException )
+     * @param user          ( user object containing tokens )
+     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws InvalidDatabaseDataException         ( thrown by TokenService when refreshing the token, user ID mismatches )
+     * @throws InvalidRequestException              ( when unable to access spreadsheet instance with user tokens indicating that user does not have access to that spreadsheet )
+     */
+    private void refreshTokens(int exceptionCode, User user) throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException {
+        if (exceptionCode != 401) throw new InvalidRequestException("Unable to parse Spreadsheet");
+        tokenService.refreshToken(user);
+        userTokenDao.insertUserToken(user);
+    }
+
+    /**
+     * Called when creating a response template for new exam in google sheets
+     * When creating a responses sheet for an exam, this checks if the sheet is already with sheetName is already made
+     * If the sheet is already made then it is cleared for the new template
+     *
+     * @param service       ( sheet service object )
+     * @param spreadsheetId ( spreadsheet id of spreadsheet where question paper lies )
+     * @param sheetName     ( sheet name of sheet which is to be created or cleared )
+     * @return a boolean variable denoting if the sheet with sheetName is already present in spreadsheet
+     * @throws IOException ( if any error occurs regarding access of spreadsheet )
+     */
+    private boolean clearSheetIfPresent(Sheets service, String spreadsheetId, String sheetName) throws IOException {
+        Sheets.Spreadsheets.Get spreadsheetService = service.spreadsheets().get(spreadsheetId);
+        Spreadsheet spreadsheet = spreadsheetService.execute();
+        List<Sheet> sheets = spreadsheet.getSheets();
+        for (Sheet sheet : sheets) {
+            if (sheet.getProperties().getTitle().equals(sheetName)) {
+                ClearValuesRequest requestBody = new ClearValuesRequest();
+                Sheets.Spreadsheets.Values.Clear request = service.spreadsheets().values().clear(spreadsheetId, sheetName, requestBody);
+                request.execute();
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -60,18 +105,7 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
      */
     private void sheetSetup(Sheets service, String spreadsheetId, String sheetName) throws IOException {
 
-        Sheets.Spreadsheets.Get spreadsheetService = service.spreadsheets().get(spreadsheetId);
-        Spreadsheet spreadsheet = spreadsheetService.execute();
-        List<Sheet> sheets = spreadsheet.getSheets();
-        boolean sheetAlreadyMade = false;
-        for (Sheet sheet : sheets) {
-            if (sheet.getProperties().getTitle().equals(sheetName)) {
-                ClearValuesRequest requestBody = new ClearValuesRequest();
-                Sheets.Spreadsheets.Values.Clear request = service.spreadsheets().values().clear(spreadsheetId, sheetName, requestBody);
-                request.execute();
-                sheetAlreadyMade = true;
-            }
-        }
+        boolean sheetAlreadyMade = clearSheetIfPresent(service, spreadsheetId, sheetName);
         if (!sheetAlreadyMade) {
             AddSheetRequest addSheetRequest = new AddSheetRequest();
             SheetProperties sheetProperties = new SheetProperties();
@@ -94,12 +128,10 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
      *
      * @param exam ( exam object to be filled into the spreadsheet )
      * @param user ( user object for tokens to access spreadsheet )
-     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws IOException ( if any error occurs regarding access of spreadsheet )
      */
-    private void fillResponseTemplate(Exam exam, User user) throws GeneralSecurityException, IOException {
-        /* Set access token to get the spreadsheet Instance */
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private void fillResponseTemplate(Exam exam, User user) throws IOException {
+
         Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(user.getAccessToken());
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("Gscribe").build();
 
@@ -140,15 +172,10 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
         try {
             fillResponseTemplate(exam, user);
         } catch (GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 401) {
-                tokenService.refreshToken(user);
-                userTokenDao.insertUserToken(user);
-                try {
-                    fillResponseTemplate(exam, user);
-                } catch (GoogleJsonResponseException ex) {
-                    throw new InvalidRequestException("Unable to parse Spreadsheet");
-                }
-            } else {
+            refreshTokens(e.getStatusCode(), user);
+            try {
+                fillResponseTemplate(exam, user);
+            } catch (GoogleJsonResponseException ex) {
                 throw new InvalidRequestException("Unable to parse Spreadsheet");
             }
         }
@@ -163,14 +190,12 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
      * @param spreadsheetID ( spreadsheet ID of spreadsheet to be read )
      * @param range         ( range to be read from spreadsheet )
      * @return ValueRange object
-     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
      */
-    private ValueRange parseSpreadsheet(User user, String spreadsheetID, String range) throws GeneralSecurityException, IOException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private ValueRange parseSpreadsheet(User user, String spreadsheetID, String range) throws IOException {
+
         Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(user.getAccessToken());
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("Gscribe").build();
-
         return service.spreadsheets().values().get(spreadsheetID, range).execute();
     }
 
@@ -192,15 +217,10 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
         try {
             return parseSpreadsheet(user, spreadsheetID, range);
         } catch (GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 401) {
-                tokenService.refreshToken(user);
-                userTokenDao.insertUserToken(user);
-                try {
-                    return parseSpreadsheet(user, spreadsheetID, range);
-                } catch (GoogleJsonResponseException ex) {
-                    throw new InvalidRequestException("Unable to parse Spreadsheet");
-                }
-            } else {
+            refreshTokens(e.getStatusCode(), user);
+            try {
+                return parseSpreadsheet(user, spreadsheetID, range);
+            } catch (GoogleJsonResponseException ex) {
                 throw new InvalidRequestException("Unable to parse Spreadsheet");
             }
         }
@@ -214,11 +234,9 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
      * @param examInstance ( exam instance object for the exam taken )
      * @param user         ( paper setter user object to access spreadsheet )
      * @param examMetadata ( exam metadata for exam to get spreadsheet id )
-     * @throws GeneralSecurityException,IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
+     * @throws IOException ( thrown by NetHttpTransport, GoogleClientSecrets, GoogleTokenResponse or by invalid credentials file  )
      */
-    private void addResponseToSheet(ExamInstance examInstance, User user, ExamMetadata examMetadata) throws GeneralSecurityException, IOException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private void addResponseToSheet(ExamInstance examInstance, User user, ExamMetadata examMetadata) throws IOException {
         Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(user.getAccessToken());
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("Gscribe").build();
 
@@ -254,15 +272,10 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
         try {
             addResponseToSheet(examInstance, user, examMetadata);
         } catch (GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 401) {
-                tokenService.refreshToken(user);
-                userTokenDao.insertUserToken(user);
-                try {
-                    addResponseToSheet(examInstance, user, examMetadata);
-                } catch (GoogleJsonResponseException ex) {
-                    throw new InvalidRequestException("Unable to parse Spreadsheet");
-                }
-            } else {
+            refreshTokens(e.getStatusCode(), user);
+            try {
+                addResponseToSheet(examInstance, user, examMetadata);
+            } catch (GoogleJsonResponseException ex) {
                 throw new InvalidRequestException("Unable to parse Spreadsheet");
             }
         }
