@@ -63,7 +63,7 @@ public class QuestionsDaoTest {
     public void addQuestionsTest() {
 
         int examID = EXAM_ID;
-        String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
+        String questionsJSON = "{\"questionsList\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
 
         questionsDao.insertExamQuestions(examID, questionsJSON);
         List<Map<String, Object>> list = handle.createQuery("select * from questions where exam_id=" + examID).list();
@@ -79,7 +79,7 @@ public class QuestionsDaoTest {
 
         Assertions.assertThrows(UnableToExecuteStatementException.class, () -> {
             int examID = 400;
-            String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
+            String questionsJSON = "{\"questionsList\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
 
             questionsDao.insertExamQuestions(examID, questionsJSON);
         });
@@ -91,8 +91,8 @@ public class QuestionsDaoTest {
 
         assertThrows(UnableToExecuteStatementException.class, () -> {
             int examID = EXAM_ID;
-            String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
-            String questionsJSON2 = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB2\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ2\", \"questionNumber\": 2}]}";
+            String questionsJSON = "{\"questionsList\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
+            String questionsJSON2 = "{\"questionsList\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB2\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ2\", \"questionNumber\": 2}]}";
 
             questionsDao.insertExamQuestions(examID, questionsJSON);
             questionsDao.insertExamQuestions(examID, questionsJSON2);
@@ -103,7 +103,7 @@ public class QuestionsDaoTest {
     @Test
     public void getQuestionsTest() {
         int examID = EXAM_ID;
-        String questionsJSON = "{\"questions\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
+        String questionsJSON = "{\"questionsList\": [{\"type\": \"SUBJECTIVE\", \"points\": 5, \"statement\": \"SUB1\", \"questionNumber\": 1}, {\"type\": \"MCQ\", \"points\": 4, \"options\": [\"OP1\", \"OP2\", \"OP3\", \"OP4\"], \"statement\": \"MCQ1\", \"questionNumber\": 2}]}";
         List<String> options = new ArrayList<>();
         options.add("OP1");
         options.add("OP2");
