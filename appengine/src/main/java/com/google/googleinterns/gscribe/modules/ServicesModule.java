@@ -16,6 +16,8 @@
 
 package com.google.googleinterns.gscribe.modules;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.services.ExamService;
 import com.google.googleinterns.gscribe.services.SpreadsheetService;
@@ -40,15 +42,15 @@ public class ServicesModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public TokenService tokenServiceProvider() {
-        return new TokenServiceImpl();
+    public TokenService tokenServiceProvider(GoogleClientSecrets googleClientSecrets, NetHttpTransport netHttpTransport) {
+        return new TokenServiceImpl(googleClientSecrets, netHttpTransport);
     }
 
     @Inject
     @Provides
     @Singleton
-    public SpreadsheetService sheetServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
-        return new SpreadsheetServiceImpl(tokenService, userTokenDao);
+    public SpreadsheetService sheetServiceProvider(TokenService tokenService, UserTokenDao userTokenDao, NetHttpTransport http_transport) {
+        return new SpreadsheetServiceImpl(tokenService, userTokenDao, http_transport);
     }
 
 }
