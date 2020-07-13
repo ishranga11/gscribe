@@ -16,8 +16,13 @@
 
 package com.google.googleinterns.gscribe.modules;
 
-import com.google.googleinterns.gscribe.services.*;
-import com.google.googleinterns.gscribe.services.impl.*;
+import com.google.googleinterns.gscribe.dao.UserTokenDao;
+import com.google.googleinterns.gscribe.services.ExamService;
+import com.google.googleinterns.gscribe.services.SpreadsheetService;
+import com.google.googleinterns.gscribe.services.TokenService;
+import com.google.googleinterns.gscribe.services.impl.ExamServiceImpl;
+import com.google.googleinterns.gscribe.services.impl.SpreadsheetServiceImpl;
+import com.google.googleinterns.gscribe.services.impl.TokenServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
@@ -25,48 +30,25 @@ import com.google.inject.Singleton;
 
 public class ServicesModule extends AbstractModule {
 
+    @Inject
     @Provides
     @Singleton
-    ExamGenerationService examGenerationServiceProvider() {
-        return new ExamGenerationServiceImpl();
-    }
-
-    @Provides
-    @Singleton
-    ExamValidationService examValidationServiceProvider() {
-        return new ExamValidationServiceImpl();
-    }
-
-    @Provides
-    @Singleton
-    ExamSourceService examSourceServiceProvider() {
-        return new ExamSourceServiceImpl();
+    public ExamService examParserServiceProvider(SpreadsheetService spreadsheetService) {
+        return new ExamServiceImpl(spreadsheetService);
     }
 
     @Inject
     @Provides
     @Singleton
-    public ExamParserService examParserServiceProvider(ExamGenerationService examGenerationService, ExamValidationService examValidationService, ExamSourceService examSourceService) {
-        return new ExamParserServiceImpl(examValidationService, examGenerationService, examSourceService);
-    }
-
-    @Provides
-    @Singleton
-    TokenGenerationService tokenGenerationServiceProvider() {
-        return new TokenGenerationServiceImpl();
-    }
-
-    @Provides
-    @Singleton
-    TokenVerificationService tokenVerificationServiceProvider() {
-        return new TokenVerificationServiceImpl();
+    public TokenService tokenServiceProvider() {
+        return new TokenServiceImpl();
     }
 
     @Inject
     @Provides
     @Singleton
-    public TokenService tokenServiceProvider(TokenGenerationService tokenGenerationService, TokenVerificationService tokenVerificationService) {
-        return new TokenServiceImpl(tokenGenerationService, tokenVerificationService);
+    public SpreadsheetService sheetServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
+        return new SpreadsheetServiceImpl(tokenService, userTokenDao);
     }
 
 }
