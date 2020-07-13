@@ -17,11 +17,11 @@
 package com.google.googleinterns.gscribe.modules;
 
 import com.google.googleinterns.gscribe.dao.UserTokenDao;
-import com.google.googleinterns.gscribe.services.ExamSheetsService;
-import com.google.googleinterns.gscribe.services.SheetService;
+import com.google.googleinterns.gscribe.services.ExamService;
+import com.google.googleinterns.gscribe.services.SpreadsheetService;
 import com.google.googleinterns.gscribe.services.TokenService;
-import com.google.googleinterns.gscribe.services.impl.ExamSheetsServiceImpl;
-import com.google.googleinterns.gscribe.services.impl.SheetServiceImpl;
+import com.google.googleinterns.gscribe.services.impl.ExamServiceImpl;
+import com.google.googleinterns.gscribe.services.impl.SpreadsheetServiceImpl;
 import com.google.googleinterns.gscribe.services.impl.TokenServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -33,8 +33,8 @@ public class ServicesModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public ExamSheetsService examParserServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
-        return new ExamSheetsServiceImpl(tokenService, userTokenDao);
+    public ExamService examParserServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
+        return new ExamServiceImpl(tokenService, userTokenDao);
     }
 
     @Inject
@@ -47,8 +47,8 @@ public class ServicesModule extends AbstractModule {
     @Inject
     @Provides
     @Singleton
-    public SheetService sheetServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
-        return new SheetServiceImpl(tokenService, userTokenDao);
+    public SpreadsheetService sheetServiceProvider(TokenService tokenService, UserTokenDao userTokenDao) {
+        return new SpreadsheetServiceImpl(tokenService, userTokenDao);
     }
 
 }

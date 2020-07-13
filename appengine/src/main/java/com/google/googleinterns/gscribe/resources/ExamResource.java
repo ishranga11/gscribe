@@ -29,8 +29,8 @@ import com.google.googleinterns.gscribe.resources.io.response.ExamInstanceRespon
 import com.google.googleinterns.gscribe.resources.io.response.ExamResponse;
 import com.google.googleinterns.gscribe.resources.io.response.ExamSubmitResponse;
 import com.google.googleinterns.gscribe.resources.io.response.ExamsListResponse;
-import com.google.googleinterns.gscribe.services.ExamSheetsService;
-import com.google.googleinterns.gscribe.services.SheetService;
+import com.google.googleinterns.gscribe.services.ExamService;
+import com.google.googleinterns.gscribe.services.SpreadsheetService;
 import com.google.googleinterns.gscribe.services.TokenService;
 import com.google.inject.Inject;
 
@@ -43,26 +43,26 @@ import java.security.GeneralSecurityException;
 @Produces("application/json")
 public class ExamResource {
 
-    private final ExamSheetsService examSheetsService;
+    private final ExamService examService;
     private final TokenService tokenService;
     private final UserTokenDao userTokenDao;
     private final ExamMetadataDao examMetadataDao;
     private final QuestionsDao questionsDao;
     private final ExamInstanceDao examInstanceDao;
     private final AnswerDao answerDao;
-    private final SheetService sheetService;
+    private final SpreadsheetService spreadsheetService;
     private final ObjectMapper objectMapper;
 
     @Inject
-    public ExamResource(ExamSheetsService examSheetsService, TokenService tokenService, UserTokenDao userTokenDao, ExamMetadataDao examMetadataDao, QuestionsDao questionsDao, ExamInstanceDao examInstanceDao, AnswerDao answerDao, SheetService sheetService, ObjectMapper objectMapper) {
-        this.examSheetsService = examSheetsService;
+    public ExamResource(ExamService examService, TokenService tokenService, UserTokenDao userTokenDao, ExamMetadataDao examMetadataDao, QuestionsDao questionsDao, ExamInstanceDao examInstanceDao, AnswerDao answerDao, SpreadsheetService spreadsheetService, ObjectMapper objectMapper) {
+        this.examService = examService;
         this.tokenService = tokenService;
         this.userTokenDao = userTokenDao;
         this.examMetadataDao = examMetadataDao;
         this.questionsDao = questionsDao;
         this.examInstanceDao = examInstanceDao;
         this.answerDao = answerDao;
-        this.sheetService = sheetService;
+        this.spreadsheetService = spreadsheetService;
         this.objectMapper = objectMapper;
     }
 
@@ -106,7 +106,7 @@ public class ExamResource {
         }
 
         try {
-            exam = examSheetsService.getExam(request, token);
+            exam = examService.getExam(request, token);
         } catch (InvalidRequestException | ExamFormatException e) {
             throw new BadRequestException(e.getMessage());
         } catch (GeneralSecurityException | IOException | InvalidDatabaseDataException e) {
@@ -116,7 +116,7 @@ public class ExamResource {
         try {
             int examID = examMetadataDao.insertExamMetadata(exam.getExamMetadata());
             exam.getExamMetadata().setId(examID);
-            sheetService.makeResponseSheet(exam, token);
+            spreadsheetService.makeResponseSheet(exam, token);
             String questionJSON = objectMapper.writeValueAsString(exam.getQuestions());
             questionsDao.insertExamQuestions(examID, questionJSON);
         } catch (Exception e) {
@@ -266,7 +266,7 @@ public class ExamResource {
 
             User user = userTokenDao.getUserTokenByExamID(examInstance.getExamID());
             ExamMetadata examMetadata = examMetadataDao.getExamMetadataByExamId(examInstance.getExamID());
-            sheetService.addResponse(examSubmitRequest.getExamInstance(), user, examMetadata);
+            spreadsheetService.addResponse(examSubmitRequest.getExamInstance(), user, examMetadata);
 
         } catch (Exception e) {
             throw new BadRequestException("Failed to submit Exam");

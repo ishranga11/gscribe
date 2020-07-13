@@ -26,7 +26,7 @@ import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestExc
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-public interface SheetService {
+public interface SpreadsheetService {
 
     /**
      * Called when exam is submitted by the paper setter and now responses sheet should be made

@@ -16,5 +16,5 @@
 
 package com.google.googleinterns.gscribe.services;
 
-public class TokenService {
+public class TokenServiceTest {
 }

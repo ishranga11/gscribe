@@ -31,7 +31,7 @@ import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatExcepti
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
-import com.google.googleinterns.gscribe.services.ExamSheetsService;
+import com.google.googleinterns.gscribe.services.ExamService;
 import com.google.googleinterns.gscribe.services.TokenService;
 
 import java.io.IOException;
@@ -39,12 +39,12 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExamSheetsServiceImpl implements ExamSheetsService {
+public class ExamServiceImpl implements ExamService {
 
     private final TokenService tokenService;
     private final UserTokenDao userTokenDao;
 
-    public ExamSheetsServiceImpl(TokenService tokenService, UserTokenDao userTokenDao) {
+    public ExamServiceImpl(TokenService tokenService, UserTokenDao userTokenDao) {
         this.tokenService = tokenService;
         this.userTokenDao = userTokenDao;
     }

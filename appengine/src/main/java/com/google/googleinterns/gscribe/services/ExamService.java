@@ -26,7 +26,7 @@ import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-public interface ExamSheetsService {
+public interface ExamService {
 
     /**
      * Called to completely process and validate the question paper from spreadsheet and return an Exam object

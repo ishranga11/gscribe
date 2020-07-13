@@ -29,7 +29,7 @@ import com.google.googleinterns.gscribe.dao.UserTokenDao;
 import com.google.googleinterns.gscribe.models.*;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
-import com.google.googleinterns.gscribe.services.SheetService;
+import com.google.googleinterns.gscribe.services.SpreadsheetService;
 import com.google.googleinterns.gscribe.services.TokenService;
 
 import java.io.IOException;
@@ -37,12 +37,12 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SheetServiceImpl implements SheetService {
+public class SpreadsheetServiceImpl implements SpreadsheetService {
 
     private final TokenService tokenService;
     private final UserTokenDao userTokenDao;
 
-    public SheetServiceImpl(TokenService tokenService, UserTokenDao userTokenDao) {
+    public SpreadsheetServiceImpl(TokenService tokenService, UserTokenDao userTokenDao) {
         this.tokenService = tokenService;
         this.userTokenDao = userTokenDao;
     }
