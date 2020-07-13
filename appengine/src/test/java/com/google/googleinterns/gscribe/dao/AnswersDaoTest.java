@@ -105,7 +105,7 @@ public class AnswersDaoTest {
     @Test
     public void getAnswersTest() {
         int examInstanceID = EXAM_INSTANCE_ID;
-        String answersJSON = "{\"answers\": [{\"answer\": \"ANSWER1\", \"questionNum\": 1}, {\"answer\": \"ANSWER2\", \"questionNum\": 2}]}";
+        String answersJSON = "{\"answersList\": [{\"answer\": \"ANSWER1\", \"questionNum\": 1}, {\"answer\": \"ANSWER2\", \"questionNum\": 2}]}";
 
         handle.insert("insert into answers(exam_instance_id,answers) values ( " + examInstanceID + ", '" + answersJSON + "' )");
         Answers answers = answerDao.getAnswersByExamInstanceID(examInstanceID);

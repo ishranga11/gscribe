@@ -66,7 +66,7 @@ public interface QuestionsDao {
         public Questions map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
             try {
                 JsonNode node = objectMapper.readTree(resultSet.getString("questions"));
-                JsonNode questions = node.get("questions");
+                JsonNode questions = node.get("questionsList");
                 Questions questionsList = new Questions();
                 questionsList.setQuestionsList(new ArrayList<>());
                 for (JsonNode question : questions) {
