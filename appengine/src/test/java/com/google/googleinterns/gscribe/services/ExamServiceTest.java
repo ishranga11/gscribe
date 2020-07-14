@@ -75,11 +75,7 @@ public class ExamServiceTest {
     private List<List<Object>> globalValueRangeDataWholeCopy() {
         List<List<Object>> copyList = new ArrayList<>();
         for (List<Object> list : globalValueRangeDataWhole) {
-            List<Object> copyRow = new ArrayList<>();
-            for (Object object : list) {
-                copyRow.add(object);
-            }
-            copyList.add(copyRow);
+            copyList.add((List<Object>) new ArrayList<>(list).clone());
         }
         return copyList;
     }
@@ -91,13 +87,13 @@ public class ExamServiceTest {
         valueRangeWhole.setValues(valueRangeDataWhole);
         ExamMetadata actualExamMetadata = new ExamMetadata(spreadsheetId, sheetName, user.getId(), 100);
         Questions actualQuestions = new Questions();
-        SubjectiveQuestion actualSubjectiveQuestion = new SubjectiveQuestion((String) valueRangeDataWhole.get(2).get(1), 2, 1);
+        SubjectiveQuestion actualSubjectiveQuestion = new SubjectiveQuestion("SubjectiveStatement1", 2, 1);
         List<String> actualOptions = new ArrayList<>();
-        actualOptions.add((String) valueRangeDataWhole.get(3).get(2));
-        actualOptions.add((String) valueRangeDataWhole.get(3).get(3));
-        actualOptions.add((String) valueRangeDataWhole.get(3).get(4));
-        actualOptions.add((String) valueRangeDataWhole.get(3).get(5));
-        MultipleChoiceQuestion actualMultipleChoiceQuestion = new MultipleChoiceQuestion((String) valueRangeDataWhole.get(3).get(1), 3, 2, actualOptions);
+        actualOptions.add("OptionA");
+        actualOptions.add("OptionB");
+        actualOptions.add("OptionC");
+        actualOptions.add("OptionD");
+        MultipleChoiceQuestion actualMultipleChoiceQuestion = new MultipleChoiceQuestion("MCQStatement1", 3, 2, actualOptions);
         List<Question> actualQuestionList = new ArrayList<>();
         actualQuestionList.add(actualSubjectiveQuestion);
         actualQuestionList.add(actualMultipleChoiceQuestion);
