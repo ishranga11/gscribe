@@ -17,10 +17,7 @@
 package com.google.googleinterns.gscribe.services;
 
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.google.googleinterns.gscribe.models.Exam;
-import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
-import com.google.googleinterns.gscribe.models.QuestionType;
-import com.google.googleinterns.gscribe.models.User;
+import com.google.googleinterns.gscribe.models.*;
 import com.google.googleinterns.gscribe.resources.io.exception.ExamFormatException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidDatabaseDataException;
 import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestException;
@@ -80,28 +77,27 @@ public class ExamServiceTest {
         ValueRange valueRangeWhole = new ValueRange();
         valueRangeWhole.setValues(valueRangeDataWhole);
 
+        ExamMetadata actualExamMetadata = new ExamMetadata(spreadsheetId, sheetName, user.getId(), 100);
+        Questions actualQuestions = new Questions();
+        SubjectiveQuestion actualSubjectiveQuestion = new SubjectiveQuestion("SubjectiveStatement1", 2, 1);
+        List<String> actualOptions = new ArrayList<>();
+        actualOptions.add("OptionA");
+        actualOptions.add("OptionB");
+        actualOptions.add("OptionC");
+        actualOptions.add("OptionD");
+        MultipleChoiceQuestion actualMultipleChoiceQuestion = new MultipleChoiceQuestion("MCQStatement1", 3, 2, actualOptions);
+        List<Question> actualQuestionList = new ArrayList<>();
+        actualQuestionList.add(actualSubjectiveQuestion);
+        actualQuestionList.add(actualMultipleChoiceQuestion);
+        actualQuestions.setQuestionsList(actualQuestionList);
+        Exam actualExam = new Exam(actualExamMetadata, actualQuestions);
+
         when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
         when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A1:G4")).thenReturn(valueRangeWhole);
 
         Exam exam = examService.getExam(examRequest, user);
 
-        assertEquals(exam.getExamMetadata().getSpreadsheetID(), spreadsheetId);
-        assertEquals(exam.getExamMetadata().getDuration(), 100);
-        assertEquals(exam.getExamMetadata().getUserID(), user.getId());
-        assertEquals(exam.getQuestions().getQuestionsList().size(), 2);
-        assertEquals(exam.getQuestions().getQuestionsList().get(0).getType(), QuestionType.SUBJECTIVE);
-        assertEquals(exam.getQuestions().getQuestionsList().get(0).getQuestionNumber(), 1);
-        assertEquals(exam.getQuestions().getQuestionsList().get(0).getPoints(), 2);
-        assertEquals(exam.getQuestions().getQuestionsList().get(0).getStatement(), valueRangeDataWhole.get(2).get(1));
-        assertEquals(exam.getQuestions().getQuestionsList().get(1).getType(), QuestionType.MCQ);
-        assertEquals(exam.getQuestions().getQuestionsList().get(1).getQuestionNumber(), 2);
-        assertEquals(exam.getQuestions().getQuestionsList().get(1).getPoints(), 3);
-        assertEquals(exam.getQuestions().getQuestionsList().get(1).getStatement(), valueRangeDataWhole.get(3).get(1));
-        assertEquals(((MultipleChoiceQuestion) exam.getQuestions().getQuestionsList().get(1)).getOptions().size(), 4);
-        assertEquals(((MultipleChoiceQuestion) exam.getQuestions().getQuestionsList().get(1)).getOptions().get(0), valueRangeDataWhole.get(3).get(2));
-        assertEquals(((MultipleChoiceQuestion) exam.getQuestions().getQuestionsList().get(1)).getOptions().get(1), valueRangeDataWhole.get(3).get(3));
-        assertEquals(((MultipleChoiceQuestion) exam.getQuestions().getQuestionsList().get(1)).getOptions().get(2), valueRangeDataWhole.get(3).get(4));
-        assertEquals(((MultipleChoiceQuestion) exam.getQuestions().getQuestionsList().get(1)).getOptions().get(3), valueRangeDataWhole.get(3).get(5));
+        assertEquals(actualExam, exam);
     }
 
     @Test

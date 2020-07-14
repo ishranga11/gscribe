@@ -19,6 +19,7 @@ package com.google.googleinterns.gscribe.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class ExamInstance {
 
@@ -104,5 +105,24 @@ public class ExamInstance {
 
     public void setAnswers(Answers answers) {
         this.answers = answers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExamInstance)) return false;
+        ExamInstance that = (ExamInstance) o;
+        return getId() == that.getId() &&
+                getExamID() == that.getExamID() &&
+                getStudentRollNum() == that.getStudentRollNum() &&
+                getUserID().equals(that.getUserID()) &&
+                Objects.equals(getStartTime(), that.getStartTime()) &&
+                Objects.equals(getEndTime(), that.getEndTime()) &&
+                getAnswers().equals(that.getAnswers());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getExamID(), getUserID(), getStudentRollNum(), getStartTime(), getEndTime(), getAnswers());
     }
 }

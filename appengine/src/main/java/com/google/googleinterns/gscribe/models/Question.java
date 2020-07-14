@@ -16,6 +16,8 @@
 
 package com.google.googleinterns.gscribe.models;
 
+import java.util.Objects;
+
 public class Question {
 
     private QuestionType type;
@@ -49,4 +51,19 @@ public class Question {
         return questionNumber;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Question)) return false;
+        Question question = (Question) o;
+        return getPoints() == question.getPoints() &&
+                getQuestionNumber() == question.getQuestionNumber() &&
+                getType() == question.getType() &&
+                getStatement().equals(question.getStatement());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getType(), getStatement(), getPoints(), getQuestionNumber());
+    }
 }
