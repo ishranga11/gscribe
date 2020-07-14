@@ -24,6 +24,7 @@ import com.google.googleinterns.gscribe.resources.io.exception.InvalidRequestExc
 import com.google.googleinterns.gscribe.resources.io.request.ExamRequest;
 import com.google.googleinterns.gscribe.services.impl.ExamServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,6 +49,9 @@ public class ExamServiceTest {
     private final static String sheetName = "sheet_name";
     private final static ExamRequest examRequest = new ExamRequest();
     private final static ValueRange valueRangeForNumberOfQuestions = new ValueRange();
+    private final static ValueRange valueRangeWhole = new ValueRange();
+    private List<List<Object>> valueRangeDataWhole;
+
     @Mock
     SpreadsheetService spreadsheetService;
     @InjectMocks
@@ -65,27 +69,28 @@ public class ExamServiceTest {
         valueRangeForNumberOfQuestions.setValues(valueRangeDataFoNumberOfQuestions);
     }
 
-
-    @Test
-    public void createNewExamTest() throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException, ExamFormatException {
-
-        List<List<Object>> valueRangeDataWhole = new ArrayList<>();
+    @BeforeEach
+    private void setup() {
+        valueRangeDataWhole = new ArrayList<>();
         valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
         valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
         valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
         valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-        ValueRange valueRangeWhole = new ValueRange();
-        valueRangeWhole.setValues(valueRangeDataWhole);
+    }
 
+    @Test
+    public void createNewExamTest() throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException, ExamFormatException {
+
+        valueRangeWhole.setValues(valueRangeDataWhole);
         ExamMetadata actualExamMetadata = new ExamMetadata(spreadsheetId, sheetName, user.getId(), 100);
         Questions actualQuestions = new Questions();
-        SubjectiveQuestion actualSubjectiveQuestion = new SubjectiveQuestion("SubjectiveStatement1", 2, 1);
+        SubjectiveQuestion actualSubjectiveQuestion = new SubjectiveQuestion((String) valueRangeDataWhole.get(2).get(1), 2, 1);
         List<String> actualOptions = new ArrayList<>();
-        actualOptions.add("OptionA");
-        actualOptions.add("OptionB");
-        actualOptions.add("OptionC");
-        actualOptions.add("OptionD");
-        MultipleChoiceQuestion actualMultipleChoiceQuestion = new MultipleChoiceQuestion("MCQStatement1", 3, 2, actualOptions);
+        actualOptions.add((String) valueRangeDataWhole.get(3).get(2));
+        actualOptions.add((String) valueRangeDataWhole.get(3).get(3));
+        actualOptions.add((String) valueRangeDataWhole.get(3).get(4));
+        actualOptions.add((String) valueRangeDataWhole.get(3).get(5));
+        MultipleChoiceQuestion actualMultipleChoiceQuestion = new MultipleChoiceQuestion((String) valueRangeDataWhole.get(3).get(1), 3, 2, actualOptions);
         List<Question> actualQuestionList = new ArrayList<>();
         actualQuestionList.add(actualSubjectiveQuestion);
         actualQuestionList.add(actualMultipleChoiceQuestion);
@@ -104,12 +109,7 @@ public class ExamServiceTest {
     public void missingDurationTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.set(0, Arrays.asList(new String[]{"Duration of exam:"}));
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -131,10 +131,8 @@ public class ExamServiceTest {
             ValueRange valueRangeColumnA = new ValueRange();
             valueRangeColumnA.setValues(valueRangeDataColumnA);
 
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.remove(3);
+            valueRangeDataWhole.remove(2);
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeColumnA);
@@ -150,12 +148,7 @@ public class ExamServiceTest {
     public void wrongDurationFormatTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "asd"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(0).set(1, "asd");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -171,12 +164,7 @@ public class ExamServiceTest {
     public void durationInNegativeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "-10"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(0).set(1, "-10");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -192,12 +180,7 @@ public class ExamServiceTest {
     public void durationOutOfRangeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "1000"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(0).set(1, "1000");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -213,12 +196,7 @@ public class ExamServiceTest {
     public void wrongQuestionTypeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"subjective", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(0, "fill_in_the_blanks");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -234,12 +212,7 @@ public class ExamServiceTest {
     public void questionWithoutStatementTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(3).set(1, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -255,12 +228,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsATest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "optionA", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(2, "optionA");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -276,12 +244,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsBTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "optionB", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(3, "optionB");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -297,12 +260,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsCTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "optionC", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(4, "optionC");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -318,12 +276,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsDTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "optionD", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(5, "optionD");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -339,12 +292,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionATest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(3).set(2, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -360,12 +308,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionBTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(3).set(3, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -381,12 +324,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionCTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(3).set(4, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -402,12 +340,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionDTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(3).set(5, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -423,12 +356,7 @@ public class ExamServiceTest {
     public void pointsIncorrectFormatTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "sd2"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(6, "asd");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -444,12 +372,7 @@ public class ExamServiceTest {
     public void negativePointsTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "-1"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+            valueRangeDataWhole.get(2).set(6, "-1");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
@@ -465,12 +388,8 @@ public class ExamServiceTest {
     public void pointsOutOfRangeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = new ArrayList<>();
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "1000"}));
-            valueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
-            ValueRange valueRangeWhole = new ValueRange();
+
+            valueRangeDataWhole.get(2).set(6, "1000");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
             when(spreadsheetService.parseSpreadsheetRequest(user, spreadsheetId, sheetName + "!A:A")).thenReturn(valueRangeForNumberOfQuestions);
