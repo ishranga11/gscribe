@@ -19,6 +19,7 @@ package com.google.googleinterns.gscribe.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class ExamMetadata {
 
@@ -105,4 +106,21 @@ public class ExamMetadata {
         this.createdOn = createdOn;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExamMetadata)) return false;
+        ExamMetadata metadata = (ExamMetadata) o;
+        return getId() == metadata.getId() &&
+                getDuration() == metadata.getDuration() &&
+                getSpreadsheetID().equals(metadata.getSpreadsheetID()) &&
+                Objects.equals(getSheetName(), metadata.getSheetName()) &&
+                Objects.equals(getUserID(), metadata.getUserID()) &&
+                Objects.equals(getCreatedOn(), metadata.getCreatedOn());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSpreadsheetID(), getSheetName(), getUserID(), getId(), getDuration(), getCreatedOn());
+    }
 }

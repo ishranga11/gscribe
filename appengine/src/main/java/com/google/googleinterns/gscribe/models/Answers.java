@@ -17,6 +17,7 @@
 package com.google.googleinterns.gscribe.models;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Answers {
 
@@ -31,5 +32,18 @@ public class Answers {
 
     public void setAnswersList(List<Answer> answersList) {
         this.answersList = answersList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Answers)) return false;
+        Answers answers = (Answers) o;
+        return getAnswersList().equals(answers.getAnswersList());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getAnswersList());
     }
 }

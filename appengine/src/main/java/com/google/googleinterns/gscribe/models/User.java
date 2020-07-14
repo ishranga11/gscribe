@@ -17,6 +17,7 @@
 package com.google.googleinterns.gscribe.models;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class User {
 
@@ -67,4 +68,19 @@ public class User {
         this.timestamp = timestamp;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return getId().equals(user.getId()) &&
+                getAccessToken().equals(user.getAccessToken()) &&
+                getRefreshToken().equals(user.getRefreshToken()) &&
+                Objects.equals(getTimestamp(), user.getTimestamp());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getAccessToken(), getRefreshToken(), getTimestamp());
+    }
 }

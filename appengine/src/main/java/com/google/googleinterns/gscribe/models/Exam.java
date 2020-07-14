@@ -17,6 +17,8 @@
 package com.google.googleinterns.gscribe.models;
 
 
+import java.util.Objects;
+
 public class Exam {
 
     private ExamMetadata examMetadata;
@@ -44,5 +46,19 @@ public class Exam {
 
     public void setQuestions(Questions questions) {
         this.questions = questions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Exam)) return false;
+        Exam exam = (Exam) o;
+        return getExamMetadata().equals(exam.getExamMetadata()) &&
+                getQuestions().equals(exam.getQuestions());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getExamMetadata(), getQuestions());
     }
 }
