@@ -25,11 +25,12 @@ const app = dialogflow({
 const backendServiceBaseUrl = 'https://aaa331967e40.ngrok.io';
 
 /**
+ * Called to create user data object when starting exam intent is triggered
  * When the user initiates the call for starting exam then take the user credentials from the context
  * return the user credentials object with roll_number and exam_instance_id
  * This object will be used at the end to submit the exam
  * @param conv
- * @returns {{rollNumber, examId, username}}
+ * @returns {{rollNumber, examId}}
  */
 function getUserData ( conv ){
     try {
@@ -45,11 +46,13 @@ function getUserData ( conv ){
 }
 
 /**
- * Sends the request to the backend to get exam object corresponding to the exam instance
- * Sends roll number and instance id for verification of user
+ * Called to fetch exam object from database
+ * Sends the request to the backend to get exam object corresponding to the exam id
+ * Sends roll number to create a new exam instance in the database
+ * Authentication token header takes the IDToken which is used for authentication
  * On success return exam object else throw an error
- * @param user
- * @param token
+ * @param user ( contains user data like roll_number, exam_id )
+ * @param token ( IDToken of the logged in user account )
  * @returns exam object
  */
 function getExamObject ( user, token ){
@@ -67,10 +70,11 @@ function getExamObject ( user, token ){
 }
 
 /**
+ * Called to create answers context object when starting exam intent is triggered
  * On start of exam create the answers list to be stored in context
  * Initially no answer is attempted so mark them not attempted
  * Size of the list is set as the number of questions
- * @param numberOfQuestions
+ * @param numberOfQuestions ( number of questions in the exam )
  * @returns {{answers_list: []}}
  */
 function  getAnswersParameter ( numberOfQuestions ) {
@@ -83,12 +87,12 @@ function  getAnswersParameter ( numberOfQuestions ) {
 }
 
 /**
- * Whenever a new question is to be loaded into the current question context then this function is called
- * Using the question number and exam object from the context, extract the question
- * Create the current question object to be stored into the context
- * Handle different type of questions ( here MCQ and SUBJECTIVE )
- * @param questionNum
- * @param examObject
+ * Called to load a new question into the current question context
+ * Using the question number and exam object from the context, extracts the question
+ * Creates the current question object to be stored into the context
+ * Handles different type of questions ( here MCQ and SUBJECTIVE )
+ * @param questionNum ( question number of question to be loaded )
+ * @param examObject ( exam object )
  * @returns {{question_statement: (string), options: string, question_number: *, points:  number}}
  */
 function getCurrentQuestionParameter ( questionNum, examObject ){
@@ -109,9 +113,9 @@ function getCurrentQuestionParameter ( questionNum, examObject ){
 }
 
 /**
- * Whenever a new question is to be loaded into the current question context then this function is called
+ * Called when a new question is to be loaded into the current question context then accordingly have to set current answer
  * Using the question number of current question and answers list from context load the current answer
- * @param questionNum
+ * @param questionNum ( question number of current question )
  * @param answerObject
  * @returns {{answer: *}}
  */
@@ -122,7 +126,7 @@ function getCurrentAnswerParameter ( questionNum, answerObject ){
 }
 
 /**
- * Whenever a new question is to be loaded into the context then this function is called
+ * Called when a new question is to be loaded into the context and then the question needs to be converted into a statement
  * This function returns a conversational message to be sent to the agent.
  * Here it normally lists all the question parameters to be told to the user
  * @param questionObject
@@ -133,6 +137,14 @@ function returnQuestionString ( questionObject ){
         + questionObject.points + " points. " + questionObject.question_statement + ". " + questionObject.options );
 }
 
+/**
+ * Called to create user context object when starting exam intent is triggered
+ * Takes all the user context parameters as arguments of function and forms a new user context object
+ * @param user ( contains user roll number and exam id )
+ * @param exam_instance_id
+ * @param end_time ( a timestamp for end time of exam )
+ * @returns {{end_time: *, roll_number: *, exam_instance_id: *, exam_id: *}}
+ */
 function getUserContextParameter ( user, exam_instance_id, end_time ){
 
     return {
@@ -145,14 +157,14 @@ function getUserContextParameter ( user, exam_instance_id, end_time ){
 }
 
 /**
- * This handles the exam.start.submit_request intent
+ * Handles the exam.start.submit_request intent
  * contexts set -> user ( containing user data to be used when submitting exam )
  *                 exam ( exam object )
  *                 answers ( answers object )
  *                 current_question ( statement, options, points, question number )
  *                 current_answer ( answer )
- * contexts deleted to avoid confusion and editing for user:
- * roll_number, exam_instance_id, exam_start_request
+ * contexts deleted to avoid confusion and avoiding editing by user:
+ *                 roll_number, exam_instance_id, exam_start_request
  * If error is encountered then send appropriate message in response
  */
 app.intent( 'exam.start.submit_request', async conv => {
@@ -186,7 +198,7 @@ app.intent( 'exam.start.submit_request', async conv => {
  * Handles question_previous intent, called when user asks for previous question
  * It extracts examObject, answersObject and question number from the context
  * If the question is already question 1 then there is no previous question to it
- * Using the details in context we load the new question and corresponding answer stored
+ * Using the details in context load the new question and corresponding answer stored
  * Response sent is the new question statement
  */
 app.intent( 'question.previous', async conv => {
@@ -208,7 +220,7 @@ app.intent( 'question.previous', async conv => {
  * Handles question_next intent, called when user asks for next question
  * It extracts examObject, answersObject and question number from the context
  * If the question is already last question then there is no next question to it
- * Using the details in context we load the new question and corresponding answer stored
+ * Using the details in context load the new question and corresponding answer stored
  * Response sent is the new question statement
  */
 app.intent( 'question.next', async conv => {
@@ -231,7 +243,7 @@ app.intent( 'question.next', async conv => {
  * It extracts examObject, answersObject and question number from the context
  * It takes the new question requested from the query
  * If the question is not in a valid range of ( 1 - number of questions in exam ) then throw error response
- * Using the details in context we load the new question and corresponding answer stored
+ * Using the details in context load the new question and corresponding answer stored
  * Response sent is the new question
  */
 app.intent( 'question.jump', async conv => {
@@ -251,7 +263,8 @@ app.intent( 'question.jump', async conv => {
 
 /**
  * Handles answer intent, called when user wants to submit answer
- * It extracts the question number and answers list from the context
+ * Extracts the question number and answers list from the context
+ * If the question is of type MCQ and the response is not just ( A,B,C or D ) then give hint to user to record answer as A,B,C or D only
  * Updates the answer list and current answer with the query received
  * Returns a response saying that the answer is recorded
  */
@@ -272,8 +285,8 @@ app.intent( 'answer', async conv => {
 /**
  * Handles exam.submit intent, called when user wants to submit the exam
  * It extracts responses from context along with user details to submit exam
- * Deletes all the contexts to avoid any update to the contexts
  * Finally close the conversation by sending a successful response to user
+ * Or in case of any error send an error message to the user
  */
 app.intent( 'exam.submit', async conv => {
     const answersObject = conv.contexts.get('answers').parameters.answers_list;
@@ -301,11 +314,6 @@ app.intent( 'exam.submit', async conv => {
     }, {
         headers: { Authentication: conv.user.profile.token }
     }).then( ()=> {
-        conv.contexts.delete('user');
-        conv.contexts.delete('answers');
-        conv.contexts.delete('current_question');
-        conv.contexts.delete('current_answer');
-        conv.contexts.delete('exam');
         return conv.close("Exam Submitted successfully");
     }).catch( error =>{
         return conv.ask( error.message );
@@ -314,6 +322,12 @@ app.intent( 'exam.submit', async conv => {
 
 });
 
+/**
+ * Handles exam.timeleft intent, when user asks to know how much time is left
+ * Extracts endTime from the context and finds difference with respect to current time
+ * Convert the difference from milliseconds to minutes
+ * Return the response to the user
+ */
 app.intent( 'exam.timeleft', async conv => {
     const currentTime = Date.now();
     const endTime = new Date( conv.contexts.get('user').parameters.end_time );
