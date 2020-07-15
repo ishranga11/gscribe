@@ -17,7 +17,7 @@
 let auth2;
 
 /**
- * Called on window load
+ * Called on window load to initialize gapi
  * Initializes the gapi library with client_id of the client to be able to use gapi oauth functionality
  * Initially hides all elements which should be visible if user is logged in
  * Adds listener for change in sign in status or user from logout state to login state
@@ -35,7 +35,7 @@ function init() {
 }
 
 /**
- * Called by gapi sign in status listener
+ * Called by gapi sign in status listener when user login state toggles
  * Whenever user logout then the window refreshes, so this is basically used when user login
  * When user login then set page for login state by function setForLogin
  * @param val ( true if user is signed in else false )
@@ -45,7 +45,7 @@ let signInChanged = function (val) {
 };
 
 /**
- * Called when the backend returns that the user is not authorized
+ * Called when the backend returns that the user is not authorized and hence need to send authorization code to backend
  * This function asks the user to grant offline access to google sheets
  * When user grants offline access to google sheets an authorization code is generated which can be used to generate tokens
  * A post call is made to the backend with the authorization code and IDToken to authorize user
@@ -81,9 +81,9 @@ function sendCode() {
 }
 
 /**
- * Called when user wants to submit the question paper
+ * Called when user wants to submit the question paper and so clicks on submit button
  * First checks if the user is authorized for the service
- * i.e. the backend holds tokens for spreadsheet access token for this user
+ * i.e. the backend holds tokens for spreadsheet access for this user
  * If user is authorized then move to submitSheet function
  * If user is not authorized then call sendCode function to send authorization code for user
  * Else display error in error modal
@@ -112,7 +112,7 @@ function codeNeeded() {
 }
 
 /**
- * Called when user is authorized
+ * Called when user wants to submit question paper and user is authorized
  * spreadsheetId and sheet name are sent for sheet where the question paper lies
  * On success show exam object in the exam modal
  * On error display the error in error modal
@@ -202,7 +202,7 @@ function getExam(examID) {
  * On success fill the exam metadata table
  * On error display error in error modal
  */
-function fetchExams() {
+function getExamsMetadata() {
 
     let IDToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
     jQuery.ajax({
@@ -244,6 +244,7 @@ function fillExamModal(data) {
  * @param message
  */
 function fillErrorModal(message) {
+    $('#response-modal-body').empty();
     document.getElementById('modal-label').innerHTML = "Error";
     document.getElementById('response-modal-body').innerHTML = JSON.stringify(message);
     $('#response-modal').modal({show: true});
@@ -322,14 +323,14 @@ function fillSubjective(question) {
  * Called to set the page for user login
  * Hide all elements meant for logout state and show all elements for login state
  * Display a welcome message mentioning user name and email id
- * Finally fill the exam metadata table using fetchExams function
+ * Finally fill the exam metadata table using getExamsMetadata function
  */
 function setForLogin() {
     $('.logged-in-element').show();
     $('.logged-out-element').hide();
     let profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     document.getElementById('loginCardTitle').innerText = "Hello " + profile.getName() + " ( " + profile.getEmail() + ")";
-    fetchExams();
+    getExamsMetadata();
 }
 
 /**
