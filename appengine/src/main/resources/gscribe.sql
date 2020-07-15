@@ -14,8 +14,7 @@
 --  * limitations under the License.
 --  */
 
-CREATE DATABASE  IF NOT EXISTS `gscribe` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `gscribe`;
+
 -- MySQL dump 10.13  Distrib 8.0.20, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: gscribe
@@ -42,9 +41,10 @@ DROP TABLE IF EXISTS `answers`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `answers` (
   `exam_instance_id` int NOT NULL,
-  `answers` json NOT NULL,
+  `answer` json NOT NULL,
+  `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`exam_instance_id`),
-  CONSTRAINT `answersDB_to_examInstanceDB_id` FOREIGN KEY (`exam_instance_id`) REFERENCES `exam_instance` (`id`)
+  CONSTRAINT `answersDB_to_examinstanceDB_examinstanceid` FOREIGN KEY (`exam_instance_id`) REFERENCES `exam_instance` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -64,7 +64,7 @@ CREATE TABLE `exam` (
   PRIMARY KEY (`id`),
   KEY `exam_db_to_user_db_id_idx` (`created_by`),
   CONSTRAINT `examDB_to_userDB_id` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,16 +75,16 @@ DROP TABLE IF EXISTS `exam_instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `exam_instance` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL,
   `exam_id` int NOT NULL,
-  `user_id` varchar(300) NOT NULL,
+  `student_email_id` varchar(300) NOT NULL,
   `student_roll_num` int NOT NULL,
   `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `examtakenDB_to_examDB_examID_idx` (`exam_id`),
   CONSTRAINT `examinstanceDB_to_examDB_exam_id` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,8 +96,9 @@ DROP TABLE IF EXISTS `questions`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `questions` (
   `exam_id` int NOT NULL,
-  `questions` json NOT NULL,
-  PRIMARY KEY (`exam_id`),
+  `question_num` int NOT NULL,
+  `question` json NOT NULL,
+  PRIMARY KEY (`exam_id`,`question_num`),
   CONSTRAINT `questionDB_to_examDB_examID` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -129,6 +130,8 @@ CREATE TABLE `user` (
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*
  * Copyright 2020 Google LLC
  *
@@ -145,10 +148,9 @@ CREATE TABLE `user` (
  * limitations under the License.
  */
 
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-14 14:50:13
+-- Dump completed on 2020-06-05 14:45:00
+
