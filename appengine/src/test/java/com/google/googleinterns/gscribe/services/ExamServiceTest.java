@@ -49,7 +49,6 @@ public class ExamServiceTest {
     private final static ExamRequest examRequest = new ExamRequest();
     private final static ValueRange valueRangeForNumberOfQuestions = new ValueRange();
     private final static ValueRange valueRangeWhole = new ValueRange();
-    private final static List<List<Object>> globalValueRangeDataWhole = new ArrayList<>();
 
     @Mock
     SpreadsheetService spreadsheetService;
@@ -66,24 +65,21 @@ public class ExamServiceTest {
         valueRangeDataFoNumberOfQuestions.add(Arrays.asList(new String[]{"SUBJECTIVE"}));
         valueRangeDataFoNumberOfQuestions.add(Arrays.asList(new String[]{"MCQ"}));
         valueRangeForNumberOfQuestions.setValues(valueRangeDataFoNumberOfQuestions);
-        globalValueRangeDataWhole.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
-        globalValueRangeDataWhole.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
-        globalValueRangeDataWhole.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
-        globalValueRangeDataWhole.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
     }
 
-    private List<List<Object>> globalValueRangeDataWholeCopy() {
-        List<List<Object>> copyList = new ArrayList<>();
-        for (List<Object> list : globalValueRangeDataWhole) {
-            copyList.add((List<Object>) new ArrayList<>(list).clone());
-        }
-        return copyList;
+    private List<List<Object>> getBaseQuestionPaper() {
+        List<List<Object>> baseQuestionPaper = new ArrayList<>();
+        baseQuestionPaper.add(Arrays.asList(new String[]{"Duration of exam:", "100"}));
+        baseQuestionPaper.add(Arrays.asList(new String[]{"Question Type", "Question statement", "Option A", "Option B", "Option C", "Option D", "Points"}));
+        baseQuestionPaper.add(Arrays.asList(new String[]{"SUBJECTIVE", "SubjectiveStatement1", "", "", "", "", "2"}));
+        baseQuestionPaper.add(Arrays.asList(new String[]{"MCQ", "MCQStatement1", "OptionA", "OptionB", "OptionC", "OptionD", "3"}));
+        return baseQuestionPaper;
     }
 
     @Test
     public void createNewExamTest() throws GeneralSecurityException, InvalidDatabaseDataException, InvalidRequestException, IOException, ExamFormatException {
 
-        List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+        List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
         valueRangeWhole.setValues(valueRangeDataWhole);
         ExamMetadata actualExamMetadata = new ExamMetadata(spreadsheetId, sheetName, user.getId(), 100);
         Questions actualQuestions = new Questions();
@@ -112,7 +108,7 @@ public class ExamServiceTest {
     public void missingDurationTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
 
             valueRangeDataWhole.set(0, Arrays.asList(new String[]{"Duration of exam:"}));
             valueRangeWhole.setValues(valueRangeDataWhole);
@@ -130,7 +126,7 @@ public class ExamServiceTest {
     public void EmptyExamTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
 
             List<List<Object>> valueRangeDataColumnA = new ArrayList<>();
             valueRangeDataColumnA.add(Arrays.asList(new String[]{"Duration of exam:"}));
@@ -155,7 +151,7 @@ public class ExamServiceTest {
     public void wrongDurationFormatTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(0).set(1, "asd");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -172,7 +168,7 @@ public class ExamServiceTest {
     public void durationInNegativeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(0).set(1, "-10");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -189,7 +185,7 @@ public class ExamServiceTest {
     public void durationOutOfRangeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(0).set(1, "1000");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -206,7 +202,7 @@ public class ExamServiceTest {
     public void wrongQuestionTypeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(0, "fill_in_the_blanks");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -223,7 +219,7 @@ public class ExamServiceTest {
     public void questionWithoutStatementTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(3).set(1, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -240,7 +236,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsATest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(2, "optionA");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -257,7 +253,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsBTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(3, "optionB");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -274,7 +270,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsCTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(4, "optionC");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -291,7 +287,7 @@ public class ExamServiceTest {
     public void subjectiveQuestionWithOptionsDTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(5, "optionD");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -308,7 +304,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionATest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(3).set(2, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -325,7 +321,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionBTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(3).set(3, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -342,7 +338,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionCTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(3).set(4, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -359,7 +355,7 @@ public class ExamServiceTest {
     public void multipleChoiceQuestionWithoutOptionDTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(3).set(5, "");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -376,7 +372,7 @@ public class ExamServiceTest {
     public void pointsIncorrectFormatTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(6, "asd");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -393,7 +389,7 @@ public class ExamServiceTest {
     public void negativePointsTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(6, "-1");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
@@ -410,7 +406,7 @@ public class ExamServiceTest {
     public void pointsOutOfRangeTest() {
 
         ExamFormatException exception = assertThrows(ExamFormatException.class, () -> {
-            List<List<Object>> valueRangeDataWhole = globalValueRangeDataWholeCopy();
+            List<List<Object>> valueRangeDataWhole = getBaseQuestionPaper();
             valueRangeDataWhole.get(2).set(6, "1000");
             valueRangeWhole.setValues(valueRangeDataWhole);
 
