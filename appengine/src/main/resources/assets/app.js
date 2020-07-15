@@ -25,7 +25,7 @@ let auth2;
 function init() {
     gapi.load('auth2', function () {
         auth2 = gapi.auth2.init({
-            'client_id': 'CLIENT_ID_PLACEHOLDER',
+            'client_id': '361993398276-n4dboc83jnellr02pkg0v8rh2rvlnqn6.apps.googleusercontent.com',
             'cookiepolicy': 'single_host_origin',
             'scope': 'profile'
         });
@@ -156,13 +156,23 @@ function fillExamsTable(data) {
 
     $('#examsList').empty();
     let exams = data.examsList;
-    for (var i = 0; i < exams.length; i++) {
-        var examRow = '<tr>' +
-            '<td><button class="btn btn-link" onclick= "getExam(' + exams[i].id + ')"> ' + exams[i].id + '</button></td>' +
-            '<td>' + exams[i].spreadsheetID + '</td>' +
-            '<td>' + exams[i].duration + '</td>' +
-            '<td>' + exams[i].createdOn + '</td>' +
-            '</tr>';
+    for (let i = 0; i < exams.length; i++) {
+        let examRow = $('<tr/>');
+        let button = $('<button>', {
+            class: "btn btn-link",
+            onclick: "getExam(" + exams[i].id + ")",
+            text: exams[i].id
+        });
+        let examIDCell = $('<td/>').append(button);
+        let spreadsheetIDCell = $('<td/>').append(exams[i].spreadsheetID);
+        let durationCell = $('<td/>').append(exams[i].duration);
+        let createdOnCell = $('<td/>').append(exams[i].createdOn);
+
+        examRow.append(examIDCell);
+        examRow.append(spreadsheetIDCell);
+        examRow.append(durationCell);
+        examRow.append(createdOnCell);
+
         $('#examsList').append(examRow);
     }
 }
@@ -257,16 +267,42 @@ function fillErrorModal(message) {
  * @param data ( exam metadata )
  */
 function fillMetadata(data) {
-    let adder = '<div class="card">\n' +
-        '  <div class="card-header"> Exam Metadata </div>\n' +
-        '  <ul class="list-group list-group-flush">\n' +
-        '    <li class="list-group-item">Exam ID: ' + data.id + ' </li>\n' +
-        '    <li class="list-group-item">Exam Duration: ' + data.duration + ' </li>\n' +
-        '    <li class="list-group-item">Spreadsheet ID: ' + data.spreadsheetID + '</li>\n' +
-        '    <li class="list-group-item">Created On: ' + data.createdOn + '</li>\n' +
-        '  </ul>\n' +
-        '</div>';
-    $('#response-modal-body').append(adder);
+    let card = $('<div/>', {
+        class: 'card'
+    });
+    let cardHeader = $('<div/>', {
+        class: 'card-header',
+        text: 'Exam Metadata'
+    });
+    let list = $('<ul/>', {
+        class: 'list-group list-group-flush'
+    })
+    let examID = $('<li/>', {
+        class: 'list-group-item',
+        text: 'Exam ID: ' + data.id
+    })
+    let duration = $('<li/>', {
+        class: 'list-group-item',
+        text: 'Exam Duration: ' + data.duration
+    })
+    let spreadsheetID = $('<li/>', {
+        class: 'list-group-item',
+        text: 'Spreadsheet ID: ' + data.spreadsheetID
+    })
+    let createdOn = $('<li/>', {
+        class: 'list-group-item',
+        text: 'Created On: ' + data.createdOn
+    })
+
+    list.append(examID);
+    list.append(duration);
+    list.append(spreadsheetID);
+    list.append(createdOn);
+
+    card.append(cardHeader);
+    card.append(list);
+
+    $('#response-modal-body').append(card);
 }
 
 /**
@@ -288,19 +324,52 @@ function fillQuestions(questions) {
  * @param question
  */
 function fillMCQ(question) {
-    let adder = '<div class="card">\n' +
-        '  <div class="card-body">\n' +
-        '    <h5 class="card-title">Question ' + question.questionNumber + ' ( ' + question.points + ' points ) </h5>\n' +
-        '    <p class="card-text"> ' + question.statement + ' </p>\n' +
-        '  </div>\n' +
-        '  <ul class="list-group list-group-flush">\n' +
-        '    <li class="list-group-item"> ' + question.options[0] + ' </li>\n' +
-        '    <li class="list-group-item"> ' + question.options[1] + ' </li>\n' +
-        '    <li class="list-group-item"> ' + question.options[2] + ' </li>\n' +
-        '    <li class="list-group-item"> ' + question.options[3] + ' </li>\n' +
-        '  </ul>' +
-        '</div>';
-    $('#response-modal-body').append(adder);
+    let card = $('<div/>', {
+        class: 'card'
+    })
+    let cardBody = $('<div/>', {
+        class: 'card-body'
+    })
+    let cardTitle = $('<h5/>', {
+        class: 'card-title',
+        text: 'Question ' + question.questionNumber + ' ( ' + question.points + ' points ) '
+    })
+    let questionStatement = $('<p/>', {
+        class: 'card-text',
+        text: question.statement
+    })
+    let optionsList = $('<ul/>', {
+        class: 'list-group list-group-flush'
+    })
+    let optionA = $('<li/>', {
+        class: 'list-group-item',
+        text: question.options[0]
+    })
+    let optionB = $('<li/>', {
+        class: 'list-group-item',
+        text: question.options[1]
+    })
+    let optionC = $('<li/>', {
+        class: 'list-group-item',
+        text: question.options[2]
+    })
+    let optionD = $('<li/>', {
+        class: 'list-group-item',
+        text: question.options[3]
+    })
+
+    optionsList.append(optionA);
+    optionsList.append(optionB);
+    optionsList.append(optionC);
+    optionsList.append(optionD);
+
+    cardBody.append(cardTitle);
+    cardBody.append(questionStatement);
+
+    card.append(cardBody);
+    card.append(optionsList);
+
+    $('#response-modal-body').append(card);
 }
 
 /**
@@ -310,13 +379,27 @@ function fillMCQ(question) {
  * @param question
  */
 function fillSubjective(question) {
-    let adder = '<div class="card">\n' +
-        '  <div class="card-body">\n' +
-        '    <h5 class="card-title">Question ' + question.questionNumber + ' ( ' + question.points + ' points ) </h5>\n' +
-        '    <p class="card-text"> ' + question.statement + ' </p>\n' +
-        '  </div>\n' +
-        '</div>';
-    $('#response-modal-body').append(adder);
+    let card = $('<div/>', {
+        class: 'card'
+    })
+    let cardBody = $('<div/>', {
+        class: 'card-body'
+    })
+    let cardTitle = $('<h5/>', {
+        class: 'card-title',
+        text: 'Question ' + question.questionNumber + ' ( ' + question.points + ' points ) '
+    })
+    let questionStatement = $('<p/>', {
+        class: 'card-text',
+        text: question.statement
+    })
+
+    cardBody.append(cardTitle);
+    cardBody.append(questionStatement);
+
+    card.append(cardBody);
+
+    $('#response-modal-body').append(card);
 }
 
 /**
