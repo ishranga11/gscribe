@@ -169,28 +169,30 @@ function getUserContextParameter ( user, exam_instance_id, end_time ){
  */
 app.intent( 'exam.start.submit_request', async conv => {
 
+    let userData;
+    let examObject;
     try {
-        const userData = await getUserData(conv);
-        const examObject = await getExamObject(userData, conv.user.profile.token);
-        let currentTime = Date.now();
-        let endTime = new Date( currentTime + examObject.exam.examMetadata.duration*60000);
-        const userParameters = await getUserContextParameter ( userData, examObject.examInstanceID, endTime);
-        const answersObject = await getAnswersParameter(examObject.exam.questions.length);
-        const currentAnswer = await getCurrentAnswerParameter(1,answersObject);
-        const currentQuestion = await getCurrentQuestionParameter(1,examObject);
-
-        conv.contexts.set('exam', 1000, examObject);
-        conv.contexts.set('user', 1000, userParameters);
-        conv.contexts.set('answers', 1000, answersObject);
-        conv.contexts.set('current_answer', 1000, currentAnswer);
-        conv.contexts.set('current_question', 1000, currentQuestion);
-        conv.contexts.delete('roll_number');
-        conv.contexts.delete('exam_id');
-        conv.contexts.delete('exam_start_request');
-        conv.ask( returnQuestionString(currentQuestion) );
+        userData = await getUserData(conv);
+        examObject = await getExamObject(userData, conv.user.profile.token);
     } catch (e) {
-        conv.ask(e.message);
+        return conv.ask(e.message);
     }
+    let currentTime = Date.now();
+    let endTime = new Date( currentTime + examObject.exam.examMetadata.duration*60000);
+    const userParameters = await getUserContextParameter ( userData, examObject.examInstanceID, endTime);
+    const answersObject = await getAnswersParameter(examObject.exam.questions.length);
+    const currentAnswer = await getCurrentAnswerParameter(1,answersObject);
+    const currentQuestion = await getCurrentQuestionParameter(1,examObject);
+
+    conv.contexts.set('exam', 1000, examObject);
+    conv.contexts.set('user', 1000, userParameters);
+    conv.contexts.set('answers', 1000, answersObject);
+    conv.contexts.set('current_answer', 1000, currentAnswer);
+    conv.contexts.set('current_question', 1000, currentQuestion);
+    conv.contexts.delete('roll_number');
+    conv.contexts.delete('exam_id');
+    conv.contexts.delete('exam_start_request');
+    conv.ask( returnQuestionString(currentQuestion) );
 
 });
 
