@@ -44,13 +44,14 @@ public class AuthenticationResource {
     }
 
     /**
+     * Called to generate and save tokens for the user ( paper setter ) in the database
      * Get corresponding userID from the IDToken using tokenVerifier
      * With the help of tokenGenerator generate the tokens from authCode
      * Validate that userID from authCode is same as userID from IDToken in header
      * Save the tokens in the database
      *
      * @param IDToken ( from header )
-     * @param request ( must contain authCode )
+     * @param request ( contains authCode )
      * @return a response message if tokens are saved in database for the user
      * @throws BadRequestException          ( if authCode is invalid or not present in the request,
      *                                      if IDToken is not invalid in header,
@@ -71,21 +72,7 @@ public class AuthenticationResource {
 
         try {
             userID = tokenService.verifyIDToken(IDToken);
-        } catch (GeneralSecurityException | IOException e) {
-            throw new InternalServerErrorException();
-        } catch (InvalidRequestException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-
-        try {
             tokenResponse = tokenService.generateToken(request.getAuthCode());
-        } catch (GeneralSecurityException | IOException e) {
-            throw new InternalServerErrorException();
-        } catch (InvalidRequestException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-
-        try {
             tokenResponseUserID = tokenService.verifyIDToken(tokenResponse.getIDToken());
         } catch (GeneralSecurityException | IOException e) {
             throw new InternalServerErrorException();
@@ -102,6 +89,7 @@ public class AuthenticationResource {
     }
 
     /**
+     * Called to check if tokens are present for user in the database
      * Get corresponding userID from the IDToken using tokenVerifier
      * With corresponding userID check in database for tokens
      *

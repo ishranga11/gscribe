@@ -32,7 +32,12 @@
 
 SET MODE MYSQL;
 
+DROP TABLE IF EXISTS answers;
+DROP TABLE IF EXISTS exam_instance;
+DROP TABLE IF EXISTS questions;
+DROP TABLE IF EXISTS exam;
 DROP TABLE IF EXISTS user;
+
 create table user (
   id varchar(300) not null,
   access_token varchar(2048) not null,
@@ -41,7 +46,6 @@ create table user (
   primary key (id)
 );
 
-DROP TABLE IF EXISTS exam;
 create table exam (
   id int not null AUTO_INCREMENT,
   created_by varchar(300) not null,
@@ -53,7 +57,6 @@ create table exam (
   CONSTRAINT examDB_to_userDB_id FOREIGN KEY (created_by) REFERENCES user (id)
 );
 
-DROP TABLE IF EXISTS questions;
 create table questions (
   exam_id int not null,
   questions varchar(5000) not null,
@@ -61,7 +64,6 @@ create table questions (
   CONSTRAINT questionDB_to_examDB_examID FOREIGN KEY (exam_id) REFERENCES exam (id)
 );
 
-DROP TABLE IF EXISTS exam_instance;
 create table exam_instance (
   id int not null AUTO_INCREMENT,
   exam_id int not null,
@@ -74,7 +76,6 @@ create table exam_instance (
   CONSTRAINT examinstanceDB_to_examDB_exam_id FOREIGN KEY (exam_id) REFERENCES exam (id)
 );
 
-DROP TABLE IF EXISTS answers;
 create table answers (
   exam_instance_id int not null,
   answers varchar(5000) not null,

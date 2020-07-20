@@ -18,28 +18,8 @@ package com.google.googleinterns.gscribe.resources.io.exception;
 
 public class InvalidDatabaseDataException extends Exception {
 
-    private final String message;
-    private int code;
-
     public InvalidDatabaseDataException(String message) {
-        this.message = message;
+        super(message);
     }
 
-    public InvalidDatabaseDataException(String message, int code) {
-        this.message = message;
-        this.code = code;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
 }

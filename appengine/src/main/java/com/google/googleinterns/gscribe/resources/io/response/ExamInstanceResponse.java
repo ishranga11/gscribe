@@ -23,6 +23,9 @@ public class ExamInstanceResponse {
     private Exam exam;
     private int examInstanceID;
 
+    public ExamInstanceResponse() {
+    }
+
     public ExamInstanceResponse(Exam exam, int examInstanceID) {
         this.examInstanceID = examInstanceID;
         this.exam = exam;

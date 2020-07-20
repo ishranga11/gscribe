@@ -18,7 +18,10 @@ package com.google.googleinterns.gscribe.resources.io.response;
 
 public class AuthenticationResponse {
 
-    private final String message;
+    private String message;
+
+    public AuthenticationResponse() {
+    }
 
     public AuthenticationResponse(String message) {
         this.message = message;

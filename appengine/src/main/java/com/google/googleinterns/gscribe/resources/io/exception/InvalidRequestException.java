@@ -18,28 +18,8 @@ package com.google.googleinterns.gscribe.resources.io.exception;
 
 public class InvalidRequestException extends Exception {
 
-    private final String message;
-    private int code;
-
     public InvalidRequestException(String message) {
-        this.message = message;
+        super(message);
     }
 
-    public InvalidRequestException(String message, int code) {
-        this.message = message;
-        this.code = code;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
 }

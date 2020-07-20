@@ -20,6 +20,9 @@ public class ExamSubmitResponse {
 
     String message;
 
+    public ExamSubmitResponse() {
+    }
+
     public ExamSubmitResponse(String message) {
         this.message = message;
     }

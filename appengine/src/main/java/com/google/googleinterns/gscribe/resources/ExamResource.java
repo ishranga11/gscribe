@@ -69,10 +69,8 @@ public class ExamResource {
     /**
      * Called when paper setter submits question paper
      * Gets corresponding userID from the IDToken using tokenVerifier
-     * Get tokens for the user from the database
-     * Use the tokens to read exam from the spreadsheet
-     * Validate exam
-     * Convert exam from List<List<Object>> to Exam object
+     * Get tokens for the user from the database and use the tokens to read exam from the spreadsheet
+     * Validate exam and convert exam from List<List<Object>> to Exam object
      * post examMetadata in database to get examID
      * make response template in google sheets for this exam
      * post exam into the database
@@ -137,7 +135,7 @@ public class ExamResource {
      */
     @GET
     @Path("/all")
-    public ExamsListResponse getAllExamsId(@NotNull @HeaderParam("Authentication") String IDToken) {
+    public ExamsListResponse getAllExamsID(@NotNull @HeaderParam("Authentication") String IDToken) {
         String userID;
         try {
             userID = tokenService.verifyIDToken(IDToken);
@@ -250,9 +248,10 @@ public class ExamResource {
         } catch (InvalidRequestException e) {
             throw new BadRequestException(e.getMessage());
         }
+        examSubmitRequest.getExamInstance().setUserID(userID);
         ExamInstance examInstance = examInstanceDao.getExamInstanceByExamInstanceID(examSubmitRequest.getExamInstance().getId());
         if (examInstance == null || examInstance.getExamID() != examSubmitRequest.getExamInstance().getExamID() ||
-                !userID.equals(examInstance.getUserID()) || examInstance.getStudentRollNum() != examSubmitRequest.getExamInstance().getStudentRollNum()) {
+                !userID.equals(examInstance.getUserID()) || examInstance.getStudentRollNum() != examSubmitRequest.getExamInstance().getStudentRollNum() || examInstance.getEndTime() != null) {
             throw new BadRequestException("Malformed request");
         }
 
@@ -261,7 +260,7 @@ public class ExamResource {
         try {
 
             String answersJSON = objectMapper.writeValueAsString(examSubmitRequest.getExamInstance().getAnswers());
-            examInstanceDao.updateExamInstanceEndTime(examInstance.getExamID());
+            examInstanceDao.updateExamInstanceEndTime(examSubmitRequest.getExamInstance().getId());
             answerDao.insertAnswers(examSubmitRequest.getExamInstance().getId(), answersJSON);
 
             User user = userTokenDao.getUserTokenByExamID(examInstance.getExamID());
