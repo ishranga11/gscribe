@@ -53,12 +53,12 @@ public class Exam {
         if (this == o) return true;
         if (!(o instanceof Exam)) return false;
         Exam exam = (Exam) o;
-        return getExamMetadata().equals(exam.getExamMetadata()) &&
-                getQuestions().equals(exam.getQuestions());
+        return examMetadata.equals(exam.examMetadata) &&
+                questions.equals(exam.questions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getExamMetadata(), getQuestions());
+        return Objects.hash(examMetadata, questions);
     }
 }

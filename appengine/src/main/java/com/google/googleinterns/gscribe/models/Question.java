@@ -56,14 +56,14 @@ public class Question {
         if (this == o) return true;
         if (!(o instanceof Question)) return false;
         Question question = (Question) o;
-        return getPoints() == question.getPoints() &&
-                getQuestionNumber() == question.getQuestionNumber() &&
-                getType() == question.getType() &&
-                getStatement().equals(question.getStatement());
+        return points == question.points &&
+                questionNumber == question.questionNumber &&
+                type == question.type &&
+                statement.equals(question.statement);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getType(), getStatement(), getPoints(), getQuestionNumber());
+        return Objects.hash(type, statement, points, questionNumber);
     }
 }
