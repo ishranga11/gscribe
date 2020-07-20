@@ -118,7 +118,7 @@ public class ExamInstance {
                 getUserID().equals(that.getUserID()) &&
                 Objects.equals(getStartTime(), that.getStartTime()) &&
                 Objects.equals(getEndTime(), that.getEndTime()) &&
-                getAnswers().equals(that.getAnswers());
+                Objects.equals(getAnswers(), that.getAnswers());
     }
 
     @Override

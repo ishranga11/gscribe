@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io.response;
+package com.google.googleinterns.gscribe.resources.io.exception;
 
-public class AuthenticationResponse {
+public class ExamFormatException extends Exception {
 
-    private String message;
-
-    public AuthenticationResponse() {
-    }
-
-    public AuthenticationResponse(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
+    public ExamFormatException(String message) {
+        super("Exam format Exception: " + message);
     }
 
 }

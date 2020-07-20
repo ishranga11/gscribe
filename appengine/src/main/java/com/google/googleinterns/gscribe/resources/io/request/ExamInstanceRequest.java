@@ -14,10 +14,29 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io.exception;
+package com.google.googleinterns.gscribe.resources.io.request;
 
-public class ExamException extends RuntimeException {
-    public ExamException(String message) {
-        super(message);
+public class ExamInstanceRequest {
+
+    private int studentRollNum;
+    private int examID;
+
+    public ExamInstanceRequest() {
+    }
+
+    public int getStudentRollNum() {
+        return studentRollNum;
+    }
+
+    public void setStudentRollNum(int studentRollNum) {
+        this.studentRollNum = studentRollNum;
+    }
+
+    public int getExamID() {
+        return examID;
+    }
+
+    public void setExamID(int examID) {
+        this.examID = examID;
     }
 }

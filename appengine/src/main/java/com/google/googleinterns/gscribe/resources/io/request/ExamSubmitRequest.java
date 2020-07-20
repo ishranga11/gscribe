@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.googleinterns.gscribe.resources.io.response;
+package com.google.googleinterns.gscribe.resources.io.request;
 
-public class AuthenticationResponse {
+import com.google.googleinterns.gscribe.models.ExamInstance;
 
-    private String message;
+public class ExamSubmitRequest {
 
-    public AuthenticationResponse() {
+    private ExamInstance examInstance;
+
+    public ExamSubmitRequest() {
     }
 
-    public AuthenticationResponse(String message) {
-        this.message = message;
+    public ExamInstance getExamInstance() {
+        return examInstance;
     }
 
-    public String getMessage() {
-        return message;
+    public void setExamInstance(ExamInstance examInstance) {
+        this.examInstance = examInstance;
     }
-
 }

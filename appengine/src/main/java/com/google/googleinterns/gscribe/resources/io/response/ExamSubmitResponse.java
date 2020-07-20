@@ -16,14 +16,14 @@
 
 package com.google.googleinterns.gscribe.resources.io.response;
 
-public class AuthenticationResponse {
+public class ExamSubmitResponse {
 
-    private String message;
+    String message;
 
-    public AuthenticationResponse() {
+    public ExamSubmitResponse() {
     }
 
-    public AuthenticationResponse(String message) {
+    public ExamSubmitResponse(String message) {
         this.message = message;
     }
 
@@ -31,4 +31,7 @@ public class AuthenticationResponse {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

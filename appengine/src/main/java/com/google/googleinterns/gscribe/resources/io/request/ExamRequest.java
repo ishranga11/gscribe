@@ -16,5 +16,48 @@
 
 package com.google.googleinterns.gscribe.resources.io.request;
 
+import java.util.Objects;
+
 public class ExamRequest {
+
+    private String spreadsheetID;
+    private String sheetName;
+
+    public ExamRequest() {
+    }
+
+    public ExamRequest(String spreadsheetID, String sheetName) {
+        this.spreadsheetID = spreadsheetID;
+        this.sheetName = sheetName;
+    }
+
+    public String getSpreadsheetID() {
+        return spreadsheetID;
+    }
+
+    public void setSpreadsheetID(String spreadsheetID) {
+        this.spreadsheetID = spreadsheetID;
+    }
+
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExamRequest)) return false;
+        ExamRequest that = (ExamRequest) o;
+        return Objects.equals(getSpreadsheetID(), that.getSpreadsheetID()) &&
+                Objects.equals(getSheetName(), that.getSheetName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSpreadsheetID(), getSheetName());
+    }
 }

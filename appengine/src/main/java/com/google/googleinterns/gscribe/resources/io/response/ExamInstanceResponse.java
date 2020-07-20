@@ -16,19 +16,34 @@
 
 package com.google.googleinterns.gscribe.resources.io.response;
 
-public class AuthenticationResponse {
+import com.google.googleinterns.gscribe.models.Exam;
 
-    private String message;
+public class ExamInstanceResponse {
 
-    public AuthenticationResponse() {
+    private Exam exam;
+    private int examInstanceID;
+
+    public ExamInstanceResponse() {
     }
 
-    public AuthenticationResponse(String message) {
-        this.message = message;
+    public ExamInstanceResponse(Exam exam, int examInstanceID) {
+        this.examInstanceID = examInstanceID;
+        this.exam = exam;
     }
 
-    public String getMessage() {
-        return message;
+    public Exam getExam() {
+        return exam;
     }
 
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
+
+    public int getExamInstanceID() {
+        return examInstanceID;
+    }
+
+    public void setExamInstanceID(int examInstanceID) {
+        this.examInstanceID = examInstanceID;
+    }
 }

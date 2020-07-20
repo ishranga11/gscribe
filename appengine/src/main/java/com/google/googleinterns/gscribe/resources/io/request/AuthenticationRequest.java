@@ -17,4 +17,18 @@
 package com.google.googleinterns.gscribe.resources.io.request;
 
 public class AuthenticationRequest {
+
+    private String authCode;
+
+    public AuthenticationRequest() {
+    }
+
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+
 }
