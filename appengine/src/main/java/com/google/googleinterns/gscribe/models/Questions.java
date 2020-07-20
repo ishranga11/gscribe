@@ -39,11 +39,11 @@ public class Questions {
         if (this == o) return true;
         if (!(o instanceof Questions)) return false;
         Questions questions = (Questions) o;
-        return getQuestionsList().equals(questions.getQuestionsList());
+        return questionsList.equals(questions.questionsList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getQuestionsList());
+        return Objects.hash(questionsList);
     }
 }

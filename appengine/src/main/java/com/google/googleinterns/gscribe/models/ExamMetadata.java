@@ -111,16 +111,16 @@ public class ExamMetadata {
         if (this == o) return true;
         if (!(o instanceof ExamMetadata)) return false;
         ExamMetadata metadata = (ExamMetadata) o;
-        return getId() == metadata.getId() &&
-                getDuration() == metadata.getDuration() &&
-                getSpreadsheetID().equals(metadata.getSpreadsheetID()) &&
-                Objects.equals(getSheetName(), metadata.getSheetName()) &&
-                Objects.equals(getUserID(), metadata.getUserID()) &&
-                Objects.equals(getCreatedOn(), metadata.getCreatedOn());
+        return id == metadata.id &&
+                duration == metadata.duration &&
+                spreadsheetID.equals(metadata.spreadsheetID) &&
+                sheetName.equals(metadata.sheetName) &&
+                userID.equals(metadata.userID) &&
+                Objects.equals(createdOn, metadata.createdOn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getSpreadsheetID(), getSheetName(), getUserID(), getId(), getDuration(), getCreatedOn());
+        return Objects.hash(spreadsheetID, sheetName, userID, id, duration, createdOn);
     }
 }

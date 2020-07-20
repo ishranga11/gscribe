@@ -112,17 +112,17 @@ public class ExamInstance {
         if (this == o) return true;
         if (!(o instanceof ExamInstance)) return false;
         ExamInstance that = (ExamInstance) o;
-        return getId() == that.getId() &&
-                getExamID() == that.getExamID() &&
-                getStudentRollNum() == that.getStudentRollNum() &&
-                getUserID().equals(that.getUserID()) &&
-                Objects.equals(getStartTime(), that.getStartTime()) &&
-                Objects.equals(getEndTime(), that.getEndTime()) &&
-                Objects.equals(getAnswers(), that.getAnswers());
+        return id == that.id &&
+                examID == that.examID &&
+                studentRollNum == that.studentRollNum &&
+                userID.equals(that.userID) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(answers, that.answers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getExamID(), getUserID(), getStudentRollNum(), getStartTime(), getEndTime(), getAnswers());
+        return Objects.hash(id, examID, userID, studentRollNum, startTime, endTime, answers);
     }
 }
