@@ -22,7 +22,7 @@ const axios = require('axios');
 const app = dialogflow({
     clientId: '201502787341-rqsisrvv0givo5agv86p44e2hjui05or.apps.googleusercontent.com',
 });
-const backendServiceBaseUrl = 'https://aaa331967e40.ngrok.io';
+const backendServiceBaseUrl = 'https://b5b1cf0230e0.ngrok.io';
 
 /**
  * Called to create user data object when starting exam intent is triggered
@@ -274,9 +274,10 @@ app.intent( 'answer', async conv => {
     const questionNum = conv.contexts.get('current_question').parameters.question_number;
     const exam = conv.contexts.get('exam').parameters.exam;
     let answersObject = conv.contexts.get('answers').parameters.answers_list;
-    const answer = conv.query.toUpperCase();
-    if (  exam.questions.questionsList[questionNum-1].type === "MCQ" && answer!=="A" && answer!=="B" && answer !=="C" && answer!=="D" ){
-        return conv.ask("Did you mean A, B, C or D");
+    const answer = conv.query;
+    if (  exam.questions.questionsList[questionNum-1].type === "MCQ" ){
+        answer.toUpperCase();
+        if ( answer!=="A" && answer!=="B" && answer !=="C" && answer!=="D" ) return conv.ask("Did you mean A, B, C or D");
     }
     answersObject[questionNum-1] = answer;
     conv.contexts.set( 'current_answer', 1000, { answer:answer} );
