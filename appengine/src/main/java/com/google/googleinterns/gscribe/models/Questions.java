@@ -16,9 +16,19 @@
 
 package com.google.googleinterns.gscribe.models;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@JsonDeserialize(using = Questions.QuestionsDeserializer.class)
 public class Questions {
 
     private List<Question> questionsList;
@@ -46,4 +56,25 @@ public class Questions {
     public int hashCode() {
         return Objects.hash(questionsList);
     }
+
+    static class QuestionsDeserializer extends JsonDeserializer<Questions> {
+
+        @Override
+        public Questions deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode node = objectMapper.readTree(p);
+            JsonNode questions = node.get("questionsList");
+            Questions questionsList = new Questions();
+            questionsList.setQuestionsList(new ArrayList<>());
+            for (JsonNode question : questions) {
+                if (question.get("type").asText().equals("MCQ")) {
+                    questionsList.getQuestionsList().add(objectMapper.treeToValue(question, MultipleChoiceQuestion.class));
+                } else if (question.get("type").asText().equals("SUBJECTIVE")) {
+                    questionsList.getQuestionsList().add(objectMapper.treeToValue(question, SubjectiveQuestion.class));
+                }
+            }
+            return questionsList;
+        }
+    }
+
 }
