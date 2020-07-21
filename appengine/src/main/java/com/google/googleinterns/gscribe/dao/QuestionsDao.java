@@ -17,11 +17,8 @@
 package com.google.googleinterns.gscribe.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.googleinterns.gscribe.models.MultipleChoiceQuestion;
 import com.google.googleinterns.gscribe.models.Questions;
-import com.google.googleinterns.gscribe.models.SubjectiveQuestion;
 import com.google.inject.Inject;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -31,7 +28,6 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public interface QuestionsDao {
 
@@ -65,18 +61,7 @@ public interface QuestionsDao {
         @Override
         public Questions map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
             try {
-                JsonNode node = objectMapper.readTree(resultSet.getString("questions"));
-                JsonNode questions = node.get("questionsList");
-                Questions questionsList = new Questions();
-                questionsList.setQuestionsList(new ArrayList<>());
-                for (JsonNode question : questions) {
-                    if (question.get("type").asText().equals("MCQ")) {
-                        questionsList.getQuestionsList().add(objectMapper.treeToValue(question, MultipleChoiceQuestion.class));
-                    } else if (question.get("type").asText().equals("SUBJECTIVE")) {
-                        questionsList.getQuestionsList().add(objectMapper.treeToValue(question, SubjectiveQuestion.class));
-                    }
-                }
-                return questionsList;
+                return objectMapper.readValue(resultSet.getString("questions"), Questions.class);
             } catch (JsonProcessingException e) {
                 throw new SQLException("broken question format in database");
             }

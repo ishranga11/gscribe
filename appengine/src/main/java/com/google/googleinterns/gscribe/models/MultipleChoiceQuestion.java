@@ -17,6 +17,7 @@
 package com.google.googleinterns.gscribe.models;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MultipleChoiceQuestion extends Question {
 
@@ -38,4 +39,17 @@ public class MultipleChoiceQuestion extends Question {
         this.options = options;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MultipleChoiceQuestion)) return false;
+        if (!super.equals(o)) return false;
+        MultipleChoiceQuestion that = (MultipleChoiceQuestion) o;
+        return options.equals(that.options);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), options);
+    }
 }
