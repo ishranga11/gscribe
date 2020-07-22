@@ -65,7 +65,13 @@ public class ExamResource {
         this.spreadsheetService = spreadsheetService;
         this.objectMapper = objectMapper;
     }
-    // TODO: Code cleanup required
+
+    /**
+     * TODO:
+     *  - Code cleanup by creating new service for duplicate code
+     *  - Handle throwing server errors from service only
+     *  - Update Test cases accordingly
+     */
 
     /**
      * Called when paper setter submits question paper
