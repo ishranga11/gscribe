@@ -5,6 +5,8 @@ database:
 
 environment: LOCAL
 
+actionsClientID: ACTIONS_CLIENT_ID_PLACEHOLDER
+
 server:
   requestLog:
     appenders: []

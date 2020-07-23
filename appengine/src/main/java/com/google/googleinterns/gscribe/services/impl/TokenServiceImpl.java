@@ -37,12 +37,14 @@ public class TokenServiceImpl implements TokenService {
 
     private final GoogleClientSecrets clientSecrets;
     private final NetHttpTransport HTTP_TRANSPORT;
+    private final String actionsClientID;
 
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    public TokenServiceImpl(GoogleClientSecrets clientSecrets, NetHttpTransport http_transport) {
+    public TokenServiceImpl(GoogleClientSecrets clientSecrets, NetHttpTransport http_transport, String actionsClientID) {
         this.clientSecrets = clientSecrets;
         HTTP_TRANSPORT = http_transport;
+        this.actionsClientID = actionsClientID;
     }
 
     /**
@@ -79,8 +81,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String firebaseVerifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException {
 
-        String clientID = "201502787341-rqsisrvv0givo5agv86p44e2hjui05or.apps.googleusercontent.com";
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(clientID)).build();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(actionsClientID)).build();
         GoogleIdToken idToken = verifier.verify(IDTokenString);
         if (idToken == null) throw new InvalidRequestException("Authentication failed");
         return idToken.getPayload().getSubject();

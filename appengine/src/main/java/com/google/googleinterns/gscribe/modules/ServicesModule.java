@@ -32,6 +32,12 @@ import com.google.inject.Singleton;
 
 public class ServicesModule extends AbstractModule {
 
+    private final String actionsClientID;
+
+    public ServicesModule(String actionsClientID) {
+        this.actionsClientID = actionsClientID;
+    }
+
     @Inject
     @Provides
     @Singleton
@@ -43,7 +49,7 @@ public class ServicesModule extends AbstractModule {
     @Provides
     @Singleton
     public TokenService tokenServiceProvider(GoogleClientSecrets googleClientSecrets, NetHttpTransport netHttpTransport) {
-        return new TokenServiceImpl(googleClientSecrets, netHttpTransport);
+        return new TokenServiceImpl(googleClientSecrets, netHttpTransport, actionsClientID);
     }
 
     @Inject

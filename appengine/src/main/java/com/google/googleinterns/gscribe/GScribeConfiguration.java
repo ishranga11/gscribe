@@ -39,6 +39,10 @@ public class GScribeConfiguration extends Configuration {
     @JsonProperty("environment")
     private Environment environment;
 
+    @Valid
+    @NotNull
+    @JsonProperty("actionsClientID")
+    private String actionsClientID;
 
     public MySQLConfig getMySQLConfig() {
         return mySQLConfig;
@@ -54,5 +58,13 @@ public class GScribeConfiguration extends Configuration {
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    public String getActionsClientID() {
+        return actionsClientID;
+    }
+
+    public void setActionsClientID(String actionsClientID) {
+        this.actionsClientID = actionsClientID;
     }
 }
