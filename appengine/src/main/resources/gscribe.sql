@@ -1,19 +1,18 @@
--- /*
---  * Copyright 2020 Google LLC
---  *
---  * Licensed under the Apache License, Version 2.0 (the "License");
---  * you may not use this file except in compliance with the License.
---  * You may obtain a copy of the License at
---  *
---  * https://www.apache.org/licenses/LICENSE-2.0
---  *
---  * Unless required by applicable law or agreed to in writing, software
---  * distributed under the License is distributed on an "AS IS" BASIS,
---  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---  * See the License for the specific language governing permissions and
---  * limitations under the License.
---  */
-
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 -- MySQL dump 10.13  Distrib 8.0.20, for Win64 (x86_64)
 --
@@ -41,10 +40,9 @@ DROP TABLE IF EXISTS `answers`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `answers` (
   `exam_instance_id` int NOT NULL,
-  `answer` json NOT NULL,
-  `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `answers` json NOT NULL,
   PRIMARY KEY (`exam_instance_id`),
-  CONSTRAINT `answersDB_to_examinstanceDB_examinstanceid` FOREIGN KEY (`exam_instance_id`) REFERENCES `exam_instance` (`id`)
+  CONSTRAINT `answersDB_to_examInstanceDB_id` FOREIGN KEY (`exam_instance_id`) REFERENCES `exam_instance` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -64,7 +62,7 @@ CREATE TABLE `exam` (
   PRIMARY KEY (`id`),
   KEY `exam_db_to_user_db_id_idx` (`created_by`),
   CONSTRAINT `examDB_to_userDB_id` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,16 +73,16 @@ DROP TABLE IF EXISTS `exam_instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `exam_instance` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `exam_id` int NOT NULL,
-  `student_email_id` varchar(300) NOT NULL,
+  `user_id` varchar(300) NOT NULL,
   `student_roll_num` int NOT NULL,
   `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `examtakenDB_to_examDB_examID_idx` (`exam_id`),
   CONSTRAINT `examinstanceDB_to_examDB_exam_id` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,9 +94,8 @@ DROP TABLE IF EXISTS `questions`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `questions` (
   `exam_id` int NOT NULL,
-  `question_num` int NOT NULL,
-  `question` json NOT NULL,
-  PRIMARY KEY (`exam_id`,`question_num`),
+  `questions` json NOT NULL,
+  PRIMARY KEY (`exam_id`),
   CONSTRAINT `questionDB_to_examDB_examID` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -136,5 +133,4 @@ CREATE TABLE `user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-05 14:45:00
-
+-- Dump completed on 2020-07-23 14:14:55
