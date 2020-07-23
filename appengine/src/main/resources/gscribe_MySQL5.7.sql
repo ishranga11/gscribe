@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
--- MySQL dump 10.13  Distrib 8.0.20, for Win64 (x86_64)
+ -- MySQL dump 10.13  Distrib 8.0.20, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: gscribe
+-- Host: 127.0.0.1    Database: new_schema
 -- ------------------------------------------------------
 -- Server version	8.0.20
 
@@ -43,7 +43,7 @@ CREATE TABLE `answers` (
   `answers` json NOT NULL,
   PRIMARY KEY (`exam_instance_id`),
   CONSTRAINT `answersDB_to_examInstanceDB_id` FOREIGN KEY (`exam_instance_id`) REFERENCES `exam_instance` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `exam` (
   PRIMARY KEY (`id`),
   KEY `exam_db_to_user_db_id_idx` (`created_by`),
   CONSTRAINT `examDB_to_userDB_id` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,7 +82,7 @@ CREATE TABLE `exam_instance` (
   PRIMARY KEY (`id`),
   KEY `examtakenDB_to_examDB_examID_idx` (`exam_id`),
   CONSTRAINT `examinstanceDB_to_examDB_exam_id` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -97,7 +97,7 @@ CREATE TABLE `questions` (
   `questions` json NOT NULL,
   PRIMARY KEY (`exam_id`),
   CONSTRAINT `questionDB_to_examDB_examID` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,15 +113,15 @@ CREATE TABLE `user` (
   `refresh_token` varchar(512) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping events for database 'gscribe'
+-- Dumping events for database 'new_schema'
 --
 
 --
--- Dumping routines for database 'gscribe'
+-- Dumping routines for database 'new_schema'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -133,4 +133,4 @@ CREATE TABLE `user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-23 14:14:55
+-- Dump completed on 2020-07-23 14:17:27
