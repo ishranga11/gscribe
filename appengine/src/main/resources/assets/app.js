@@ -25,7 +25,7 @@ let auth2;
 function init() {
     gapi.load('auth2', function () {
         auth2 = gapi.auth2.init({
-            'client_id': '361993398276-n4dboc83jnellr02pkg0v8rh2rvlnqn6.apps.googleusercontent.com',
+            'client_id': 'OAUTH_CLIENT_ID_PLACEHOLDER',
             'cookiepolicy': 'single_host_origin',
             'scope': 'profile'
         });
