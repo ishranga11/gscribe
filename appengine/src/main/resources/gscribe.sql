@@ -62,7 +62,7 @@ CREATE TABLE `exam` (
   PRIMARY KEY (`id`),
   KEY `exam_db_to_user_db_id_idx` (`created_by`),
   CONSTRAINT `examDB_to_userDB_id` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,7 +82,7 @@ CREATE TABLE `exam_instance` (
   PRIMARY KEY (`id`),
   KEY `examtakenDB_to_examDB_examID_idx` (`exam_id`),
   CONSTRAINT `examinstanceDB_to_examDB_exam_id` FOREIGN KEY (`exam_id`) REFERENCES `exam` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
