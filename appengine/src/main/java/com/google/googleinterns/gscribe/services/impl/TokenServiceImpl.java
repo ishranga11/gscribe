@@ -37,14 +37,16 @@ public class TokenServiceImpl implements TokenService {
 
     private final GoogleClientSecrets clientSecrets;
     private final NetHttpTransport HTTP_TRANSPORT;
-    private final String actionsClientID;
+    private final GoogleIdTokenVerifier dropwizardIDTokenVerifier;
+    private final GoogleIdTokenVerifier actionsIDTokenVerifier;
 
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     public TokenServiceImpl(GoogleClientSecrets clientSecrets, NetHttpTransport http_transport, String actionsClientID) {
         this.clientSecrets = clientSecrets;
         HTTP_TRANSPORT = http_transport;
-        this.actionsClientID = actionsClientID;
+        dropwizardIDTokenVerifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(clientSecrets.getWeb().getClientId())).build();
+        actionsIDTokenVerifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(actionsClientID)).build();
     }
 
     /**
@@ -60,9 +62,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String verifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException {
 
-        String clientID = clientSecrets.getWeb().getClientId();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(clientID)).build();
-        GoogleIdToken idToken = verifier.verify(IDTokenString);
+        GoogleIdToken idToken = dropwizardIDTokenVerifier.verify(IDTokenString);
         if (idToken == null) throw new InvalidRequestException("Authentication failed");
         return idToken.getPayload().getSubject();
     }
@@ -81,8 +81,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String firebaseVerifyIDToken(String IDTokenString) throws GeneralSecurityException, IOException, InvalidRequestException {
 
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY).setAudience(Collections.singletonList(actionsClientID)).build();
-        GoogleIdToken idToken = verifier.verify(IDTokenString);
+        GoogleIdToken idToken = actionsIDTokenVerifier.verify(IDTokenString);
         if (idToken == null) throw new InvalidRequestException("Authentication failed");
         return idToken.getPayload().getSubject();
     }
